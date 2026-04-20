@@ -1,342 +1,1284 @@
 @import "tailwindcss";
 
-/*
-  Compass Design Tokens — US Enterprise Edition
-  ----------------------------------------------
-  Source of truth: docs/Project_Compass_Design_Migration_Log.md §1.2
-  Mood: "Bloomberg Terminal meets Vercel"
-  Theme default: light. Dark via html[data-theme="dark"].
-  DO NOT add decorative colors (coral, lavender, glow effects).
-  Every color must justify itself against a decision.
-*/
+@custom-variant dark (&:is(.dark *));
+
+/* ── Pretendard Variable Font ── */
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* ── Tossface Emoji Font ── */
+@font-face {
+  font-family: 'Tossface';
+  src: url('/fonts/TossFaceFontWeb.otf') format('opentype');
+  font-display: block;
+}
 
 :root {
-  /* ---------- Background scale (Light) ---------- */
-  --bg-0: #FAFAF7;   /* outermost canvas, off-white */
-  --bg-0: #F7F8FA;   /* app shell background — very light gray (Toss DPS ref) */
-  --bg-1: #FFFFFF;   /* cards, panels, elevated surfaces */
-  --bg-2: #F5F5F2;   /* subtle panel, table stripe */
-  --bg-3: #ECECE8;   /* hover, inset */
-  --bg-4: #E2E2DD;   /* borders strong, dividers */
+  /* ── Core ── */
+  --primary: #9128b4;
+  --primary-foreground: #ffffff;
+  --secondary: #0bab8b;
+  --secondary-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #191f28;
 
-  /* ---------- Foreground / Text scale ---------- */
-  --fg-0: #0A0A0A;   /* headlines, hero numbers */
-  --fg-1: #1F2937;   /* body text */
-  --fg-2: #6B7280;   /* secondary, labels */
-  --fg-3: #9CA3AF;   /* disabled, captions */
+  /* ── Surface ── */
+  --card: #ffffff;
+  --card-foreground: #191f28;
+  --popover: #ffffff;
+  --popover-foreground: #191f28;
 
-  /* ---------- Border ---------- */
-  --border-subtle: #ECECE8;
-  --border-default: #E2E2DD;
-  --border-strong: #C9C9C2;
+  /* ── Neutral ── */
+  --muted: #f2f4f6;
+  --muted-foreground: #6b7684;
+  --accent: #f2f4f6;
+  --accent-foreground: #191f28;
 
-  /* ---------- Brand ---------- */
-  --brand: #1A7FE8;          /* Precision Blue. P50 line, CTA, focus */
-  --brand-hover: #1568C4;
-  --brand-tint: #E8F1FC;     /* subtle fill behind CTAs */
+  /* ── Feedback ── */
+  --destructive: #d22030;
+  --destructive-foreground: #ffffff;
 
-  /* ---------- Signal colors (decisions only) ---------- */
-  --signal-positive: #00875A;      /* green — invest / ship / safe */
-  --signal-positive-bg: #E6F4EF;
-  --signal-caution: #B25E09;       /* amber — hold / watch */
-  --signal-caution-bg: #FBF1E1;
-  --signal-risk: #C9372C;          /* red — reduce / pull back */
-  --signal-risk-bg: #F9E7E5;
-  --signal-pending: #6B7280;       /* gray — no data = no signal */
-  --signal-pending-bg: #F3F4F6;
+  /* ── Border ── */
+  --border: #e5e8eb;
+  --input: #e5e8eb;
+  --ring: #9128b4;
 
-  /* ---------- Chart tokens ---------- */
-  --chart-p50: #1A7FE8;              /* median line */
-  --chart-band-inner: rgba(26, 127, 232, 0.18); /* P25-P75 */
-  --chart-band-outer: rgba(26, 127, 232, 0.10); /* P10-P90 */
-  --chart-benchmark: #9CA3AF;        /* neutral gray dashed */
-  --chart-observed: #0A0A0A;         /* actual datapoint dots */
-  --chart-grid: #ECECE8;
+  /* ── Layout ── */
+  --panel-bg: #f2f4f6;
+  --tab-bg: #e5e8eb;
+  --tab-active-bg: #ffffff;
+  --radius: 1rem;
 
-  /* 6-cohort categorical palette (low saturation, colorblind-safe) */
-  --chart-cohort-1: #1A7FE8;
-  --chart-cohort-2: #00875A;
-  --chart-cohort-3: #B25E09;
-  --chart-cohort-4: #7C3AED;
-  --chart-cohort-5: #0891B2;
-  --chart-cohort-6: #C9372C;
+  /* ── Brand ── */
+  --brand-line: #9128b4;
 
-  /* ---------- Radius (enterprise = angular) ---------- */
-  --radius-inline: 2px;
-  --radius-card: 4px;
-  --radius-modal: 6px;
+  /* ── Sidebar ── */
+  --sidebar: #f2f4f6;
+  --sidebar-foreground: #191f28;
+  --sidebar-primary: #9128b4;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f4f6;
+  --sidebar-accent-foreground: #191f28;
+  --sidebar-border: #e5e8eb;
+  --sidebar-ring: #9128b4;
 
-  /* ---------- Spacing (Tailwind v4 base, exposed for non-utility use) ---------- */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-12: 48px;
+  /* ── Status ── */
+  --trend-up: #02a262;
+  --trend-down: #e42939;
+  --success: #02a262;
+  --success-foreground: #ffffff;
+  --warning: #fb8800;
+  --warning-foreground: #191f28;
 
-  /* ---------- Motion ---------- */
-  --duration-micro: 120ms;    /* hover, badge */
-  --duration-component: 220ms; /* panel, card transitions */
-  --duration-chart: 400ms;     /* data updates */
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  /* ── Page Surface ──
+     앱 레이아웃(layout-wrapper)과 sticky 헤더(PageHeader)가 시각적으로 이어지도록
+     공유하는 배경 토큰. 페이지 스크롤 시 헤더가 배경에 자연스럽게 녹아든다.
+     개별 컴포넌트에서 bg-gray-50 / bg-background를 직접 쓰지 말고 이 토큰을 쓴다. */
+  --page-background: #f9fafb;
 
-  /* ---------- Legacy aliases (transitional — remove after full migration) ---------- */
-  /* These keep existing widgets from breaking while we refactor them module-by-module.
-     Each alias should be removed as its last consumer is migrated to the new tokens.
-     Tracking: docs/Project_Compass_Design_Migration_Log.md §3 */
-  --background: var(--bg-0);
-  --card: var(--bg-1);
-  --border: var(--border-default);
-  --text-primary: var(--fg-0);
-  --text-secondary: var(--fg-1);
-  --text-muted: var(--fg-2);
-  --brand-light: var(--brand-tint);
-  --signal-green: var(--signal-positive);
-  --signal-green-bg: var(--signal-positive-bg);
-  --signal-green-border: var(--border-default);
-  --signal-amber: var(--signal-caution);
-  --signal-amber-bg: var(--signal-caution-bg);
-  --signal-amber-border: var(--border-default);
-  --signal-red: var(--signal-risk);
-  --signal-red-bg: var(--signal-risk-bg);
-  --signal-red-border: var(--border-default);
-  --chart-primary: var(--chart-p50);
-  --chart-revenue: var(--chart-p50);
-  --chart-benchmark: var(--chart-benchmark);
-  --chart-success: var(--signal-positive);
-  --chart-danger: var(--signal-risk);
-  --chart-experiment: var(--chart-cohort-4);
-  --chart-asymptotic: var(--signal-positive);
-  --duration-fast: var(--duration-micro);
-  --duration-normal: var(--duration-component);
-  --duration-slow: var(--duration-chart);
-  --ease-out-expo: var(--ease-out-quart);
+  /* ── App Layout ──
+     AppTopBar 높이. PageHeader sticky offset과 사이드바 top offset에 공유됨.
+     JS 측 값은 src/widgets/navigation/model/constants.ts::TOP_BAR_HEIGHT 와 동일하게 유지. */
+  --app-top-bar-height: 113px;
 
-  /* Deck accent palette aliases — mapped to new cohort palette.
-     Old widgets use these names; new code MUST use --chart-cohort-* instead. */
-  --accent-blue: var(--chart-cohort-1);
-  --accent-green: var(--chart-cohort-2);
-  --accent-orange: var(--chart-cohort-3);
-  --accent-lavender: var(--chart-cohort-4);
-  --accent-coral: var(--chart-cohort-6);
+  /* ── TDS Typography Scale ── */
+  --tds-t1-size: 30px; --tds-t1-line: 40px;
+  --tds-t2-size: 26px; --tds-t2-line: 36px;
+  --tds-t3-size: 22px; --tds-t3-line: 30px;
+  --tds-t4-size: 20px; --tds-t4-line: 28px;
+  --tds-t5-size: 17px; --tds-t5-line: 24px;
+  --tds-t6-size: 15px; --tds-t6-line: 22px;
+  --tds-t7-size: 13px; --tds-t7-line: 20px;
+  --tds-st1-size: 29px; --tds-st1-line: 38px;
+  --tds-st2-size: 27px; --tds-st2-line: 36px;
+  --tds-st3-size: 25px; --tds-st3-line: 34px;
+  --tds-st4-size: 24px; --tds-st4-line: 32px;
+  --tds-st5-size: 23px; --tds-st5-line: 30px;
+  --tds-st6-size: 23px; --tds-st6-line: 30px;
+  --tds-st7-size: 21px; --tds-st7-line: 28px;
+  --tds-st8-size: 19px; --tds-st8-line: 26px;
+  --tds-st9-size: 17px; --tds-st9-line: 24px;
+  --tds-st10-size: 16px; --tds-st10-line: 22px;
+  --tds-st11-size: 14px; --tds-st11-line: 20px;
+  --tds-st12-size: 12px; --tds-st12-line: 18px;
+  --tds-st13-size: 11px; --tds-st13-line: 16px;
 
-  /* Glow tokens — deliberately reduced to near-zero.
-     The new design language has no glows; these aliases keep old CSS compiling
-     while effectively making glows invisible. */
-  --glow-blue: rgba(26, 127, 232, 0.04);
-  --glow-green: rgba(0, 135, 90, 0.04);
+  /* ── TDS Color Palette ── */
+  --green-50: #f0faf6; --green-100: #aeefd5; --green-200: #76e4b8;
+  --green-300: #3fd599; --green-400: #15c47e; --green-500: #03b26c;
+  --green-600: #02a262; --green-700: #029359; --green-800: #028450; --green-900: #027648;
+  --grey-50: #f9fafb; --grey-100: #f2f4f6; --grey-200: #e5e8eb;
+  --grey-300: #d1d6db; --grey-400: #b0b8c1; --grey-500: #8b95a1;
+  --grey-600: #6b7684; --grey-700: #4e5968; --grey-800: #333d4b; --grey-900: #191f28;
+  --blue-50: #e8f3ff; --blue-100: #c9e2ff; --blue-200: #90c2ff;
+  --blue-300: #64a8ff; --blue-400: #4593fc; --blue-500: #3182f6;
+  --blue-600: #2272eb; --blue-700: #1b64da; --blue-800: #1957c2; --blue-900: #194aa6;
+  --red-50: #ffeeee; --red-100: #ffd4d6; --red-200: #feafb4;
+  --red-300: #fb8890; --red-400: #f66570; --red-500: #f04452;
+  --red-600: #e42939; --red-700: #d22030; --red-800: #bc1b2a; --red-900: #a51926;
+  --orange-50: #fff3e0; --orange-100: #ffe0b0; --orange-200: #ffcd80;
+  --orange-300: #ffbd51; --orange-400: #ffa927; --orange-500: #fe9800;
+  --orange-600: #fb8800; --orange-700: #f57800; --orange-800: #ed6700; --orange-900: #e45600;
+  --yellow-50: #fff9e7; --yellow-100: #ffefbf; --yellow-200: #ffe69b;
+  --yellow-300: #ffdd78; --yellow-400: #ffd158; --yellow-500: #ffc342;
+  --yellow-600: #ffb331; --yellow-700: #faa131; --yellow-800: #ee8f11; --yellow-900: #dd7d02;
+  --teal-50: #edf8f8; --teal-100: #bce9e9; --teal-200: #89d8d8;
+  --teal-300: #58c7c7; --teal-400: #30b6b6; --teal-500: #18a5a5;
+  --teal-600: #109595; --teal-700: #0c8585; --teal-800: #097575; --teal-900: #076565;
+  --purple-50: #f9f0fc; --purple-100: #edccf8; --purple-200: #da9bef;
+  --purple-300: #c770e4; --purple-400: #b44bd7; --purple-500: #a234c7;
+  --purple-600: #9128b4; --purple-700: #8222a2; --purple-800: #73228e; --purple-900: #65237b;
+
+  /* ── TDS Chart Tokens (Light) ── */
+  --chart-1: #02a262; --chart-2: #2272eb; --chart-3: #109595;
+  --chart-4: #fb8800; --chart-5: #9128b4; --chart-6: #e42939;
+  --chart-7: #ffb331; --chart-8: #6b7684;
+  /* ── TDS Chart Tokens Extended (Light, 200~100 level) ── */
+  --chart-9: #76e4b8;  --chart-10: #90c2ff; --chart-11: #89d8d8;
+  --chart-12: #ffcd80; --chart-13: #da9bef; --chart-14: #feafb4;
+  --chart-15: #ffe69b; --chart-16: #e5e8eb; --chart-17: #aeefd5;
+  --chart-18: #c9e2ff; --chart-19: #ffe0b0; --chart-20: #bce9e9;
+
+  /* ── Theme button ── */
+  --theme-btn-color: #9128b4;
+  --theme-btn-hover-bg: #F1F5F9;
+  --theme-tooltip-bg: #9128b4;
+
+  /* ── AB Test Group Colors ── */
+  --abtest-color-0: #9128b4;
+  --abtest-color-1: #F5B041;
+  --abtest-color-2: #58D68D;
+  --abtest-color-3: #EC7063;
+  --abtest-color-4: #BB8FCE;
 }
 
-/* ---------- Dark theme (opt-in via html[data-theme="dark"]) ---------- */
-html[data-theme="dark"] {
-  --bg-0: #090C0F;
-  --bg-1: #0E1318;
-  --bg-2: #141B22;
-  --bg-3: #1C2630;
-  --bg-4: #243040;
-  --fg-0: #E8EDF2;
-  --fg-1: #A8B4C0;
-  --fg-2: #6A7A8A;
-  --fg-3: #3D4E5C;
-  --border-subtle: #1C2630;
-  --border-default: #243040;
-  --border-strong: #3D4E5C;
-  --brand: #1A7FE8;
-  --brand-hover: #4A9AF0;
-  --brand-tint: rgba(26, 127, 232, 0.12);
-  --chart-observed: #E8EDF2;
-  --chart-grid: #243040;
-  --chart-band-inner: rgba(26, 127, 232, 0.28);
-  --chart-band-outer: rgba(26, 127, 232, 0.14);
+.dark {
+  /* ── Core ── */
+  --primary: #f9fafb;
+  --primary-foreground: #141a22;
+  --ring: #f9fafb;
+  --background: #141a22;
+  --foreground: #f9fafb;
+
+  /* ── Surface ── */
+  --card: #333d4b;
+  --card-foreground: #f9fafb;
+  --popover: #333d4b;
+  --popover-foreground: #f9fafb;
+
+  /* ── Neutral ── */
+  --secondary: #03b26c;
+  --secondary-foreground: #f9fafb;
+  --muted: #4e5968;
+  --muted-foreground: #8b95a1;
+  --accent: #4e5968;
+  --accent-foreground: #f2f4f6;
+
+  /* ── Feedback ── */
+  --destructive: #f04452;
+  --destructive-foreground: #ffffff;
+
+  /* ── Border ── */
+  --border: #6b7684;
+  --input: #6b7684;
+
+  /* ── Layout ── */
+  --panel-bg: #141a22;
+  --tab-bg: #333d4b;
+  --tab-active-bg: #f9fafb;
+
+  /* ── Brand ── */
+  --brand-line: #f9fafb;
+
+  /* ── Sidebar ── */
+  --sidebar: #141a22;
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #f9fafb;
+  --sidebar-primary-foreground: #141a22;
+  --sidebar-accent: #4e5968;
+  --sidebar-accent-foreground: #f2f4f6;
+  --sidebar-border: #333d4b;
+  --sidebar-ring: #f9fafb;
+
+  /* ── Status ── */
+  --trend-up: #15c47e;
+  --trend-down: #f66570;
+
+  /* ── Page Surface ── */
+  --page-background: #141a22;
+  --success: #15c47e;
+  --success-foreground: #ffffff;
+  --warning: #ffa927;
+  --warning-foreground: #191f28;
+
+  /* ── TDS Chart Tokens (Dark) ── */
+  --chart-1: #f9fafb; --chart-2: #4593fc; --chart-3: #30b6b6;
+  --chart-4: #ffa927; --chart-5: #b44bd7; --chart-6: #f66570;
+  --chart-7: #ffd158; --chart-8: #b0b8c1;
+  /* ── TDS Chart Tokens Extended (Dark, 100~200 level) ── */
+  --chart-9: #aeefd5;  --chart-10: #c9e2ff; --chart-11: #bce9e9;
+  --chart-12: #ffe0b0; --chart-13: #edccf8; --chart-14: #ffd4d6;
+  --chart-15: #ffefbf; --chart-16: #e5e8eb; --chart-17: #76e4b8;
+  --chart-18: #90c2ff; --chart-19: #ffcd80; --chart-20: #89d8d8;
+
+  /* ── Theme button (Dark) ── */
+  --theme-btn-color: #FFFFFF;
+  --theme-btn-hover-bg: #2A2A2A;
+  --theme-tooltip-bg: #60a5fa;
+
+  /* ── AB Test Group Colors (Dark) ── */
+  --abtest-color-0: #3b82f6;
+  --abtest-color-1: #ffa927;
+  --abtest-color-2: #15c47e;
+  --abtest-color-3: #f66570;
+  --abtest-color-4: #b44bd7;
 }
 
-/* ---------- Cursor standardization ---------- */
-/*
-  Policy: all interactive elements show pointer cursor.
-  This avoids per-component cursor-pointer classes.
-  - buttons, links, selects, summary → pointer
-  - disabled → not-allowed (handled by :disabled)
-  - text inputs → text (browser default, no override needed)
-*/
-button:not(:disabled),
-[role="button"]:not([aria-disabled="true"]),
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-line: var(--brand-line);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-trend-up: var(--trend-up);
+  --color-trend-down: var(--trend-down);
+  --color-page-background: var(--page-background);
+
+  /* ── TDS Color Palette (Tailwind utilities) ── */
+  --color-green-50: var(--green-50); --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200); --color-green-300: var(--green-300);
+  --color-green-400: var(--green-400); --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600); --color-green-700: var(--green-700);
+  --color-green-800: var(--green-800); --color-green-900: var(--green-900);
+  --color-grey-50: var(--grey-50); --color-grey-100: var(--grey-100);
+  --color-grey-200: var(--grey-200); --color-grey-300: var(--grey-300);
+  --color-grey-400: var(--grey-400); --color-grey-500: var(--grey-500);
+  --color-grey-600: var(--grey-600); --color-grey-700: var(--grey-700);
+  --color-grey-800: var(--grey-800); --color-grey-900: var(--grey-900);
+  --color-blue-50: var(--blue-50); --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200); --color-blue-300: var(--blue-300);
+  --color-blue-400: var(--blue-400); --color-blue-500: var(--blue-500);
+  --color-blue-600: var(--blue-600); --color-blue-700: var(--blue-700);
+  --color-blue-800: var(--blue-800); --color-blue-900: var(--blue-900);
+  --color-red-50: var(--red-50); --color-red-100: var(--red-100);
+  --color-red-200: var(--red-200); --color-red-300: var(--red-300);
+  --color-red-400: var(--red-400); --color-red-500: var(--red-500);
+  --color-red-600: var(--red-600); --color-red-700: var(--red-700);
+  --color-red-800: var(--red-800); --color-red-900: var(--red-900);
+  --color-orange-50: var(--orange-50); --color-orange-100: var(--orange-100);
+  --color-orange-200: var(--orange-200); --color-orange-300: var(--orange-300);
+  --color-orange-400: var(--orange-400); --color-orange-500: var(--orange-500);
+  --color-orange-600: var(--orange-600); --color-orange-700: var(--orange-700);
+  --color-orange-800: var(--orange-800); --color-orange-900: var(--orange-900);
+  --color-yellow-50: var(--yellow-50); --color-yellow-100: var(--yellow-100);
+  --color-yellow-200: var(--yellow-200); --color-yellow-300: var(--yellow-300);
+  --color-yellow-400: var(--yellow-400); --color-yellow-500: var(--yellow-500);
+  --color-yellow-600: var(--yellow-600); --color-yellow-700: var(--yellow-700);
+  --color-yellow-800: var(--yellow-800); --color-yellow-900: var(--yellow-900);
+  --color-teal-50: var(--teal-50); --color-teal-100: var(--teal-100);
+  --color-teal-200: var(--teal-200); --color-teal-300: var(--teal-300);
+  --color-teal-400: var(--teal-400); --color-teal-500: var(--teal-500);
+  --color-teal-600: var(--teal-600); --color-teal-700: var(--teal-700);
+  --color-teal-800: var(--teal-800); --color-teal-900: var(--teal-900);
+  --color-purple-50: var(--purple-50); --color-purple-100: var(--purple-100);
+  --color-purple-200: var(--purple-200); --color-purple-300: var(--purple-300);
+  --color-purple-400: var(--purple-400); --color-purple-500: var(--purple-500);
+  --color-purple-600: var(--purple-600); --color-purple-700: var(--purple-700);
+  --color-purple-800: var(--purple-800); --color-purple-900: var(--purple-900);
+  --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3); --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5); --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7); --color-chart-8: var(--chart-8);
+  --color-chart-9: var(--chart-9);   --color-chart-10: var(--chart-10);
+  --color-chart-11: var(--chart-11); --color-chart-12: var(--chart-12);
+  --color-chart-13: var(--chart-13); --color-chart-14: var(--chart-14);
+  --color-chart-15: var(--chart-15); --color-chart-16: var(--chart-16);
+  --color-chart-17: var(--chart-17); --color-chart-18: var(--chart-18);
+  --color-chart-19: var(--chart-19); --color-chart-20: var(--chart-20);
+
+  /* ── TDS Font ── */
+  --font-sans: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+body {
+  font-family: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+}
+
+@layer utilities {
+  .rounded-sm {
+    border-radius: calc(var(--radius) * 0.25);
+  }
+  .rounded-md {
+    border-radius: calc(var(--radius) * 0.5);
+  }
+  .rounded-lg {
+    border-radius: var(--radius);
+  }
+  .rounded-xl {
+    border-radius: calc(var(--radius) * 1.5);
+  }
+  .rounded-2xl {
+    border-radius: calc(var(--radius) * 2);
+  }
+  .rounded-3xl {
+    border-radius: calc(var(--radius) * 3);
+  }
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ── TDS Global Styles ── */
+[data-slot="button"],
+[data-slot="dialog-trigger"],
+[data-slot="dialog-close"],
+[data-slot="popover-trigger"],
+[data-slot="dropdown-menu-trigger"],
+[data-slot="dropdown-menu-item"],
+[data-slot="dropdown-menu-sub-trigger"],
+[data-slot="dropdown-menu-checkbox-item"],
+[data-slot="dropdown-menu-radio-item"],
+[data-slot="alert-dialog-action"],
+[data-slot="alert-dialog-cancel"],
+[data-slot="tooltip-trigger"],
+[data-slot="switch"],
+[data-slot="select-trigger"],
+[data-slot="select-item"],
+[data-slot="tabs-trigger"],
+[data-slot="toggle"],
+[data-slot="toggle-group-item"],
+[data-slot="accordion-trigger"],
+button,
+[role="button"],
+[role="menuitem"],
 [role="option"],
 [role="tab"],
-[role="menuitem"],
-select,
-summary,
-a[href] {
+[tabindex="0"] {
   cursor: pointer;
 }
-button:disabled,
-[aria-disabled="true"] {
-  cursor: not-allowed;
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--grey-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--grey-400); }
+
+/* 차트 범례 가로 스크롤: 스크롤바 항상 표시 (macOS 자동 숨김 방지) */
+.legend-scroll-x {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--grey-300) transparent;
+}
+.legend-scroll-x::-webkit-scrollbar {
+  -webkit-appearance: none;
+  height: 6px;
+}
+.legend-scroll-x::-webkit-scrollbar-thumb {
+  background: var(--grey-300);
+  border-radius: 3px;
+}
+.legend-scroll-x::-webkit-scrollbar-thumb:hover {
+  background: var(--grey-400);
 }
 
-/* ---------- Base body ---------- */
-/*
-  Font fallback chain:
-  Geist Sans (Latin) → Pretendard (Korean, via CDN) → system-ui → default sans
-  Browsers pick glyphs per-character from this list, so Latin characters
-  render in Geist while Korean characters automatically use Pretendard.
-*/
-body {
-  font-family:
-    var(--font-geist-sans),
-    "Pretendard Variable",
-    Pretendard,
-    "Apple SD Gothic Neo",
-    "Malgun Gothic",
-    system-ui,
-    -apple-system,
-    sans-serif;
-  background: var(--bg-1);
-  color: var(--fg-0);
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+::selection {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
-/* Global tabular numerals — every number in Compass is comparable */
-* {
-  font-variant-numeric: tabular-nums;
+pre {
+  background-color: var(--grey-50);
+  border-radius: 0.875rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: var(--tds-t7-size);
+  line-height: 1.7;
+  border: 1px solid var(--grey-100);
 }
 
-/* ---------- Font role utilities ---------- */
-.font-display {
-  font-family: var(--font-instrument-serif), "Noto Serif KR", Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+code { font-family: var(--font-mono); font-size: var(--tds-t7-size); }
+
+:not(pre) > code {
+  background-color: var(--grey-50);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.375rem;
+  font-size: var(--tds-t7-size);
+  color: var(--green-700);
 }
 
-.font-mono {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
+/* ── Dark mode: text-primary/brand-line → foreground (흰색 계열로 통일) ── */
+.dark .text-primary {
+  color: var(--foreground) !important;
+}
+.dark .text-brand-line {
+  color: var(--foreground) !important;
 }
 
-.font-mono-num {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
+@layer base {
+  * {
+    @apply border-border;
+    outline: none;
+  }
+  *:focus,
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-/* ---------- Typography scale ---------- */
-.text-display {
-  font-family: var(--font-instrument-serif), "Noto Serif KR", Georgia, serif;
-  font-size: 36px;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  font-weight: 400;
+/* ========================================
+   CopilotKit 커스터마이징
+   ======================================== */
+
+/* 입력창 하단 고정 */
+.copilotKitChat {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
 }
-.text-h1 {
-  font-size: 24px;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  font-weight: 600;
+
+.copilotKitMessages {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
 }
-.text-h2 {
-  font-size: 18px;
-  line-height: 1.3;
-  letter-spacing: -0.005em;
-  font-weight: 600;
+
+.copilotKitInputContainer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
 }
-.text-h3 {
-  font-size: 14px;
-  line-height: 1.4;
-  letter-spacing: 0.01em;
-  font-weight: 600;
-  text-transform: uppercase;
+
+/* 한글 줄바꿈 - 어절 단위 */
+.copilotKitMessage {
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
 }
-.text-body {
-  font-size: 14px;
-  line-height: 1.6;
-  font-weight: 400;
+
+/* 사용자 메시지 색상 - Katarina Blue */
+.copilotKitUserMessage {
+  background-color: var(--primary) !important;
+  color: white !important;
 }
-.text-caption {
-  font-size: 12px;
+
+/* ========================================
+   TipTap Editor Styles
+   ======================================== */
+
+/* Placeholder text for empty editor */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Editor focus styles */
+.ProseMirror {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Link styles */
+.ProseMirror a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ProseMirror a:hover {
+  color: color-mix(in srgb, var(--primary) 80%, black);
+}
+
+/* List styles */
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror ul {
+  list-style-type: disc;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}
+
+/* Paragraph spacing */
+.ProseMirror p {
+  margin: 0;
   line-height: 1.5;
-  letter-spacing: 0.01em;
-  font-weight: 400;
 }
 
-/*
-  ============================================================================
-  LEGACY UTILITIES — Transitional block
-  ============================================================================
-  These classes exist only to prevent existing widgets from breaking during
-  the incremental refactor to <DecisionSurface> and new tokens. They are
-  visually dialed down toward the new design language (no gradients, no glows,
-  restrained shadows) so that even unrefactored pages already look closer to
-  the target. Each class should be deleted as its last consumer is migrated.
-
-  Do NOT use these in new code. Use the new tokens and <DecisionSurface>.
-  Tracking: docs/Project_Compass_Design_Migration_Log.md §3
-  ============================================================================
-*/
-
-/* Legacy card — was gradient+glow, now a flat enterprise card */
-.card-premium {
-  background: var(--bg-1);
-  border-radius: var(--radius-card);
-  box-shadow: 0 1px 0 var(--border-subtle);
-  transition: border-color var(--duration-micro) var(--ease-out-quart);
-}
-.card-premium:hover {
-  border-color: var(--border-strong);
+.ProseMirror p + p {
+  margin-top: 0.25rem;
 }
 
-/* Legacy hover lift — now a subtle border change, no transform */
-.card-glow {
-  transition: border-color var(--duration-micro) var(--ease-out-quart);
-}
-.card-glow:hover {
-  border-color: var(--border-strong);
+/* Remove empty paragraphs at the end */
+.ProseMirror > p:last-child:empty {
+  display: none;
 }
 
-/* Legacy hero numbers — kept size, removed glow */
-.text-hero {
-  font-size: 3rem;
-  line-height: 1;
+/* Empty paragraphs - no min-height */
+.ProseMirror p:empty {
+  min-height: 0;
+  height: 0;
+}
+
+/* Hard breaks - minimal spacing */
+.ProseMirror br {
+  display: inline;
+}
+
+/* Bold and italic */
+.ProseMirror strong {
   font-weight: 700;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-.text-hero-lg {
-  font-size: 4rem;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
 }
 
-/* Legacy text glow — neutralized to no-op */
-.text-glow {
-  text-shadow: none;
+.ProseMirror em {
+  font-style: italic;
 }
 
-/* Legacy signal card backgrounds — flattened to tint only, no gradient */
-.signal-bg-invest {
-  background: var(--signal-positive-bg);
-}
-.signal-bg-hold {
-  background: var(--signal-caution-bg);
-}
-.signal-bg-reduce {
-  background: var(--signal-risk-bg);
+/* ========================================
+   BODA Liveboard CSS Variables
+   TDS alias 방식 — .dark 오버라이드 불필요 (alias가 부모 TDS 토큰을 자동 추적)
+   ======================================== */
+:root {
+  --brand-primary: #9128b4;
+  --brand-primary-light: #8222a2;
+  --brand-primary-dark: #65237b;
+  --brand-secondary: #C5B5C8;
+
+  /* ── Liveboard CSS Variables (TDS aliases) ── */
+
+  /* Text */
+  --lb-text-primary: var(--foreground);
+  --lb-text-strong: var(--foreground);
+  --lb-text-body: var(--foreground);
+  --lb-text-brand: var(--primary);
+  --lb-text-brand-light: var(--primary);
+  --lb-text-brand-sub: var(--primary);
+  --lb-text-medium: var(--muted-foreground);
+  --lb-text-muted: var(--muted-foreground);
+  --lb-text-secondary: var(--muted-foreground);
+  --lb-text-faint: var(--muted-foreground);
+  --lb-text-placeholder: var(--muted-foreground);
+  --lb-text-tertiary: var(--muted-foreground);
+  --lb-text-disabled: var(--muted-foreground);
+  --lb-text-info: var(--muted-foreground);
+
+  /* Accent */
+  --lb-accent: var(--primary);
+  --lb-accent-disabled: var(--muted);
+
+  /* Background */
+  --lb-bg-base: var(--background);
+  --lb-bg-surface: var(--card);
+  --lb-bg-panel: var(--card);
+  --lb-bg-surface-alt: var(--card);
+  --lb-bg-elevated: var(--card);
+  --lb-bg-muted: var(--muted);
+  --lb-bg-hover: var(--muted);
+  --lb-bg-hover-subtle: var(--muted); /* TODO(lb-drift): was rgb(248,250,252) */
+  --lb-bg-accent-subtle: rgba(145, 40, 180, 0.03); /* TODO(lb-drift): no TDS token */
+  --lb-bg-accent-light: rgba(145, 40, 180, 0.05); /* TODO(lb-drift): no TDS token */
+  --lb-bg-accent: rgba(145, 40, 180, 0.1); /* TODO(lb-drift): no TDS token */
+  --lb-bg-modal-header: rgba(145, 40, 180, 0.05); /* TODO(lb-drift): no TDS token */
+
+  /* Border */
+  --lb-border: var(--border);
+  --lb-border-subtle: var(--border);
+  --lb-border-medium: var(--border);
+  --lb-border-strong: var(--border);
+  --lb-border-emphasis: var(--border);
+
+  /* Separator */
+  --lb-separator: var(--border);
+  --lb-separator-light: var(--border);
+
+  /* Chart */
+  --lb-chart-bg: var(--card);
+  --lb-chart-grid: var(--border); /* TODO(lb-drift): was rgba(8,54,135,0.15) */
+  --lb-chart-text: var(--foreground);
+  --lb-chart-stroke: var(--border);
+
+  /* Tooltip */
+  --lb-tooltip-bg: var(--popover);
+  --lb-tooltip-border: var(--primary);
+  --lb-tooltip-border-alt: var(--muted); /* TODO(lb-drift): was #f1f5f9, no exact TDS token */
+  --lb-tooltip-text: var(--popover-foreground);
+  --lb-tooltip-secondary: var(--muted-foreground);
+
+  /* Shadow — TODO(lb-drift): TDS shadow 토큰 미정의, 라이트값 유지 */
+  --lb-shadow: 0 4px 12px rgba(145, 40, 180, 0.2);
+  --lb-shadow-sm: 0 2px 8px rgba(145, 40, 180, 0.15);
+  --lb-shadow-lg: 0 8px 32px rgba(145, 40, 180, 0.15);
 }
 
-/*
-  Landing page widget override — 2026-04-14 Sprint 5
-  ---------------------------------------------------
-  Dashboard widgets (HeroVerdict, SignalCard) use `position: sticky`
-  so they pin to the top of the dashboard viewport on scroll. In the
-  landing page they must NOT stick — any element inside a
-  `.landing-static-widget` wrapper gets sticky neutralized.
-*/
-.landing-static-widget .sticky,
-.landing-static-widget [class*="sticky"] {
-  position: static !important;
-  top: auto !important;
-  z-index: auto !important;
-  margin-bottom: 0 !important;
+/* ── BODA Dark overrides (hardcoded rgba → dark-aware) ── */
+.dark {
+  --brand-primary: #f9fafb;
+  --brand-primary-light: #e5e8eb;
+  --brand-primary-dark: #d1d6db;
+  --lb-bg-accent-subtle: rgba(249, 250, 251, 0.03);
+  --lb-bg-accent-light: rgba(249, 250, 251, 0.05);
+  --lb-bg-accent: rgba(249, 250, 251, 0.1);
+  --lb-bg-modal-header: rgba(249, 250, 251, 0.05);
+  --lb-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --lb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --lb-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+  /* BODA 페이지 배경을 다크모드 배경색(#141a22)으로 통일 —
+     --card(#333d4b)는 밝아서 페이지가 떠 보이는 문제 해결 */
+  --lb-bg-surface: var(--background);
+  --lb-bg-panel: var(--background);
+  --lb-bg-surface-alt: var(--background);
+  --lb-bg-elevated: var(--background);
+  --lb-chart-bg: var(--background);
 }
+
+/* Theme button utility class */
+.theme-btn {
+  color: var(--theme-btn-color);
+  background-color: transparent;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.theme-btn:hover {
+  background-color: var(--theme-btn-hover-bg);
+}
+
+.theme-tooltip {
+  background-color: var(--theme-tooltip-bg);
+  transition: background-color 0.15s ease-in-out;
+}
+
+.theme-tooltip-arrow {
+  background-color: var(--theme-tooltip-bg);
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* ── Liveboard Hover Utility Classes ── */
+.lb-hover-row {
+  transition: background-color 0.15s;
+}
+.lb-hover-row:hover {
+  background-color: var(--lb-bg-hover);
+}
+
+.lb-hover-subtle {
+  transition: background-color 0.15s;
+}
+.lb-hover-subtle:hover {
+  background-color: var(--lb-bg-hover-subtle);
+}
+
+.lb-hover-accent {
+  transition: background-color 0.15s;
+}
+.lb-hover-accent:hover {
+  background-color: var(--lb-bg-accent-light);
+}
+
+/* ── react-datepicker styles ── */
+.react-datepicker-wrapper {
+  width: auto !important;
+}
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+  transform: translateY(42px) !important;
+}
+
+.react-datepicker {
+  font-family: 'Nanum Square Round', sans-serif !important;
+  border: 1px solid var(--primary) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+  font-size: 11px !important;
+  background-color: var(--card) !important;
+  overflow: hidden !important;
+  width: 194px !important;
+  box-sizing: border-box !important;
+}
+
+.react-datepicker__header {
+  background-color: var(--primary) !important;
+  border-bottom: none !important;
+  padding: 6px 0 !important;
+  border-radius: 7px 7px 0 0 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.react-datepicker__current-month {
+  white-space: nowrap !important;
+  font-size: 10.5px !important;
+  padding: 0 2px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.react-datepicker__day-name {
+  width: 1.3rem !important;
+  line-height: 1.3rem !important;
+  margin: 0.1rem !important;
+  font-size: 10px !important;
+}
+
+.react-datepicker__day {
+  color: var(--primary) !important;
+  font-weight: 700 !important;
+  width: 1.3rem !important;
+  line-height: 1.3rem !important;
+  margin: 0.1rem !important;
+  border-radius: 5px !important;
+  font-size: 10px !important;
+  background-color: var(--card) !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--primary) !important;
+  color: white !important;
+  font-weight: 900 !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white !important;
+  border-width: 2px 2px 0 0 !important;
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+.custom-datepicker-input {
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  border: 1px solid var(--primary);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--primary);
+  font-family: 'Nanum Square Round', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 194px;
+  box-sizing: border-box;
+}
+
+.custom-datepicker-input:hover {
+  background-color: color-mix(in srgb, var(--primary) 2%, transparent);
+}
+
+.custom-datepicker-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+  border-color: var(--primary);
+}
+
+.dark .custom-datepicker-input {
+  border-color: var(--primary) !important;
+  color: var(--foreground) !important;
+  background-color: var(--background);
+}
+
+.dark .custom-datepicker-input:hover {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+
+.dark .custom-datepicker-input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent) !important;
+  border-color: var(--primary) !important;
+}
+
+.react-datepicker__actions {
+  padding: 0.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  text-align: center;
+  background-color: var(--card) !important;
+}
+
+.datepicker-apply-btn {
+  width: 100%;
+  padding: 0.4rem 0.8rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Nanum Square Round', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.datepicker-apply-btn:hover {
+  background-color: color-mix(in srgb, var(--primary) 80%, black);
+}
+
+.datepicker-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  pointer-events: all;
+  z-index: 10;
+}
+
+/* react-day-picker calendar month label nowrap */
+.rdp-root .rdp-caption_label,
+.rdp-root span[class*="text-"][class*="font-"] {
+  white-space: nowrap !important;
+}
+
+/* ── Liveboard horizontal scroll container ── */
+.horizontal-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0;
+  box-sizing: border-box;
+}
+
+.chart-gantt-sync {
+  box-sizing: border-box;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* ========================================
+   TDS Component CSS Overrides
+   ======================================== */
+
+/* ── Button ── */
+[data-slot="button"] {
+  border-radius: 1.25rem !important;
+  font-weight: 600;
+  transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  letter-spacing: -0.01em;
+}
+[data-slot="button"]:active,
+[data-slot="alert-dialog-cancel"]:active,
+[data-slot="alert-dialog-action"]:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+[data-slot="button"][data-size="default"] {
+  height: 2.75rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-size: var(--tds-t6-size);
+}
+[data-slot="button"][data-size="lg"] {
+  height: 3.25rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  font-size: var(--tds-t5-size);
+  border-radius: 1.5rem;
+}
+[data-slot="button"][data-variant="secondary"],
+[data-slot="button"][data-variant="outline"] {
+  background-color: color-mix(in srgb, var(--primary) 8%, transparent) !important;
+  color: var(--primary) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+:is(.dark) [data-slot="button"][data-variant="secondary"],
+:is(.dark) [data-slot="button"][data-variant="outline"] {
+  background-color: color-mix(in srgb, var(--primary) 15%, var(--background)) !important;
+  color: var(--primary) !important;
+}
+:is(.dark) [data-slot="button"][data-variant="destructive"],
+:is(.dark) [data-slot="badge"][data-variant="destructive"] {
+  background-color: color-mix(in srgb, var(--destructive) 15%, var(--background)) !important;
+  color: var(--destructive) !important;
+}
+
+/* ── Badge ── */
+[data-slot="badge"] {
+  border-radius: 0.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: none;
+  padding: 0.25rem 0.625rem;
+}
+[data-slot="badge"][data-variant="default"] {
+  background-color: var(--primary);
+  color: white;
+}
+[data-slot="badge"][data-variant="secondary"] {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+[data-slot="badge"][data-variant="outline"] {
+  border: 1px solid var(--grey-200);
+  color: var(--grey-600);
+  background: transparent;
+}
+
+/* ── Dialog ── */
+[data-slot="dialog-overlay"] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px);
+}
+[data-slot="dialog-content"] {
+  border-radius: 1.75rem !important;
+  padding: 1.75rem !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18) !important;
+  border: none !important;
+  gap: 0.75rem;
+}
+[data-slot="dialog-header"] {
+  gap: 0.25rem;
+}
+[data-slot="dialog-title"] {
+  font-size: var(--tds-t4-size) !important;
+  line-height: var(--tds-t4-line) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+[data-slot="dialog-description"] {
+  font-size: var(--tds-t6-size) !important;
+  line-height: var(--tds-t6-line) !important;
+  color: var(--muted-foreground);
+}
+[data-slot="dialog-footer"] {
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+[data-slot="dialog-footer"] [data-slot="button"],
+[data-slot="dialog-close"] [data-slot="button"] {
+  font-weight: 600 !important;
+  height: 3rem !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+[data-slot="dialog-footer"] [data-slot="button"]:hover,
+[data-slot="dialog-close"]:hover {
+  filter: none !important;
+  opacity: 1 !important;
+}
+[data-slot="dialog-footer"] button:active,
+[data-slot="dialog-footer"] [data-slot="button"]:active {
+  transform: scale(0.97) !important;
+}
+
+/* ── Alert Dialog ── */
+[data-slot="alert-dialog-overlay"] {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px);
+}
+[data-slot="alert-dialog-content"] {
+  border-radius: 1.75rem !important;
+  padding: 1.75rem !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18) !important;
+  border: none !important;
+}
+[data-slot="alert-dialog-title"] {
+  font-size: var(--tds-t4-size) !important;
+  line-height: var(--tds-t4-line) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+}
+[data-slot="alert-dialog-description"] {
+  font-size: var(--tds-t6-size) !important;
+  line-height: var(--tds-t6-line) !important;
+}
+[data-slot="alert-dialog-cancel"],
+[data-slot="alert-dialog-action"] {
+  font-weight: 600 !important;
+  border-radius: 1.25rem !important;
+  height: 2.75rem;
+}
+[data-slot="alert-dialog-cancel"] {
+  background-color: var(--grey-100) !important;
+  color: var(--grey-700) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+[data-slot="alert-dialog-cancel"]:hover {
+  background-color: var(--grey-100) !important;
+  color: var(--grey-700) !important;
+}
+
+/* ── Input ── */
+[data-slot="input"] {
+  height: 3rem;
+  border-radius: 1.25rem;
+  font-size: var(--tds-t6-size);
+  background-color: var(--background);
+  border-color: var(--border);
+  transition: all 0.15s ease;
+}
+[data-slot="input"]::placeholder {
+  color: var(--grey-400);
+}
+[data-slot="input"]:focus-visible {
+  border-color: var(--primary) !important;
+  background-color: var(--background) !important;
+  --tw-ring-color: var(--primary) !important;
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 2px var(--tw-ring-color) !important;
+  box-shadow: var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+}
+
+/* ── Textarea ── */
+[data-slot="textarea"] {
+  border-radius: 1.25rem;
+  font-size: var(--tds-t6-size);
+  background-color: var(--background);
+  border-color: var(--border);
+  resize: none;
+  transition: all 0.15s ease;
+}
+[data-slot="textarea"]:focus-visible {
+  border-color: var(--primary) !important;
+  background-color: var(--background) !important;
+  --tw-ring-color: var(--primary) !important;
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 2px var(--tw-ring-color) !important;
+  box-shadow: var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000) !important;
+}
+
+/* ── Label ── */
+[data-slot="label"] {
+  font-size: var(--tds-t7-size);
+  font-weight: 600;
+  color: var(--grey-600);
+  letter-spacing: -0.01em;
+}
+
+/* ── Card ── */
+[data-slot="card"] {
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  box-shadow: none;
+  background-color: var(--card);
+}
+
+/* ── Tooltip ── */
+[data-slot="tooltip-content"] {
+  font-size: var(--tds-t7-size);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--grey-50);
+  color: var(--primary);
+  border: none;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.1);
+}
+:is(.dark) [data-slot="tooltip-content"] {
+  background-color: var(--grey-800);
+  color: var(--grey-50);
+}
+
+/* ── Toast (Sonner) ── */
+[data-sonner-toast] {
+  border-radius: 999px !important;
+  padding: 0.875rem 1.5rem !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+}
+[data-sonner-toast]:has(button) {
+  border-radius: 999px !important;
+  padding: 0.875rem 1rem 0.875rem 1.5rem !important;
+}
+[data-sonner-toast] button {
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 0.375rem 0.875rem !important;
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+[data-sonner-toast] [data-title] {
+  font-size: var(--tds-t6-size) !important;
+  font-weight: 600 !important;
+}
+[data-sonner-toast] [data-description] {
+  font-size: var(--tds-t7-size) !important;
+  font-weight: 400 !important;
+}
+[data-sonner-toaster][data-position*="top"] [data-sonner-toast],
+[data-sonner-toaster][data-position*="bottom"] [data-sonner-toast] {
+  background-color: var(--popover) !important;
+  color: var(--popover-foreground) !important;
+}
+[data-sonner-toaster][data-position*="top"] [data-sonner-toast] [data-title],
+[data-sonner-toaster][data-position*="bottom"] [data-sonner-toast] [data-title] {
+  color: var(--popover-foreground) !important;
+}
+
+/* ── Popover ── */
+[data-slot="popover-content"] {
+  border-radius: 1.25rem;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.15);
+  border-color: var(--border);
+  backdrop-filter: blur(30px);
+  background-color: color-mix(in srgb, var(--background) 85%, transparent);
+}
+
+/* ── Dropdown Menu ── */
+[data-slot="dropdown-menu-content"] {
+  border-radius: 1.25rem;
+  padding: 0.5rem;
+  backdrop-filter: blur(30px);
+  background-color: color-mix(in srgb, var(--background) 85%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+[data-slot="dropdown-menu-item"] {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--tds-t6-size);
+  gap: 0.75rem;
+}
+[data-slot="dropdown-menu-item"]:not([data-variant="destructive"]) {
+  color: var(--muted-foreground);
+}
+[data-slot="dropdown-menu-checkbox-item"],
+[data-slot="dropdown-menu-radio-item"] {
+  border-radius: 0.75rem;
+  font-size: var(--tds-t6-size);
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+}
+[data-slot="dropdown-menu-sub-trigger"] {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--tds-t6-size);
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+/* ── Select Content ── */
+[data-slot="select-content"] {
+  border-radius: 1.25rem;
+  padding: 0.5rem;
+  backdrop-filter: blur(30px);
+  background-color: color-mix(in srgb, var(--background) 85%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
+  min-width: 180px;
+}
+[data-slot="select-item"] {
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+  font-size: var(--tds-t6-size);
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+}
+[data-slot="select-item"][data-state="checked"] {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* ── Skeleton ── */
+[data-slot="skeleton"] {
+  border-radius: 11px;
+  background-color: var(--muted) !important;
+  background-image: linear-gradient(90deg, transparent 25%, color-mix(in srgb, var(--foreground) 8%, transparent) 50%, transparent 75%) !important;
+  background-size: 200% 100% !important;
+  animation: tds-shimmer 2.5s ease-in-out infinite !important;
+}
+@keyframes tds-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Progress ── */
+[role="progressbar"] {
+  border-radius: 999px;
+  background-color: var(--grey-200);
+  overflow: hidden;
+}
+[role="progressbar"] > div {
+  border-radius: 999px;
+  transition: transform 0.5s ease-in-out;
+  transform-origin: left;
+}
+
+/* Recharts v3 tooltip override */
+.recharts-tooltip-wrapper {
+  background-color: var(--card) !important;
+  border-radius: 1.25rem !important;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid var(--border) !important;
+}
+.recharts-default-tooltip {
+  border-radius: 1.25rem !important;
+  border: none !important;
+  padding: 0.75rem 1rem !important;
+}
+
+/* ── Dark mode: outline/secondary buttons use dark-tinted surface (see line 928~931) ──
+   이전에 이 위치에 있던 `background-color: var(--primary)` 오버라이드는
+   다크모드에서 --primary = #f9fafb(거의 흰색)이라 버튼이 밝게 번쩍이는 원인이었음.
+   928~931 규칙의 color-mix(--primary 15%, --background) 결과(다크 네이비 틴트)를
+   유지하도록 이 블록은 제거됨. */
+
