@@ -638,16 +638,16 @@ export const mockPortfolioSignal = {
     en: "Portfolio MOIC 1.27x — driven by 포코머지 Global (scale); JP hold, KR reduce",
   },
   recommendation: {
-    ko: "포코머지 글로벌에 UA 예산 60%를 재배분하세요 (+$45K/월)",
-    en: "Reallocate 60% of UA budget (+$45K/mo) to 포코머지 글로벌",
+    ko: "지금 포코머지 글로벌에 예산을 더 투입하세요",
+    en: "Scale investment into 포코머지 Global now",
   },
   rationale: {
-    ko: "포트폴리오 유일의 투자 확대 시그널",
-    en: "Only title signaling scale investment",
+    ko: "월 4,500만원 규모 UA 재배분이면 본전 회수 평균 44일",
+    en: "~$45K/mo UA reallocation pays back in 44 days (median)",
   },
   payback: { p10: 35, p50: 44, p90: 58 },
   impact: {
-    value: { ko: "+$1.2M ARR 예상", en: "+$1.2M ARR projected" },
+    value: { ko: "1년 내 매출 12억원 더 기대돼요", en: "+12억 KRW projected annually" },
     direction: "positive" as const,
   },
 }

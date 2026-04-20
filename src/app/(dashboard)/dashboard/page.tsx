@@ -1,7 +1,14 @@
 "use client"
 
 import { PageHeader } from "@/shared/ui"
-import { PortfolioVerdict, HeroVerdict, KPICards, TitleHeatmap, MarketContextCard, DataFreshnessStrip, OverviewSummaryStrip } from "@/widgets/dashboard"
+import {
+  DecisionStoryCard,
+  HeroVerdict,
+  KPICards,
+  TitleHeatmap,
+  MarketContextCard,
+  DataFreshnessStrip,
+} from "@/widgets/dashboard"
 import { RevenueVsInvest, CapitalWaterfall, RevenueForecast } from "@/widgets/charts"
 import { useLocale } from "@/shared/i18n"
 import {
@@ -10,7 +17,7 @@ import {
   mockTitleHealth,
   mockMarketContext,
   mockDataFreshness,
-  mockCapitalKPIs,
+  mockMarketHero,
 } from "@/shared/api"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
@@ -20,18 +27,11 @@ import { motion } from "framer-motion"
 
 const GRID_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
 
-/*
-  Module 1 — Executive Overview 2.0
-  -----------------------------------
-  2026-04-13 redesign: Portfolio-level view with 4 agent perspectives:
-    1. Portfolio Verdict (VC/Financial)
-    2. Title Heatmap + Market Context (Market Intelligence)
-    3. Capital Waterfall + Revenue vs Investment (Financial)
-    4. Revenue Forecast + Data Freshness (Supervisory)
-
-  Predecessor: single-game HeroVerdict + 4 KPIs + 2 charts + forecast.
-  See ultraplan session_01BK44doLpw4i9WUEQmBYesc for architecture.
-*/
+const REGION_REASONS: Record<string, string> = {
+  "포코머지 글로벌": "ROAS 148%, 월 +6% 성장",
+  "포코머지 일본": "수익화 실험 필요",
+  "포코머지 국내": "UA 효율 72%, 축소 권고",
+}
 
 export default function ExecutiveOverviewPage() {
   const { t: _t } = useLocale()
@@ -45,34 +45,47 @@ export default function ExecutiveOverviewPage() {
 
   return (
     <PageTransition>
-      {/* 0. Summary Strip — 4 핵심 메트릭 요약 (런웨이, ROAS, 신뢰도, MOIC) */}
-      {isPortfolioView && (
-        <FadeInUp>
-          <OverviewSummaryStrip
-            runwayMonths={mockCapitalKPIs.burnMonths.value}
-            runwayTrend={mockCapitalKPIs.burnMonths.trend}
-            blendedRoas={mockPortfolioKPIs.blendedRoas.value}
-            blendedRoasTrend={mockPortfolioKPIs.blendedRoas.trend}
-            confidence={mockPortfolioSignal.confidence}
-            status={mockPortfolioSignal.status}
-            portfolioMoic={mockPortfolioKPIs.portfolioMoic.value}
-            portfolioMoicTrend={mockPortfolioKPIs.portfolioMoic.trend}
-          />
-        </FadeInUp>
-      )}
-
-      {/* 1. Verdict — Portfolio aggregate or single-title drill-down */}
+      {/* 1. Decision Story Card (α+β hybrid) — 최상단 판정 덱 */}
       <FadeInUp>
         {isPortfolioView ? (
-          <PortfolioVerdict
+          <DecisionStoryCard
             status={mockPortfolioSignal.status}
+            headline={mockPortfolioSignal.recommendation.ko}
+            impactText={mockPortfolioSignal.impact.value.ko}
             confidence={mockPortfolioSignal.confidence}
-            reason={mockPortfolioSignal.reason}
-            recommendation={mockPortfolioSignal.recommendation}
-            rationale={mockPortfolioSignal.rationale}
-            payback={mockPortfolioSignal.payback}
-            titles={mockTitleHealth.map((t) => ({ label: t.label, signal: t.signal }))}
-            impact={mockPortfolioSignal.impact}
+            metrics={[
+              {
+                label: "광고비 회수",
+                value: `${mockPortfolioKPIs.blendedRoas.value}%`,
+                trend: {
+                  text: `지난 달 +${mockPortfolioKPIs.blendedRoas.trend}%p`,
+                  direction: "up",
+                },
+              },
+              {
+                label: "성장 속도",
+                value: `+${mockPortfolioKPIs.deployPace.trend > 0 ? mockPortfolioKPIs.deployPace.trend : 6.2}%/월`,
+                trend: { text: "가속 중", direction: "up" },
+              },
+              {
+                label: "경쟁 위치",
+                value: `장르 ${mockMarketHero.rank}위`,
+                trend: {
+                  text: `${Math.abs(mockMarketHero.rankChange)}계단 상승`,
+                  direction: "up",
+                },
+              },
+            ]}
+            regions={mockTitleHealth.map((t) => ({
+              label: t.label,
+              status: t.signal,
+              reason: REGION_REASONS[t.label] ?? `ROAS ${t.roas}%, 본전 ${t.paybackD}일`,
+            }))}
+            ctaLabel="재배분 플랜 보기"
+            onCta={() => {
+              // TODO: 재배분 페이지 / modal 연결
+              console.info("재배분 플랜 열기")
+            }}
           />
         ) : (
           <HeroVerdict
