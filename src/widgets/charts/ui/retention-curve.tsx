@@ -25,6 +25,15 @@ import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
 import { RETENTION_CURVE_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
+import { priorByGenre } from "@/shared/api/prior-data"
+
+// Real ST genre prior (fractions 0-1 → percentages)
+const ST_RET = priorByGenre.Merge.JP.retention
+const stBand: Record<number, { p10: number; p50: number; p90: number }> = {
+  1:  { p10: ST_RET.d1.p10 * 100,  p50: ST_RET.d1.p50 * 100,  p90: ST_RET.d1.p90 * 100 },
+  7:  { p10: ST_RET.d7.p10 * 100,  p50: ST_RET.d7.p50 * 100,  p90: ST_RET.d7.p90 * 100 },
+  30: { p10: ST_RET.d30.p10 * 100, p50: ST_RET.d30.p50 * 100, p90: ST_RET.d30.p90 * 100 },
+}
 import {
   AreaChart,
   Area,
@@ -122,15 +131,19 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
   const { t, locale } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 384, expanded: externalExpanded, onToggle: externalToggle })
 
-  const chartData = data.map((d) => ({
-    day: `D${d.day}`,
-    p90: d.p90,
-    p75: d.p75,
-    p50: d.p50,
-    p25: d.p25,
-    p10: d.p10,
-    genre: d.genre,
-  }))
+  const chartData = data.map((d) => {
+    const st = stBand[d.day]
+    return {
+      day: `D${d.day}`,
+      // Use real ST P10/P50/P90 band when available for this day; fall back to mock
+      p90: st?.p90 ?? d.p90,
+      p75: d.p75,
+      p50: st?.p50 ?? d.p50,
+      p25: d.p25,
+      p10: st?.p10 ?? d.p10,
+      genre: d.genre,
+    }
+  })
 
   return (
     <motion.div
