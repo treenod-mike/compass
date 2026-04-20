@@ -1,0 +1,10 @@
+node_modules/
+dist/
+storageState.json
+.env
+.playwright/
+debug-screenshots/
+last-good-snapshot.json
+.crawler.lock
+*.har
+.vitest-cache/
