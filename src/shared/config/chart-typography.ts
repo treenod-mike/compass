@@ -1,44 +1,56 @@
 /**
- * Chart Typography — shared font config for all chart components.
- * Keeps axis ticks, tooltips, legends, and annotations visually consistent.
+ * Chart Typography — Pretendard Variable (matches TDS / gameboard).
  *
- * Usage:
- *   <XAxis tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} />
- *   <text {...CHART_TYPO.annotation} fill={C.profit}>BEP</text>
+ * Recharts SVG <text> elements inherit font-family via tick/label props,
+ * so the CSS @font-face in globals.css is sufficient — hex values below
+ * define sizes/weights/variants only.
  */
 
 export const CHART_FONT = {
-  mono: "var(--font-geist-mono)",
-  sans: "var(--font-geist-sans)",
+  sans: "'Pretendard Variable', Pretendard, system-ui, -apple-system, sans-serif",
+  mono: "'Pretendard Variable', Pretendard, ui-monospace, monospace",
 } as const
 
 export const CHART_TYPO = {
-  /** XAxis / YAxis tick labels — monospace for aligned numbers */
-  axisTick: { fontSize: 11, fontFamily: CHART_FONT.mono },
+  /** XAxis / YAxis tick labels */
+  axisTick: {
+    fontSize: 11,
+    fontFamily: CHART_FONT.sans,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
 
   /** Axis unit labels ($K, %, etc.) */
-  axisLabel: { fontSize: 10, fontFamily: CHART_FONT.mono },
+  axisLabel: {
+    fontSize: 10,
+    fontFamily: CHART_FONT.sans,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
 
-  /** Tooltip title (date, category) — sans-serif inherited */
-  tooltipTitle: { fontSize: 11, fontWeight: 600 },
+  /** Tooltip title (date, category) */
+  tooltipTitle: { fontSize: 11, fontWeight: 600, fontFamily: CHART_FONT.sans },
 
-  /** Tooltip numeric values — monospace with tabular nums */
+  /** Tooltip numeric values — tabular nums for alignment */
   tooltipValue: {
     fontSize: 12,
     fontWeight: 500,
-    fontFamily: CHART_FONT.mono,
+    fontFamily: CHART_FONT.sans,
     fontVariantNumeric: "tabular-nums" as const,
   },
 
   /** Tooltip descriptive labels */
-  tooltipLabel: { fontSize: 12 },
+  tooltipLabel: { fontSize: 12, fontFamily: CHART_FONT.sans },
 
   /** Legend text */
-  legend: { fontSize: 11 },
+  legend: { fontSize: 11, fontFamily: CHART_FONT.sans },
 
-  /** In-chart annotations — numbers & abbreviations (BEP, $120K, etc.) */
-  annotation: { fontSize: 11, fontWeight: 700, fontFamily: CHART_FONT.mono },
+  /** In-chart annotations — numbers & abbreviations */
+  annotation: {
+    fontSize: 11,
+    fontWeight: 700,
+    fontFamily: CHART_FONT.sans,
+    fontVariantNumeric: "tabular-nums" as const,
+  },
 
-  /** In-chart annotations — descriptive text labels (실행 시점, Stage Rollout, etc.) */
+  /** In-chart annotations — descriptive text labels */
   annotationText: { fontSize: 11, fontWeight: 600, fontFamily: CHART_FONT.sans },
 } as const

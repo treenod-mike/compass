@@ -1,49 +1,48 @@
 /**
- * Per-chart color config objects.
- * Single source of truth for legend, tooltip dot, and graph fill/stroke.
+ * Per-chart color config — TDS palette (purple primary).
  *
  * WHY hex not CSS var(): Recharts SVG attributes don't resolve
- * CSS custom properties at runtime. These hex values MUST stay
- * in sync with globals.css tokens (noted in comments).
+ * CSS custom properties at runtime. Hex values here mirror the
+ * TDS tokens defined in globals.css.
  */
 
-/** Shared palette — mirrors globals.css :root tokens */
+/** Shared palette — mirrors TDS tokens in globals.css */
 export const PALETTE = {
-  // Brand / chart tokens
-  p50:           "#1A7FE8",  // --chart-p50
-  bandInner:     "rgba(26, 127, 232, 0.18)", // --chart-band-inner
-  bandOuter:     "rgba(26, 127, 232, 0.10)", // --chart-band-outer
-  benchmark:     "#9CA3AF",  // --chart-benchmark
-  observed:      "#0A0A0A",  // --chart-observed
+  // Brand primary (purple)
+  p50:           "#9128b4",  // --purple-600 / --primary
+  bandInner:     "rgba(145, 40, 180, 0.18)",
+  bandOuter:     "rgba(145, 40, 180, 0.10)",
+  benchmark:     "#8b95a1",  // --grey-500
+  observed:      "#191f28",  // --grey-900
 
-  // Signal colors
-  positive:      "#00875A",  // --signal-positive
-  caution:       "#B25E09",  // --signal-caution
-  risk:          "#C9372C",  // --signal-risk
+  // Signal / status colors (TDS green/orange/red)
+  positive:      "#02a262",  // --green-600 → success / invest / ship
+  caution:       "#fb8800",  // --orange-600 → hold / watch
+  risk:          "#d22030",  // --red-700 → reduce / pull back
 
-  // Cohort categorical
-  cohort1:       "#1A7FE8",  // --chart-cohort-1
-  cohort2:       "#00875A",  // --chart-cohort-2
-  cohort3:       "#B25E09",  // --chart-cohort-3
-  cohort4:       "#7C3AED",  // --chart-cohort-4
-  cohort5:       "#0891B2",  // --chart-cohort-5
-  cohort6:       "#C9372C",  // --chart-cohort-6
+  // Cohort categorical — mirrors --chart-1 .. --chart-6 tokens
+  cohort1:       "#02a262",  // --chart-1 green
+  cohort2:       "#2272eb",  // --chart-2 blue
+  cohort3:       "#109595",  // --chart-3 teal
+  cohort4:       "#fb8800",  // --chart-4 orange
+  cohort5:       "#9128b4",  // --chart-5 purple (brand)
+  cohort6:       "#e42939",  // --chart-6 red
 
   // Neutral
-  axis:          "#6B7280",  // --fg-2
-  grid:          "#ECECE8",  // --border-subtle
-  border:        "#E2E2DD",  // --border-default
-  bg:            "#FFFFFF",  // --bg-1
-  fg0:           "#0A0A0A",  // --fg-0
-  fg2:           "#6B7280",  // --fg-2
+  axis:          "#6b7684",  // --grey-600
+  grid:          "#e5e8eb",  // --grey-200
+  border:        "#e5e8eb",  // --grey-200
+  bg:            "#ffffff",
+  fg0:           "#191f28",  // --grey-900
+  fg2:           "#6b7684",  // --grey-600
 
-  // Legacy hex used by older charts (pre-migration)
-  revenue:       "#5B9AFF",
-  uaSpend:       "#FFA94D",
-  roas:          "#3EDDB5",
-  breakeven:     "#FF6B8A",
-  genreAvgGray:  "#CBD5E1",
-  legendGray:    "#64748B",
+  // Semantic aliases used across widgets
+  revenue:       "#9128b4",  // brand purple
+  uaSpend:       "#fb8800",  // orange
+  roas:          "#02a262",  // green
+  breakeven:     "#d22030",  // red
+  genreAvgGray:  "#d1d6db",  // --grey-300
+  legendGray:    "#6b7684",  // --grey-600
 } as const
 
 // ─── Per-chart configs ───
@@ -65,9 +64,9 @@ export const REVENUE_VS_INVEST_COLORS = {
   uaSpend:    PALETTE.uaSpend,
   roas:       PALETTE.roas,
   breakeven:  PALETTE.breakeven,
-  profit:     PALETTE.positive,      // monthly net > 0
-  loss:       PALETTE.risk,          // monthly net < 0
-  cumLine:    PALETTE.p50,           // cumulative net trajectory
+  profit:     PALETTE.positive,
+  loss:       PALETTE.risk,
+  cumLine:    PALETTE.p50,
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -75,9 +74,9 @@ export const REVENUE_VS_INVEST_COLORS = {
 } as const
 
 export const REVENUE_DECOMP_COLORS = {
-  organic:    PALETTE.benchmark,    // #9CA3AF — neutral gray
-  experiment: PALETTE.p50,          // #1A7FE8 — brand blue
-  deploy:     PALETTE.positive,     // #00875A — signal green
+  organic:    PALETTE.benchmark,
+  experiment: PALETTE.p50,
+  deploy:     PALETTE.positive,
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -87,18 +86,14 @@ export const REVENUE_DECOMP_COLORS = {
 } as const
 
 export const REVENUE_FORECAST_COLORS = {
-  // Posterior (사후 확률 — 데이터 반영된 현재 예측) — green
-  line:       PALETTE.positive,           // #00875A
-  postFill:   "rgba(0, 135, 90, 0.14)",
+  line:       PALETTE.positive,
+  postFill:   "rgba(2, 162, 98, 0.14)",
   postLine:   PALETTE.positive,
-  // Prior (사전 확률 — 장르 벤치마크, 넓은 불확실성) — red
-  prior:      PALETTE.risk,               // #C9372C
-  priorFill:  "rgba(201, 55, 44, 0.08)",
-  priorLine:  "rgba(201, 55, 44, 0.55)",
-  // Experiment fork — blue dashed (Compass brand blue for "if we ship this")
-  experiment: PALETTE.revenue,            // #5B9AFF
-  forkMark:   PALETTE.legendGray,         // #64748B, vertical ship-line
-  // Shared neutrals
+  prior:      PALETTE.risk,
+  priorFill:  "rgba(210, 32, 48, 0.08)",
+  priorLine:  "rgba(210, 32, 48, 0.55)",
+  experiment: PALETTE.revenue,
+  forkMark:   PALETTE.legendGray,
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -107,7 +102,7 @@ export const REVENUE_FORECAST_COLORS = {
 export const MARKET_BENCHMARK_COLORS = {
   p50:        PALETTE.revenue,
   genre:      PALETTE.benchmark,
-  bandFill:   "rgba(148, 163, 184, 0.08)",
+  bandFill:   "rgba(139, 149, 161, 0.12)",
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -140,7 +135,7 @@ export const SATURATION_BAR_COLORS = {
 export const ACTION_TIMELINE_COLORS = {
   retention:  PALETTE.revenue,
   ua:         PALETTE.revenue,
-  liveops:    "#A78BFA",
+  liveops:    "#c770e4",  // --purple-300
   release:    PALETTE.uaSpend,
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
@@ -161,7 +156,7 @@ export const VARIANT_IMPACT_COLORS = {
   reverted:   PALETTE.breakeven,
   control:    PALETTE.benchmark,
   running:    PALETTE.revenue,
-  errorBar:   "#0F172A",
+  errorBar:   PALETTE.fg0,
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -178,8 +173,8 @@ export const ROLLOUT_HISTORY_COLORS = {
 
 export const RIPPLE_FORECAST_COLORS = {
   line:       PALETTE.revenue,
-  bandFill:   "rgba(91, 154, 255, 0.18)",
-  bandFillEnd:"rgba(91, 154, 255, 0.04)",
+  bandFill:   "rgba(145, 40, 180, 0.18)",
+  bandFillEnd:"rgba(145, 40, 180, 0.04)",
   grid:       PALETTE.grid,
   axis:       PALETTE.axis,
   border:     PALETTE.border,
@@ -187,29 +182,26 @@ export const RIPPLE_FORECAST_COLORS = {
 
 export const PRIOR_POSTERIOR_COLORS = {
   prior:      PALETTE.benchmark,
-  priorFill:  "rgba(148, 163, 184, 0.3)",
-  priorBorder:"rgba(148, 163, 184, 0.4)",
+  priorFill:  "rgba(139, 149, 161, 0.3)",
+  priorBorder:"rgba(139, 149, 161, 0.4)",
   posterior:  PALETTE.revenue,
-  postFill:   "rgba(91, 154, 255, 0.6)",
+  postFill:   "rgba(145, 40, 180, 0.6)",
   postBorder: PALETTE.revenue,
 } as const
 
 export const MARKET_GAP_PROOF_COLORS = {
-  // Operator 시각 언어: 빨강=장르 기대치, 초록=우리 실적, 파랑=격차 accent
-  // Revenue Forecast(REVENUE_FORECAST_COLORS)와 정합 — 같은 palette 재사용
-  genre:           PALETTE.risk,                   // #C9372C — 장르 기대치(prior)
-  genreFill:       "rgba(201, 55, 44, 0.08)",      // 8% 투명도 dashed hatched
-  genreLine:       "rgba(201, 55, 44, 0.55)",      // hatched line 농도
+  genre:           PALETTE.risk,
+  genreFill:       "rgba(210, 32, 48, 0.08)",
+  genreLine:       "rgba(210, 32, 48, 0.55)",
 
-  our:             PALETTE.positive,               // #00875A — 우리 실적(posterior)
-  ourFill:         "rgba(0, 135, 90, 0.14)",       // 14% 투명도 solid
+  our:             PALETTE.positive,
+  ourFill:         "rgba(2, 162, 98, 0.14)",
 
-  gapAccent:       PALETTE.revenue,                // #5B9AFF — 격차 표시
+  gapAccent:       PALETTE.revenue,
 
-  // Invest/Hold/Reduce 판정 신호 (HeroVerdict 팔레트와 동일)
-  signalInvest:    PALETTE.positive,               // #00875A
-  signalHold:      PALETTE.legendGray,             // #64748B
-  signalReduce:    PALETTE.risk,                   // #C9372C
+  signalInvest:    PALETTE.positive,
+  signalHold:      PALETTE.legendGray,
+  signalReduce:    PALETTE.risk,
 
   axis:            PALETTE.axis,
   grid:            PALETTE.grid,
@@ -220,7 +212,7 @@ export const RUNWAY_FAN_COLORS = {
   p50:        PALETTE.p50,
   bandOuter:  PALETTE.bandOuter,
   bandInner:  PALETTE.bandInner,
-  cashOut:    "rgba(201, 55, 44, 0.08)",
+  cashOut:    "rgba(210, 32, 48, 0.08)",
   cashOutBorder: PALETTE.risk,
   axis:       PALETTE.axis,
   grid:       PALETTE.grid,
@@ -239,9 +231,9 @@ export const BUDGET_DONUT_COLORS = {
 } as const
 
 export const COHORT_HEATMAP_COLORS = {
-  level5:     "#5B9AFF",
-  level4:     "#7AAEFF",
-  level3:     "#A8C8FF",
-  level2:     "#D4E7FF",
-  level1:     "#EBF3FF",
+  level5:     "#9128b4",  // --purple-600
+  level4:     "#b44bd7",  // --purple-400
+  level3:     "#da9bef",  // --purple-200
+  level2:     "#edccf8",  // --purple-100
+  level1:     "#f9f0fc",  // --purple-50
 } as const
