@@ -197,7 +197,6 @@
   --radius-md: 0.75rem;
 
   --signal-positive: var(--success);
-  --signal-green: var(--success);
   --signal-caution: var(--warning);
   --signal-risk: var(--destructive);
   --signal-red: var(--destructive);

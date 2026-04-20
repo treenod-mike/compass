@@ -148,7 +148,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
           canAnimate ? { type: 'spring', stiffness: 220, damping: 32 } : { duration: 0 }
         }
       >
-        <div className="max-w-[1800px] mx-auto pb-4 px-6">{children}</div>
+        <div className="max-w-[1800px] mx-auto pb-4 pt-8 px-6">{children}</div>
       </motion.main>
     </div>
   )
