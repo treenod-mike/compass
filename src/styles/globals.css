@@ -192,9 +192,9 @@
 
   --chart-grid: var(--grey-200);
 
-  --radius-inline: 0.25rem;
-  --radius-card: 0.5rem;
-  --radius-md: 0.5rem;
+  --radius-inline: 0.5rem;
+  --radius-card: 0.75rem;
+  --radius-md: 0.75rem;
 
   --signal-positive: var(--success);
   --signal-green: var(--success);
@@ -519,6 +519,70 @@ code { font-family: var(--font-mono); font-size: var(--tds-t7-size); }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Legacy typography utilities — back-compat for widgets authored
+   against the old Compass semantic classes. Values align with TDS
+   typography scale but lean casual (Pretendard, softer tracking).
+   ══════════════════════════════════════════════════════════════ */
+.font-display {
+  font-family: 'Pretendard Variable', 'Pretendard', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.text-display {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.text-h1 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.text-h2 {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.text-h3 {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.text-body {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.text-caption {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+}
+.text-hero {
+  font-size: 44px;
+  line-height: 52px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+.text-hero-lg {
+  font-size: 56px;
+  line-height: 64px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.font-mono-num {
+  font-family: 'Pretendard Variable', 'Pretendard', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ========================================
