@@ -13,6 +13,19 @@ import {
   mockSaturationTrend,
 } from "@/shared/api"
 import type { SignalStatus } from "@/shared/api/mock-data"
+import { priorTopGames, priorMetadata, isPriorStale, priorAgeDays } from "@/shared/api/prior-data"
+
+const REVENUE_USD_FMT = (usd: number | null): string => {
+  if (usd == null) return "—"
+  if (usd >= 1_000_000_000) return `$${(usd / 1_000_000_000).toFixed(1)}B`
+  if (usd >= 1_000_000) return `$${(usd / 1_000_000).toFixed(1)}M`
+  if (usd >= 1_000) return `$${(usd / 1_000).toFixed(0)}K`
+  return `$${Math.round(usd)}`
+}
+
+const PCT_FMT = (dec: number | null): string => (dec == null ? "—" : `${(dec * 100).toFixed(1)}%`)
+
+const SNAPSHOT_DATE = priorMetadata.fetchedAt.slice(0, 10)
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { useGridLayout } from "@/shared/hooks"
 import { motion } from "framer-motion"
@@ -125,52 +138,56 @@ export default function MarketGapPage() {
           <SaturationTrendChart data={mockSaturationTrend} expanded={satGrid.expandedId === "chart-0"} onToggle={() => satGrid.toggle("chart-0")} />
         </motion.div>
         <motion.div layout className={`${satGrid.getClassName("chart-1", 1)} h-full`} transition={GRID_TRANSITION}>
-        <div className="rounded-2xl border border-border bg-card p-6 h-full transition-colors hover:border-primary">
+        <div className="rounded-2xl border border-border bg-card p-6 h-full transition-colors hover:border-primary flex flex-col">
           <div className="mb-4">
-            <h3 className="text-lg font-semibold text-foreground">상위 10개 경쟁작</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">머지 장르 · 매출 순위</p>
-            <p className="text-xs text-muted-foreground mt-0.5 italic">포코머지 행은 보라색으로 강조됩니다</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-lg font-semibold text-foreground">머지 장르 Top 20 (JP)</h3>
+              {isPriorStale() ? (
+                <span className="inline-flex items-center gap-1 rounded-sm border border-[var(--signal-caution)]/40 bg-[var(--signal-caution)]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--signal-caution)]">
+                  STALE · {priorAgeDays()}일 경과
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-[var(--bg-2)] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                  Sensor Tower
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1" style={{ fontVariantNumeric: "tabular-nums" }}>
+              기준: {SNAPSHOT_DATE} · iPhone Grossing · 최근 90일 매출 합계
+            </p>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-auto max-h-[520px] -mx-2 px-2">
             <table className="w-full text-sm">
-              <thead>
+              <thead className="sticky top-0 bg-card z-10">
                 <tr className="border-b border-border">
                   <th className="px-3 py-2 text-left text-xs font-bold text-muted-foreground">{t("table.rank")}</th>
                   <th className="px-3 py-2 text-left text-xs font-bold text-muted-foreground">{t("table.name")}</th>
                   <th className="px-3 py-2 text-right text-xs font-bold text-muted-foreground">{t("table.d7")}</th>
                   <th className="px-3 py-2 text-right text-xs font-bold text-muted-foreground">{t("table.d30")}</th>
-                  <th className="px-3 py-2 text-right text-xs font-bold text-muted-foreground">{t("table.revenue")}</th>
+                  <th className="px-3 py-2 text-right text-xs font-bold text-muted-foreground">90d 매출</th>
                 </tr>
               </thead>
               <tbody>
-                {mockCompetitors.map((c) => {
-                  const isOurs = c.name === "포코머지"
-                  return (
-                    <tr
-                      key={c.rank}
-                      className={
-                        "border-b border-border/40 " +
-                        (isOurs ? "bg-primary/10" : "")
-                      }
-                    >
-                      <td className="px-3 py-2.5 text-xs text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
-                        #{c.rank}
-                      </td>
-                      <td className={"px-3 py-2.5 text-xs " + (isOurs ? "font-bold text-primary" : "font-medium text-foreground")}>
-                        {c.name}
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-right text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
-                        {c.d7}%
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-right text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
-                        {c.d30}%
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-right font-bold text-foreground" style={{ fontVariantNumeric: "tabular-nums" }}>
-                        {c.revenue}
-                      </td>
-                    </tr>
-                  )
-                })}
+                {priorTopGames.map((g) => (
+                  <tr key={g.rank} className="border-b border-border/40 hover:bg-[var(--bg-2)]">
+                    <td className="px-3 py-2.5 text-xs text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      #{g.rank}
+                    </td>
+                    <td className="px-3 py-2.5 text-xs">
+                      <div className="font-medium text-foreground truncate max-w-[220px]" title={g.name}>{g.name}</div>
+                      <div className="text-[10px] text-muted-foreground truncate max-w-[220px]" title={g.publisher}>{g.publisher}</div>
+                    </td>
+                    <td className="px-3 py-2.5 text-xs text-right text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {PCT_FMT(g.retention.d7)}
+                    </td>
+                    <td className="px-3 py-2.5 text-xs text-right text-foreground/70" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {PCT_FMT(g.retention.d30)}
+                    </td>
+                    <td className="px-3 py-2.5 text-xs text-right font-bold text-foreground" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {REVENUE_USD_FMT(g.revenue.last90dTotalUsd)}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
