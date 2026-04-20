@@ -59,6 +59,7 @@ Screenshot *.png
 /crawler/.env
 /crawler/.playwright/
 /crawler/debug-screenshots/
+/crawler/fixtures/discovery-*.json
 /crawler/last-good-snapshot.json
 /crawler/.crawler.lock
 /crawler/*.har
