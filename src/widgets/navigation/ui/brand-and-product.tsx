@@ -9,11 +9,33 @@ import {
 } from '@/shared/ui/tooltip'
 
 /**
- * BrandAndProduct — 상단 좌측 로고 + 제품 설명.
+ * BrandAndProduct — 로고(아이콘 + 워드마크) + 제품 태그라인.
  *
- * "COMPASS" 워드마크는 Rocko Ultra 폰트로 brand 컬러(purple)에서 렌더.
- * gameboard의 로고 자리(이미지)와 동일한 높이/위치를 맞춤.
+ * 아이콘: inline SVG로 렌더해 currentColor → text-primary 상속
+ * 워드마크: Rocko Ultra + 30px + tracking-tight 으로
+ *           게임보드 PNG 로고 수준의 두께감 확보
  */
+function CompassMark({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 40 40"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      {/* 외곽 링 */}
+      <circle cx="20" cy="20" r="17.5" stroke="currentColor" strokeWidth={2.8} />
+      {/* 북침 (진함) */}
+      <path d="M20 5.5 L27 22 L20 18.5 L13 22 Z" fill="currentColor" />
+      {/* 남침 (흐림) */}
+      <path d="M20 34.5 L13 18 L20 21.5 L27 18 Z" fill="currentColor" fillOpacity={0.35} />
+      {/* 중심 점 */}
+      <circle cx="20" cy="20" r={2} fill="currentColor" />
+    </svg>
+  )
+}
+
 export function BrandAndProduct() {
   return (
     <div className="flex items-center gap-3 min-w-0 ml-2">
@@ -22,12 +44,19 @@ export function BrandAndProduct() {
           <TooltipTrigger asChild>
             <Link
               href="/dashboard"
-              className="flex items-center shrink-0"
+              className="flex items-center gap-2.5 shrink-0 text-primary"
               aria-label="대시보드로 돌아가기"
             >
+              <CompassMark className="w-7 h-7" />
               <span
-                className="text-[26px] font-normal leading-none tracking-[0.02em] text-primary"
-                style={{ fontFamily: "'Rocko Ultra', 'Pretendard Variable', sans-serif" }}
+                className="leading-none"
+                style={{
+                  fontFamily: "'Rocko Ultra', 'Pretendard Variable', sans-serif",
+                  fontSize: "30px",
+                  fontWeight: 900,
+                  letterSpacing: "-0.015em",
+                  textShadow: "0 1px 0 rgba(145,40,180,0.15)",
+                }}
               >
                 COMPASS
               </span>
