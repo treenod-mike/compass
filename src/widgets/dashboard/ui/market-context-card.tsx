@@ -7,6 +7,7 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { ChartHeader } from "@/shared/ui/chart-header"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
+import { priorMetadata } from "@/shared/api/prior-data"
 
 type MarketContextCardProps = {
   data: MarketContext
@@ -123,6 +124,11 @@ export function MarketContextCard({ data, expanded: externalExpanded, onToggle: 
         <p className="text-xs italic" style={{ color: "var(--fg-2)" }}>
           {data.aiSummary[locale]}
         </p>
+      </div>
+
+      {/* ST Source Footer */}
+      <div className="text-fg-3 mt-2 text-xs">
+        Source: Sensor Tower · 수집일 {priorMetadata.fetchedAt.slice(0, 10)} · {priorMetadata.genre} {priorMetadata.region} Top {priorMetadata.topN}
       </div>
       </div>
     </motion.div>
