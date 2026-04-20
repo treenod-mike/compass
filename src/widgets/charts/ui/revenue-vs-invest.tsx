@@ -83,12 +83,6 @@ export function RevenueVsInvest({ data, expanded: externalExpanded, onToggle: ex
             tickLine={false}
             tickFormatter={(v: number) => `$${v}`}
             width={52}
-            label={{
-              value: "$K",
-              position: "top",
-              offset: 4,
-              style: { ...CHART_TYPO.axisLabel, fill: C.axis, textAnchor: "middle" },
-            }}
           />
 
           <Tooltip
