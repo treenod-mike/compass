@@ -1,26 +1,20 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { ArrowRight, TrendingUp, TrendingDown } from "lucide-react"
+import { motion } from "framer-motion"
 import type { SignalStatus } from "@/shared/api/mock-data"
-import { Card } from "@/shared/ui/card"
 import { cn } from "@/shared/lib/utils"
 
 /**
- * DecisionStoryCard — Concept α + β (Toss Story + Linear 3-region narrative)
+ * DecisionStoryCard — α+β hybrid, polished pass.
  *
- * /dashboard 최상단 투자 판정 덱의 리디자인 버전.
- *  - α: 이모지 + 평이어 Hero + 3 메트릭 + CTA
- *  - β: Hero 아래 3-지역 서사 (포코머지 글로벌/일본/국내 상태)
- *
- * 설계 원칙 (docs/top-card-research.md §2 Toss 8원칙):
- *  1) 단일 hero 문장 (평이어)
- *  2) 숫자 + 평이어 병기 ("신뢰도 78% · 10번 중 8번")
- *  3) 감정 태그 이모지 (🚀 / ⚠️ / 🚨)
- *  4) 3-metric supporting grid
- *  5) 지역별 상태 한 줄 서사 (β)
- *  6) 단일 primary CTA
- *  7) status 색은 좌측 border-l-4로 subtle
- *  8) 톤: 친근 · 전문 중간
+ * 디자인 원칙:
+ *  - 브랜드(purple) 톤 우선, 상태 색(green/amber/red)은 chip·dot에만 제한
+ *  - border-l accent 제거 → 상단 status chip + subtle bg gradient
+ *  - 임팩트 숫자(매출 12억원) 하이라이트: bg + color + 큰 font
+ *  - 이모지 mount 시 scale-in 애니메이션으로 생동감
+ *  - CTA: purple gradient pill + hover lift
  */
 
 type Metric = {
@@ -53,15 +47,15 @@ const STATUS_EMOJI: Record<SignalStatus, string> = {
 }
 
 const STATUS_KO: Record<SignalStatus, string> = {
-  invest: "확대",
-  hold: "유지",
-  reduce: "축소",
+  invest: "확대 타이밍",
+  hold: "관망 중",
+  reduce: "축소 권고",
 }
 
-const STATUS_BORDER: Record<SignalStatus, string> = {
-  invest: "border-l-success",
-  hold: "border-l-warning",
-  reduce: "border-l-destructive",
+const STATUS_PILL: Record<SignalStatus, string> = {
+  invest: "bg-success/12 text-success",
+  hold: "bg-warning/15 text-warning",
+  reduce: "bg-destructive/12 text-destructive",
 }
 
 const STATUS_DOT: Record<SignalStatus, string> = {
@@ -70,9 +64,34 @@ const STATUS_DOT: Record<SignalStatus, string> = {
   reduce: "bg-destructive",
 }
 
+const REGION_STATUS_TAG: Record<SignalStatus, string> = {
+  invest: "bg-success/12 text-success",
+  hold: "bg-warning/15 text-warning",
+  reduce: "bg-destructive/12 text-destructive",
+}
+
 function confidenceAsOutOfTen(conf: number): string {
   const outOf10 = Math.round(conf / 10)
   return `10번 중 ${outOf10}번 맞을 근거`
+}
+
+/** Highlight tokens like "12억원", "4,500만원", "N일", "N%p". */
+function highlightImpactNumbers(text: string): React.ReactNode {
+  const regex = /([0-9][0-9.,]*[억만원일%p/]+(?:\s*[+\-]?[0-9.,]+[%p]?)?)/g
+  const parts = text.split(regex)
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <span
+        key={i}
+        className="bg-primary/12 text-primary font-extrabold px-1.5 py-0.5 rounded-md"
+        style={{ fontVariantNumeric: "tabular-nums" }}
+      >
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  )
 }
 
 export function DecisionStoryCard({
@@ -85,91 +104,135 @@ export function DecisionStoryCard({
   ctaLabel = "자세히 보기",
   onCta,
 }: DecisionStoryCardProps) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
   return (
-    <Card
+    <div
       className={cn(
-        "border-l-4 p-8 gap-6 hover:border-l-4",
-        STATUS_BORDER[status],
+        "relative overflow-hidden rounded-2xl border border-border bg-card",
+        "transition-colors hover:border-primary",
       )}
     >
-      {/* 1. Hero — emoji + 평이어 한 문장 */}
-      <div className="flex items-start gap-3">
-        <span className="text-3xl leading-none mt-1 flex-shrink-0">
-          {STATUS_EMOJI[status]}
-        </span>
-        <div className="flex-1 min-w-0">
-          <h2 className="text-[26px] font-bold text-foreground leading-snug tracking-tight break-keep">
-            {headline}
-          </h2>
-        </div>
-      </div>
+      {/* 배경 그라데이션 — purple tint (subtle) */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent) 0%, transparent 45%)",
+        }}
+      />
 
-      {/* 2. Impact + confidence */}
-      <div className="pl-12 -mt-2">
-        <p className="text-base font-semibold text-foreground/90 break-keep">
-          {impactText}
-        </p>
-        <p className="text-sm text-muted-foreground mt-1 break-keep">
-          ↳ {confidenceAsOutOfTen(confidence)}{" "}
-          <span className="text-foreground/70">(신뢰도 {confidence}%)</span>
-        </p>
-      </div>
-
-      {/* 3. 3-metric supporting grid */}
-      <div className="grid grid-cols-3 gap-3 pl-12">
-        {metrics.map((m) => (
-          <MetricPill key={m.label} {...m} />
-        ))}
-      </div>
-
-      {/* 4. β section — 지역별 상태 한 줄 서사 */}
-      <div className="border-t border-border pt-5 pl-12">
-        <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">
-          지역별 상태
-        </div>
-        <ul className="flex flex-col gap-2.5">
-          {regions.map((r) => (
-            <li key={r.label} className="flex items-start gap-3">
-              <span
-                className={cn(
-                  "w-2 h-2 rounded-full flex-shrink-0 mt-[7px]",
-                  STATUS_DOT[r.status],
-                )}
-              />
-              <div className="flex-1 min-w-0 flex items-baseline gap-2 flex-wrap">
-                <span className="text-sm font-bold text-foreground">
-                  {r.label}
-                </span>
-                <span className="text-xs font-semibold text-foreground/70">
-                  · {STATUS_KO[r.status]}
-                </span>
-                <span className="text-sm text-muted-foreground break-keep">
-                  · {r.reason}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* 5. CTA */}
-      {onCta && (
-        <div className="flex justify-end pt-2">
-          <button
-            onClick={onCta}
-            type="button"
+      <div className="relative p-8 md:p-10 flex flex-col gap-7">
+        {/* 1. Top row — emoji + status chip */}
+        <div className="flex items-center justify-between gap-4">
+          <motion.span
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={mounted ? { scale: 1, opacity: 1 } : { scale: 0.6, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 18 }}
+            className="text-4xl leading-none"
+            aria-hidden
+          >
+            {STATUS_EMOJI[status]}
+          </motion.span>
+          <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold",
-              "bg-primary text-primary-foreground",
-              "transition-transform hover:scale-[1.02] active:scale-[0.97]",
+              "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold",
+              STATUS_PILL[status],
             )}
           >
-            {ctaLabel}
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            <span className={cn("w-1.5 h-1.5 rounded-full", STATUS_DOT[status])} />
+            {STATUS_KO[status]}
+          </span>
         </div>
-      )}
-    </Card>
+
+        {/* 2. Hero headline — 2단 구성 */}
+        <div className="flex flex-col gap-3">
+          <h2
+            className="text-[30px] md:text-[34px] font-extrabold text-foreground leading-[1.2] tracking-tight break-keep"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            {headline}
+          </h2>
+
+          <p className="text-lg font-semibold text-foreground/90 leading-relaxed break-keep flex flex-wrap items-baseline gap-x-1">
+            {highlightImpactNumbers(impactText)}
+          </p>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <ConfidenceGauge confidence={confidence} />
+            <span>
+              {confidenceAsOutOfTen(confidence)}{" "}
+              <span className="text-foreground/60">· 신뢰도 {confidence}점</span>
+            </span>
+          </div>
+        </div>
+
+        {/* 3. 3-metric supporting grid */}
+        <div className="grid grid-cols-3 gap-3">
+          {metrics.map((m) => (
+            <MetricPill key={m.label} {...m} />
+          ))}
+        </div>
+
+        {/* 4. β — 지역별 상태 */}
+        <div className="rounded-xl bg-muted/40 border border-border/60 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+              지역별 상태
+            </span>
+            <span className="flex-1 h-px bg-border/60" />
+          </div>
+          <ul className="flex flex-col gap-2.5">
+            {regions.map((r) => (
+              <li key={r.label} className="flex items-center gap-3 text-sm">
+                <span
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm",
+                    STATUS_DOT[r.status],
+                  )}
+                />
+                <span className="font-bold text-foreground flex-shrink-0">
+                  {r.label}
+                </span>
+                <span
+                  className={cn(
+                    "px-2 py-0.5 rounded-md text-[11px] font-bold flex-shrink-0",
+                    REGION_STATUS_TAG[r.status],
+                  )}
+                >
+                  {STATUS_KO[r.status].replace(" 타이밍", "").replace(" 중", "").replace(" 권고", "")}
+                </span>
+                <span className="text-muted-foreground break-keep">
+                  {r.reason}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 5. CTA */}
+        {onCta && (
+          <div className="flex justify-end">
+            <motion.button
+              onClick={onCta}
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className={cn(
+                "group inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold",
+                "bg-primary text-primary-foreground shadow-lg shadow-primary/20",
+              )}
+            >
+              {ctaLabel}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </motion.button>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -179,19 +242,24 @@ function MetricPill({ label, value, trend }: Metric) {
     trend?.direction === "down" ? "text-destructive" : "text-success"
 
   return (
-    <div className="rounded-xl bg-muted/60 px-4 py-3 flex flex-col gap-1">
-      <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide break-keep">
+    <div
+      className={cn(
+        "rounded-xl bg-card border border-border px-4 py-3.5 flex flex-col gap-1.5",
+        "transition-all hover:border-primary/60 hover:shadow-sm",
+      )}
+    >
+      <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide break-keep">
         {label}
       </span>
       <span
-        className="text-xl font-bold text-foreground leading-none"
+        className="text-[22px] font-extrabold text-foreground leading-none"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
         {value}
       </span>
       {trend && (
         <div
-          className={cn("flex items-center gap-1 text-xs font-medium", trendColor)}
+          className={cn("flex items-center gap-1 text-xs font-semibold", trendColor)}
         >
           {trend.direction !== "flat" && <TrendIcon className="w-3 h-3" />}
           <span className="break-keep" style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -200,5 +268,23 @@ function MetricPill({ label, value, trend }: Metric) {
         </div>
       )}
     </div>
+  )
+}
+
+/** Tiny inline gauge — 5 dots, filled proportionally to confidence. */
+function ConfidenceGauge({ confidence }: { confidence: number }) {
+  const filled = Math.round(confidence / 20) // 0-5
+  return (
+    <span className="inline-flex items-center gap-0.5" aria-hidden>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <span
+          key={i}
+          className={cn(
+            "w-1.5 h-1.5 rounded-full transition-colors",
+            i < filled ? "bg-primary" : "bg-primary/20",
+          )}
+        />
+      ))}
+    </span>
   )
 }
