@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "crawl:st": "cd crawler && tsx src/index.ts",
+    "crawl:st:login": "cd crawler && tsx src/index.ts --login",
+    "crawl:st:dry": "cd crawler && tsx src/index.ts --dry-run --limit 1"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

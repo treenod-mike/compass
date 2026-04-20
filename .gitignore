@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!crawler/.env.example
 
 # vercel
 .vercel
@@ -51,3 +53,15 @@ next-env.d.ts
 스크린샷 *.jpg
 Screen Shot *.png
 Screenshot *.png
+
+# Sensor Tower crawler
+/crawler/storageState.json
+/crawler/.env
+/crawler/.playwright/
+/crawler/debug-screenshots/
+/crawler/last-good-snapshot.json
+/crawler/.crawler.lock
+/crawler/*.har
+/crawler/node_modules/
+/crawler/dist/
+/crawler/.vitest-cache/
