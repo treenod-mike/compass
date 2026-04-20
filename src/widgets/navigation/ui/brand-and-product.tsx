@@ -8,6 +8,12 @@ import {
   TooltipTrigger,
 } from '@/shared/ui/tooltip'
 
+/**
+ * BrandAndProduct — 상단 좌측 로고 + 제품 설명.
+ *
+ * "COMPASS" 워드마크는 Rocko Ultra 폰트로 brand 컬러(purple)에서 렌더.
+ * gameboard의 로고 자리(이미지)와 동일한 높이/위치를 맞춤.
+ */
 export function BrandAndProduct() {
   return (
     <div className="flex items-center gap-3 min-w-0 ml-2">
@@ -19,8 +25,11 @@ export function BrandAndProduct() {
               className="flex items-center shrink-0"
               aria-label="대시보드로 돌아가기"
             >
-              <span className="text-xl font-bold tracking-tight text-primary dark:text-foreground">
-                Compass
+              <span
+                className="text-[26px] font-normal leading-none tracking-[0.02em] text-primary"
+                style={{ fontFamily: "'Rocko Ultra', 'Pretendard Variable', sans-serif" }}
+              >
+                COMPASS
               </span>
             </Link>
           </TooltipTrigger>

@@ -18,6 +18,13 @@
   font-display: block;
 }
 
+/* ── Rocko Ultra — reserved for the COMPASS wordmark only ── */
+@font-face {
+  font-family: 'Rocko Ultra';
+  src: url('/fonts/rocko-ultra-flf.otf') format('opentype');
+  font-display: swap;
+}
+
 :root {
   /* ── Core ── */
   --primary: #9128b4;
