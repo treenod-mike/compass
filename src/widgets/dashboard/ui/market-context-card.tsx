@@ -95,9 +95,9 @@ export function MarketContextCard({ data, expanded: externalExpanded, onToggle: 
                 key={ch.name}
                 className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
                 style={{
-                  background: ch.momChange > 0 ? "rgba(255,80,80,0.08)" : "rgba(52,211,153,0.10)",
+                  background: ch.momChange > 0 ? "var(--signal-risk-bg)" : "var(--signal-positive-bg)",
                   color: ch.momChange > 0 ? "var(--signal-risk)" : "var(--signal-positive)",
-                  border: `1px solid ${ch.momChange > 0 ? "rgba(255,80,80,0.20)" : "rgba(52,211,153,0.25)"}`,
+                  border: `1px solid color-mix(in srgb, ${ch.momChange > 0 ? "var(--signal-risk)" : "var(--signal-positive)"} 22%, transparent)`,
                 }}
               >
                 {ch.name} {ch.momChange > 0 ? "+" : ""}{ch.momChange}%
