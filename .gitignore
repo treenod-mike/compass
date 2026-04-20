@@ -65,3 +65,7 @@ Screenshot *.png
 /crawler/node_modules/
 /crawler/dist/
 /crawler/.vitest-cache/
+
+# Reference / scratch directories (not part of the app build)
+/gameboard-src/
+/Project Compass/
