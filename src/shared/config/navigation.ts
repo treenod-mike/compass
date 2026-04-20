@@ -1,4 +1,6 @@
-import { BarChart3, TrendingUp, type LucideIcon } from 'lucide-react'
+import type { IconifyIcon } from '@iconify/types'
+import chart2Bold from '@iconify-icons/solar/chart-2-bold'
+import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 
 export type CategoryId = 'overview' | 'market'
 
@@ -6,33 +8,33 @@ export interface CategoryMeta {
   id: CategoryId
   label: string
   position: 'primary' | 'utility'
-  icon: LucideIcon
+  icon: IconifyIcon
 }
 
 export interface NavigationItem {
   title: string
   url: string
-  icon: LucideIcon
+  icon: IconifyIcon
   category: CategoryId
   badge?: string
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'overview', label: '투자 판정', position: 'primary', icon: BarChart3 },
-  { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: TrendingUp },
+  { id: 'overview', label: '투자 판정', position: 'primary', icon: chart2Bold },
+  { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: graphUpBold },
 ]
 
 export const navigationItems: NavigationItem[] = [
   {
     title: '투자 판정',
     url: '/dashboard',
-    icon: BarChart3,
+    icon: chart2Bold,
     category: 'overview',
   },
   {
     title: '시장 포지셔닝',
     url: '/dashboard/market-gap',
-    icon: TrendingUp,
+    icon: graphUpBold,
     category: 'market',
   },
 ]

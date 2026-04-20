@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { Icon as Iconify } from '@iconify/react'
 import { cn } from '@/shared/lib/utils'
 import {
   getItemsByCategory,
@@ -190,7 +191,7 @@ function CategoryMenuItem({
                 )}
               >
                 <motion.div whileHover={{ scale: 1.15 }} transition={iconHoverTransition}>
-                  <item.icon className="w-7 h-7 text-primary dark:text-foreground" />
+                  <Iconify icon={item.icon} className="w-7 h-7 text-primary dark:text-foreground" />
                 </motion.div>
               </div>
             </TooltipTrigger>
@@ -209,7 +210,7 @@ function CategoryMenuItem({
             whileHover={{ scale: 1.15 }}
             transition={iconHoverTransition}
           >
-            <item.icon className="w-7 h-7 text-primary dark:text-foreground" />
+            <Iconify icon={item.icon} className="w-7 h-7 text-primary dark:text-foreground" />
           </motion.div>
           <span
             className="font-bold break-keep"

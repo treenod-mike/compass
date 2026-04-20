@@ -4,6 +4,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Icon as Iconify } from '@iconify/react'
 import { cn } from '@/shared/lib/utils'
 import {
   CATEGORIES,
@@ -178,7 +179,6 @@ interface PrimaryTabProps {
 }
 
 function PrimaryTab({ meta, isActive, isMenuOpen, onHover, onClick }: PrimaryTabProps) {
-  const Icon = meta.icon
   return (
     <button
       type="button"
@@ -193,7 +193,7 @@ function PrimaryTab({ meta, isActive, isMenuOpen, onHover, onClick }: PrimaryTab
       aria-haspopup="menu"
       aria-expanded={isMenuOpen}
     >
-      <Icon size={20} className="text-primary dark:text-foreground" />
+      <Iconify icon={meta.icon} width={20} height={20} className="text-primary dark:text-foreground" />
       <span>{meta.label}</span>
     </button>
   )
@@ -210,7 +210,6 @@ function UtilityTab({ meta, isActive, items, onNavigate }: UtilityTabProps) {
   const categoryItems = getItemsByCategory(items, meta.id)
   if (categoryItems.length === 0) return null
   const target = categoryItems[0]
-  const Icon = meta.icon
   return (
     <Link
       href={target.url}
@@ -222,7 +221,7 @@ function UtilityTab({ meta, isActive, items, onNavigate }: UtilityTabProps) {
           : 'text-foreground/70 border-transparent hover:text-foreground hover:border-border',
       )}
     >
-      <Icon size={20} className="text-primary dark:text-foreground" />
+      <Iconify icon={meta.icon} width={20} height={20} className="text-primary dark:text-foreground" />
       <span>{meta.label}</span>
     </Link>
   )
@@ -240,7 +239,6 @@ function MegaSection({ meta: _meta, items, pathname, onNavigate }: MegaSectionPr
   return (
     <div className="min-w-[200px] px-2 space-y-0.5">
       {items.map((item) => {
-        const ItemIcon = item.icon
         const isItemActive =
           pathname === item.url || pathname.startsWith(`${item.url}/`)
         return (
@@ -256,7 +254,7 @@ function MegaSection({ meta: _meta, items, pathname, onNavigate }: MegaSectionPr
                 : 'text-foreground/80 hover:bg-accent hover:text-accent-foreground',
             )}
           >
-            <ItemIcon size={20} className="shrink-0 text-primary dark:text-foreground" />
+            <Iconify icon={item.icon} width={20} height={20} className="shrink-0 text-primary dark:text-foreground" />
             <span className="break-keep">{item.title}</span>
             {item.badge && (
               <span className="ml-auto text-xs font-bold text-white px-2 py-0.5 rounded-full bg-brand-line whitespace-nowrap">
