@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import "@/styles/globals.css"
+import { ThemeProvider } from "next-themes"
+import { Toaster } from "sonner"
 import { TooltipProvider } from "@/shared/ui/tooltip"
 import { LocaleProvider } from "@/shared/i18n"
 
@@ -24,9 +26,17 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className="antialiased">
-        <LocaleProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-        </LocaleProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LocaleProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+          </LocaleProvider>
+          <Toaster position="top-right" closeButton duration={2000} />
+        </ThemeProvider>
       </body>
     </html>
   )
