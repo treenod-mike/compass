@@ -215,3 +215,27 @@ Bayesian 사전/사후 확률 분석으로 시장 대비 포지셔닝 시각화.
 - **React 19 + @visx**: peer dependency 충돌 → `npm install --legacy-peer-deps` 필수
 - **차트 24개 전부 보존**: 현재 페이지에서 사용하지 않는 차트도 포함 (향후 페이지 추가 시 활용)
 - **Mock 데이터**: `shared/api/mock-data.ts`에 모든 타입 + 데이터 정의. 실 API 연동 전 단계
+
+---
+
+## 9. 외부 데이터 갱신 (Sensor Tower 크롤러)
+
+Compass의 Bayesian Prior(장르 기대치) 데이터는 `crawler/` 패키지가 Sensor Tower 웹 대시보드에서 수집해 `src/shared/api/data/sensor-tower/merge-jp-snapshot.json`에 저장합니다.
+
+### 운영
+- 주 1회 수동 실행: `npm run crawl:st`
+- 30일마다 재로그인: `npm run crawl:st:login`
+- 1개 게임 디버그: `npm run crawl:st:dry`
+
+### 코드 진입점
+- 크롤러: `crawler/src/index.ts`
+- Compass 측 import: `src/shared/api/prior-data.ts` (`priorByGenre`, `priorTopGames`, `isPriorStale()`)
+- 설계 스펙: `docs/superpowers/specs/2026-04-20-sensortower-crawler-design.md`
+
+### 안전
+- 비밀번호 저장 안 함 — 항상 사람이 직접 로그인
+- `crawler/storageState.json`, `crawler/.env`는 절대 커밋 금지 (`.gitignore`로 차단)
+- 14일 경과 시 Compass UI에 stale 배지 자동 표시
+
+### 트러블슈팅
+`crawler/README.md` 참조.
