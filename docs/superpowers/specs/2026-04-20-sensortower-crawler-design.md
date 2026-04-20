@@ -389,3 +389,91 @@ export function isPriorStale(maxDays = 14): boolean {
 - **포맷**: ESLint + Prettier (Compass 루트 설정 상속, crawler/는 자체 설정 가능)
 - **테스트**: transformer만 단위 테스트(Vitest 또는 node:test). E2E 자동 테스트는 ST 봇 탐지 위험으로 작성하지 않음
 - **로깅**: `console.log` 금지, `lib/logger.ts`로 통일 (silent/info/debug 3단계)
+
+---
+
+## 10. 2026-04-20 12:13 브레인스토밍 보강 노트
+
+본 spec은 2026-04-20 11:56 최초 커밋(c74c19d) 이후 "데이터 구조 확보" 주제로 재검토되어 아래 결정이 **재확정 또는 보강**되었다.
+
+### 10.1 저장 방식 확정 — 동기 import 유지 (Q4 재검토 결과)
+
+브레인스토밍 Q4에서 "`public/data/*.json` + fetch" 옵션이 일시 제안되었으나, 최종적으로 **기존 spec의 동기 import 방식(`src/shared/api/data/sensor-tower/merge-jp-snapshot.json` 직접 import)을 유지**하기로 확정.
+
+**근거:**
+- MVP 스냅샷 1개는 수십~수백 KB 수준 (Top 20 × 90일 매출 + 30일 리텐션 추정) → 번들 영향 무시 가능
+- 동기 import로 Suspense·loading UI·에러 바운더리 불필요 → 컴포넌트 단순화
+- `git diff`로 데이터 변화 추적 가능 (원래 fetch 옵션이 노렸던 장점도 포함)
+- `useGameData` 훅 내부 철학("동기 mock → 나중에 async API로 교체")과 일관
+- 라이브 전환 시에는 import → fetch로 훅 내부만 교체하면 됨 (UI 영향 0)
+
+### 10.2 타겟 게임 상태 — **포코머지는 Pre-Launch**
+
+포코머지는 **2026-04-20 기준 출시 전(개발 중) 상태**임을 본 spec에 명시.
+
+**데이터 구조에 미치는 영향:**
+- SensorTower 크롤러는 **prior(시장 기대치)만** 다루므로 직접 영향 없음
+- Posterior(우리 게임 실적) 데이터는 `mock-data.ts`의 기존 값을 **"pre-launch forecast (팀 예측치)"** 로 재라벨링해 운용
+- Bayesian 차트의 내러티브가 "운영 진단"이 아닌 **"출시 전 투자 의사결정"** 으로 포지셔닝됨
+- Phase 7 통합 시 `market-context-card`에 "prior=SensorTower 실시장 / posterior=팀 사전 예측" 주석 추가 권장
+
+**비목표 확인:**
+- 사내 매출 시스템 연동은 MVP 범위 외 (연동된 시스템이 아직 존재하지 않음)
+- "My Sales Metrics" (SensorTower 내부 매출 탭)도 MVP 범위 외 (현재 연결된 데이터 없음 확인)
+
+### 10.3 범위 확정 — Top 20 그대로
+
+브레인스토밍 Q2에서 "장르 상위 10개"로 더 좁히자는 의견이 나왔으나, 기존 spec의 **Top 20**을 유지.
+
+**근거:**
+- ST Top Chart 페이지 1 렌더링으로 20개까지 한 번에 획득 가능 → 크롤 페이지 수 증가 없음
+- 백분위 계산(P10/P50/P90)의 통계적 신뢰도는 n=20이 n=10보다 명확히 우수
+- Transformer 로직(percentile-calculator)이 Top 20 기준으로 이미 설계됨
+
+### 10.4 확정된 데이터 구조 체계
+
+"데이터 구조 확보" 주제의 최종 결론:
+
+```
+[SensorTower Enterprise 구독]
+         │ (Playwright headed + XHR intercept)
+         ▼
+[crawler/ 로컬 CLI]
+  ├─ auth: storageState.json (로컬, gitignore)
+  ├─ fetchers: top-charts + game-intel + usage-intel
+  ├─ transformer: P10/P50/P90 + prior shape 산출
+  └─ writer: atomic + last-good backup
+         │ (commit)
+         ▼
+[src/shared/api/data/sensor-tower/merge-jp-snapshot.json]  ← SSOT for prior
+         │ (static import)
+         ▼
+[src/shared/api/prior-data.ts]  ← Zod 검증 + 타입 노출
+         │
+         ▼
+[위젯] prior-posterior-chart / market-benchmark / market-context-card
+         │
+         ▼
+[Compass Dashboard UI]
+         ▲
+         │
+[src/shared/api/mock-data.ts]  ← posterior (pre-launch forecast, mock 유지)
+```
+
+SSOT(Single Source of Truth) 2개:
+1. **prior** = `merge-jp-snapshot.json` (SensorTower 실 데이터, 크롤러가 갱신)
+2. **posterior** = `mock-data.ts` (팀 예측치, 수동 편집)
+
+둘은 **완전히 독립된 파일**로 교차 의존 없음. 크롤러 실패가 posterior에 영향을 주지 않고, posterior 변경이 크롤러에 영향을 주지 않음.
+
+### 10.5 즉시 실행 블로커 — Phase 1.5 수동 탐사
+
+`plans/2026-04-20-sensortower-crawler.md` Phase 1.5는 사용자가 SensorTower에 로그인해 DevTools Network 탭으로 **XHR 엔드포인트를 직접 탐사**해야 하는 수동 작업임. 이 데이터 없이는 Phase 2~4 fetcher 자동 구현이 불가.
+
+**필요한 캡처 항목 (최소):**
+- Top Charts (Merge × JP × Grossing) 페이지의 XHR request URL + 응답 JSON shape 1건
+- 임의 게임의 Downloads/Revenue 상세 페이지 XHR + 응답 JSON shape 1건
+- 임의 게임의 Retention 페이지 XHR + 응답 JSON shape 1건
+
+이 세 건이 확보되어야 executing-plans 단계로 넘어갈 수 있음.
+

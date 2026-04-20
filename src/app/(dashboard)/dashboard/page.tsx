@@ -80,10 +80,6 @@ export default function ExecutiveOverviewPage() {
               reason: REGION_REASONS[t.label] ?? `ROAS ${t.roas}%, 본전 ${t.paybackD}일`,
             }))}
             ctaLabel="재배분 플랜 보기"
-            onCta={() => {
-              // TODO: 재배분 페이지 / modal 연결
-              console.info("재배분 플랜 열기")
-            }}
           />
         ) : (
           <HeroVerdict

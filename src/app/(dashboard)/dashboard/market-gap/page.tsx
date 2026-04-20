@@ -97,9 +97,6 @@ export default function MarketGapPage() {
           }))}
           regionsLabel="카테고리 신호"
           ctaLabel="경쟁 분석 보기"
-          onCta={() => {
-            console.info("경쟁 분석 보기")
-          }}
         />
       </FadeInUp>
 
