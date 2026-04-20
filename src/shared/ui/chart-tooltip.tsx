@@ -11,22 +11,17 @@ export type TooltipPayloadItem = {
 }
 
 export type ChartTooltipProps = {
-  /** Recharts passes this automatically */
   active?: boolean
-  /** Recharts passes this automatically */
   payload?: TooltipPayloadItem[]
-  /** Recharts passes this automatically */
   label?: string | number
-  /**
-   * Render prop for custom tooltip content.
-   * When using Recharts `content` prop, the `formatter` prop on `<Tooltip>` is IGNORED.
-   * All formatting must be done inside the render function.
-   */
-  render?: (props: { active: boolean; payload: TooltipPayloadItem[]; label?: string | number }) => ReactNode
+  render?: (props: {
+    active: boolean
+    payload: TooltipPayloadItem[]
+    label?: string | number
+  }) => ReactNode
   className?: string
 }
 
-/** Colored dot indicator for tooltip rows — matches legend/graph colors */
 export function TooltipDot({ color }: { color: string }) {
   return (
     <span
@@ -44,16 +39,8 @@ export function TooltipDot({ color }: { color: string }) {
 }
 
 /**
- * ChartTooltip — unified visual shell for all Recharts chart tooltips.
- *
- * Usage with render prop (recommended for custom formatting):
- *   <Tooltip content={<ChartTooltip render={({ payload }) => <div>...</div>} />} />
- *
- * Usage with default rendering (displays name: value with color dots):
- *   <Tooltip content={<ChartTooltip />} />
- *
- * IMPORTANT: When using `content={<ChartTooltip>}`, the Recharts `formatter`
- * prop is IGNORED. Move all formatting logic into the render prop.
+ * ChartTooltip — visual shell for all Recharts tooltips.
+ * Matches gameboard TDS style: rounded-[1.25rem] + shadow-md + bg-background / border-input.
  */
 export function ChartTooltip({
   active,
@@ -66,30 +53,36 @@ export function ChartTooltip({
 
   if (render) {
     return (
-      <div className={`compass-tooltip ${className}`} style={TOOLTIP_STYLE}>
+      <div
+        className={`compass-tooltip bg-background border border-input rounded-[1.25rem] shadow-md p-3 ${className}`}
+        style={BASE_STYLE}
+      >
         {render({ active: !!active, payload, label })}
       </div>
     )
   }
 
-  // Default rendering: label + rows with color dots
   return (
-    <div className={`compass-tooltip ${className}`} style={TOOLTIP_STYLE}>
+    <div
+      className={`compass-tooltip bg-background border border-input rounded-[1.25rem] shadow-md p-3 ${className}`}
+      style={BASE_STYLE}
+    >
       {label != null && (
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#0A0A0A", marginBottom: 4 }}>
-          {label}
-        </div>
+        <div className="text-sm font-semibold text-foreground mb-1">{label}</div>
       )}
       {payload.map((item, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", fontSize: 12, lineHeight: 1.6 }}>
+        <div
+          key={i}
+          className="flex items-center text-sm text-muted-foreground"
+          style={{ lineHeight: 1.6 }}
+        >
           {item.color && <TooltipDot color={item.color} />}
-          <span style={{ color: "#6B7280" }}>{item.name}</span>
+          <span>{item.name}</span>
           <span
+            className="text-foreground font-medium"
             style={{
               marginLeft: "auto",
               paddingLeft: 12,
-              fontWeight: 500,
-              color: "#0A0A0A",
               fontVariantNumeric: "tabular-nums",
             }}
           >
@@ -101,15 +94,8 @@ export function ChartTooltip({
   )
 }
 
-/** Shared tooltip visual style — single source of truth */
-const TOOLTIP_STYLE: React.CSSProperties = {
-  borderRadius: 4,               // --radius-card
-  border: "1px solid #E2E2DD",   // --border-default
-  backgroundColor: "#FFFFFF",     // --bg-1
-  padding: "8px 12px",
-  fontSize: 12,
-  lineHeight: 1.5,
-  boxShadow: "0 1px 0 rgba(0,0,0,0.04)",
+const BASE_STYLE: React.CSSProperties = {
   fontFamily: "inherit",
   minWidth: 120,
+  maxWidth: 350,
 }
