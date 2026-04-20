@@ -1,0 +1,10 @@
+# Vercel 배포 대상 제외 — 로컬 전용 도구
+crawler/
+
+# 문서 / 스펙 (배포 불필요)
+docs/
+
+# 로컬 개발 산출물
+.vitest-cache/
+storageState.json
+*.har
