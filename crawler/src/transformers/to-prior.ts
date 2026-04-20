@@ -30,8 +30,12 @@ export function computeGenrePrior(games: TopGame[]): Snapshot["genrePrior"] {
   const d1 = games.map((g) => g.retention.d1);
   const d7 = games.map((g) => g.retention.d7);
   const d30 = games.map((g) => g.retention.d30);
-  const monthlyRevs = games.map((g) => avgMonthly(g.revenue.monthly));
-  const monthlyDls = games.map((g) => avgMonthly(g.downloads.monthly));
+  const periodRev = (g: TopGame) =>
+    g.revenue.monthly.length > 0 ? avgMonthly(g.revenue.monthly) : g.revenue.last90dTotalUsd;
+  const periodDl = (g: TopGame) =>
+    g.downloads.monthly.length > 0 ? avgMonthly(g.downloads.monthly) : g.downloads.last90dTotal;
+  const monthlyRevs = games.map(periodRev);
+  const monthlyDls = games.map(periodDl);
 
   return {
     retention: { d1: dist(d1), d7: dist(d7), d30: dist(d30) },

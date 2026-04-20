@@ -1,0 +1,530 @@
+{
+  "$schemaVersion": 1,
+  "metadata": {
+    "fetchedAt": "2026-04-20T08:10:46.357Z",
+    "fetchedBy": "crawler@local",
+    "genre": "Merge",
+    "region": "JP",
+    "topN": 20,
+    "tier": "iphone-grossing",
+    "crawlerVersion": "0.2.0",
+    "warnings": [
+      "retention missing for 69396d41282f1609c72c2c73",
+      "retention missing for 67a30338e914de1770b2fafc",
+      "retention missing for 69121c1e547ced419350f6e3",
+      "retention missing for 68dc22021052067ace99108b",
+      "포코머지가 Top 목록에 없음 — prior 전용 스냅샷"
+    ]
+  },
+  "topGames": [
+    {
+      "rank": 1,
+      "name": "Tasty Travels: Merge Game",
+      "publisher": "Century Games",
+      "appIds": {
+        "ios": "6471045672",
+        "android": "com.fatmerge.global"
+      },
+      "downloads": {
+        "last90dTotal": 227949,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 241609663,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.6698,
+        "d7": 0.389,
+        "d30": 0.1071,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 2,
+      "name": "Gossip Harbor: Merge & Story",
+      "publisher": "Microfun",
+      "appIds": {
+        "ios": "1623318294",
+        "android": "com.mergegames.gossipharbor"
+      },
+      "downloads": {
+        "last90dTotal": 203393,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 843514446,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3739,
+        "d7": 0.18,
+        "d30": 0.076,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 3,
+      "name": "Hello Kitty My Dream Store",
+      "publisher": "ACT Games",
+      "appIds": {
+        "ios": "6736896540",
+        "android": "com.actgames.HelloKittyMDS"
+      },
+      "downloads": {
+        "last90dTotal": 125069,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 39172686,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5997,
+        "d7": 0.2465,
+        "d30": 0.0895,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 4,
+      "name": "Merge Cooking",
+      "publisher": "Happibits",
+      "appIds": {
+        "ios": "1643509748",
+        "android": "com.merge.cooking.theme.restaurant.food"
+      },
+      "downloads": {
+        "last90dTotal": 88802,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 166948396,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.7119,
+        "d7": 0.4426,
+        "d30": 0.2497,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 5,
+      "name": "Mystery Town: Merge Games",
+      "publisher": "Cedar Games Studio",
+      "appIds": {
+        "ios": "6503603603",
+        "android": "com.cedargames.mysterytown"
+      },
+      "downloads": {
+        "last90dTotal": 52643,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 68171846,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.4663,
+        "d7": 0.2749,
+        "d30": 0.14,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 6,
+      "name": "Merge Fashion: Romance Story",
+      "publisher": "Infiniplay-Game",
+      "appIds": {
+        "ios": "6737874398",
+        "android": "com.infiniplay.merge.fashion.romance.story"
+      },
+      "downloads": {
+        "last90dTotal": 48805,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 6915968,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5381,
+        "d7": 0.2585,
+        "d30": 0.1098,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 7,
+      "name": "Watermelon Maker 2048",
+      "publisher": "Mobirix",
+      "appIds": {
+        "ios": null,
+        "android": "com.mobirix.ldwm"
+      },
+      "downloads": {
+        "last90dTotal": 44383,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 118304,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.4389,
+        "d7": 0.1587,
+        "d30": 0.0617,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 8,
+      "name": "Travel Town - Merge Adventure",
+      "publisher": "Magmatic Games",
+      "appIds": {
+        "ios": "1521236603",
+        "android": "io.randomco.travel"
+      },
+      "downloads": {
+        "last90dTotal": 43862,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 73252295,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.2589,
+        "d7": 0.1009,
+        "d30": 0.0458,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 9,
+      "name": "Seaside Escape: Merge & Story",
+      "publisher": "Microfun",
+      "appIds": {
+        "ios": "6443755785",
+        "android": "com.gamedots.seasideescape"
+      },
+      "downloads": {
+        "last90dTotal": 35269,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 180927052,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.7448,
+        "d7": 0.3031,
+        "d30": 0.1593,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 10,
+      "name": "Merge Hotel Empire－Design Game",
+      "publisher": "Moon Active",
+      "appIds": {
+        "ios": "1577970257",
+        "android": "puzzle.merge.hotel.empire"
+      },
+      "downloads": {
+        "last90dTotal": 32802,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 4648623,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.63,
+        "d7": 0.2258,
+        "d30": 0.0657,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 11,
+      "name": "Haunted Merge: Horror Story",
+      "publisher": "WhaleJoy Game",
+      "appIds": {
+        "ios": "6752369665",
+        "android": "com.whalejoy.horrorstory.gp"
+      },
+      "downloads": {
+        "last90dTotal": 26167,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 16669628,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5698,
+        "d7": 0.3003,
+        "d30": 0.0973,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 12,
+      "name": "Merge Meow Cafe : Coffee cat",
+      "publisher": "ACTIONFIT",
+      "appIds": {
+        "ios": "6502603453",
+        "android": "com.actionfit.catmerge"
+      },
+      "downloads": {
+        "last90dTotal": 25829,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 2904739,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.6574,
+        "d7": 0.2903,
+        "d30": 0.1315,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 13,
+      "name": "Merge Restyle",
+      "publisher": "Poker City",
+      "appIds": {
+        "ios": "6738049542",
+        "android": "com.play.merge.restyle"
+      },
+      "downloads": {
+        "last90dTotal": 22091,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 9944746,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.679,
+        "d7": 0.3927,
+        "d30": 0.1263,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 14,
+      "name": "Merge Teahouse",
+      "publisher": "X.P. Games",
+      "appIds": {
+        "ios": "6756044415",
+        "android": "com.mhcljp.xpvsfd"
+      },
+      "downloads": {
+        "last90dTotal": 19861,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 26858137,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 15,
+      "name": "Merge Cookie Island",
+      "publisher": "GamePia.",
+      "appIds": {
+        "ios": "6746710194",
+        "android": "com.mergegames.cookieisland.gp"
+      },
+      "downloads": {
+        "last90dTotal": 18284,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 645106,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 16,
+      "name": "Foodstars: Merge & Cook",
+      "publisher": "Happibits",
+      "appIds": {
+        "ios": "6753862216",
+        "android": "com.merge.game.foodstars"
+      },
+      "downloads": {
+        "last90dTotal": 17604,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 6548225,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3031,
+        "d7": 0.2198,
+        "d30": 0.0812,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 17,
+      "name": "Flambé: Merge & Cook",
+      "publisher": "Microfun",
+      "appIds": {
+        "ios": "6618142292",
+        "android": "com.cola.game"
+      },
+      "downloads": {
+        "last90dTotal": 16465,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 57665716,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.623,
+        "d7": 0.3515,
+        "d30": 0.1511,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 18,
+      "name": "LINE：ぱくぱくスイーツ",
+      "publisher": "LY Corporation",
+      "appIds": {
+        "ios": "6747997074",
+        "android": "com.linecorp.LGSMJ21"
+      },
+      "downloads": {
+        "last90dTotal": 15958,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 0,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 19,
+      "name": "Dream Recipe : Merge Cooking",
+      "publisher": "HYSPIRE",
+      "appIds": {
+        "ios": "6749032286",
+        "android": "kr.co.alohacorp.ipmerge"
+      },
+      "downloads": {
+        "last90dTotal": 14790,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 1887681,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    },
+    {
+      "rank": 20,
+      "name": "Flower Merge - Flower Games",
+      "publisher": "Gloryway Puzzle",
+      "appIds": {
+        "ios": "6742394601",
+        "android": "flower.merge.blossom.puzzle.sort.match"
+      },
+      "downloads": {
+        "last90dTotal": 14737,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 305861,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3422,
+        "d7": 0.1304,
+        "d30": 0.0578,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:10:46.355Z"
+      }
+    }
+  ],
+  "genrePrior": {
+    "retention": {
+      "d1": {
+        "p10": 0.32265,
+        "p50": 0.58475,
+        "p90": 0.69545
+      },
+      "d7": {
+        "p10": 0.14455,
+        "p50": 0.2667,
+        "p90": 0.39085000000000003
+      },
+      "d30": {
+        "p10": 0.05975,
+        "p50": 0.1022,
+        "p90": 0.1552
+      }
+    },
+    "monthlyRevenueUsd": {
+      "p10": 287105.3,
+      "p50": 13307187,
+      "p90": 186995313.10000008
+    },
+    "monthlyDownloads": {
+      "p10": 15841.2,
+      "p50": 29484.5,
+      "p90": 132901.4000000001
+    }
+  }
+}

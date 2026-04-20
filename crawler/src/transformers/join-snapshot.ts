@@ -38,8 +38,8 @@ export function joinSnapshot(
   const facetsArr: any[] = market.facetsPayload?.data ?? [];
   const retentionArr: any[] = retention.retentionPayload?.data ?? [];
 
-  const entityByUai = new Map(entityApps.map((e) => [e.unified_app_id, e]));
-  const publisherById = new Map(entityPublishers.map((p) => [p.publisher_id, p]));
+  const entityByUai = new Map(entityApps.map((e) => [e.id ?? e.unified_app_id ?? e.app_id, e]));
+  const publisherById = new Map(entityPublishers.map((p) => [p.publisher_id ?? p.id, p]));
   const facetByUai = new Map(facetsArr.map((f) => [f.unifiedAppId, f]));
 
   // Build retention map: prefer row where appId is non-null (specific platform),
@@ -65,9 +65,10 @@ export function joinSnapshot(
     if (!facet) warnings.push(`facet missing for ${uai}`);
     if (!ret) warnings.push(`retention missing for ${uai}`);
 
-    const name = entity?.name ?? entity?.app_name ?? `(unknown ${uai})`;
-    const publisherId = entity?.publisher_id;
-    const publisher = publisherId ? (publisherById.get(publisherId)?.name ?? "(unknown publisher)") : "(unknown publisher)";
+    const name = entity?.name ?? entity?.humanized_name ?? `(unknown ${uai})`;
+    const publisher =
+      entity?.publisher_name ??
+      (entity?.publisher_id ? (publisherById.get(entity.publisher_id)?.name ?? "(unknown publisher)") : "(unknown publisher)");
 
     topGames.push({
       rank: i + 1,

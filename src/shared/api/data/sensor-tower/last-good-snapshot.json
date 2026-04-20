@@ -1,0 +1,550 @@
+{
+  "$schemaVersion": 1,
+  "metadata": {
+    "fetchedAt": "2026-04-20T08:09:57.360Z",
+    "fetchedBy": "crawler@local",
+    "genre": "Merge",
+    "region": "JP",
+    "topN": 20,
+    "tier": "iphone-grossing",
+    "crawlerVersion": "0.2.0",
+    "warnings": [
+      "entity missing for 65823471fc3fe50f8e2b14d9",
+      "entity missing for 62997510bafac62d04f854a3",
+      "entity missing for 67623418febe658a680641d2",
+      "entity missing for 6219e63b0c6ad83301492f26",
+      "entity missing for 6697ac96aa318ab3c8d162e7",
+      "entity missing for 66f622679845a1944923ee04",
+      "entity missing for 67234eadc0640086e3a6ed74",
+      "entity missing for 5f09e992d871ea7bfa1d261b",
+      "entity missing for 63492c69e87b39014950901d",
+      "entity missing for 6237f80820799d1e79d2eedf",
+      "entity missing for 687f300cf35ed1e66775d836",
+      "entity missing for 66459c36d5a7dd5434749a57",
+      "entity missing for 650d350bd327dc5b96824081",
+      "entity missing for 69396d41282f1609c72c2c73",
+      "retention missing for 69396d41282f1609c72c2c73",
+      "entity missing for 67a30338e914de1770b2fafc",
+      "retention missing for 67a30338e914de1770b2fafc",
+      "entity missing for 68b5e6a94a4c0fdc63acd161",
+      "entity missing for 670f5ddf227ce80fad574613",
+      "entity missing for 69121c1e547ced419350f6e3",
+      "retention missing for 69121c1e547ced419350f6e3",
+      "entity missing for 68dc22021052067ace99108b",
+      "retention missing for 68dc22021052067ace99108b",
+      "entity missing for 67709bacb55f4a04b810dfc1",
+      "포코머지가 Top 목록에 없음 — prior 전용 스냅샷"
+    ]
+  },
+  "topGames": [
+    {
+      "rank": 1,
+      "name": "(unknown 65823471fc3fe50f8e2b14d9)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6471045672",
+        "android": "com.fatmerge.global"
+      },
+      "downloads": {
+        "last90dTotal": 227949,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 241609663,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.6698,
+        "d7": 0.389,
+        "d30": 0.1071,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 2,
+      "name": "(unknown 62997510bafac62d04f854a3)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "1623318294",
+        "android": "com.mergegames.gossipharbor"
+      },
+      "downloads": {
+        "last90dTotal": 203393,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 843514446,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3739,
+        "d7": 0.18,
+        "d30": 0.076,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 3,
+      "name": "(unknown 67623418febe658a680641d2)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6736896540",
+        "android": "com.actgames.HelloKittyMDS"
+      },
+      "downloads": {
+        "last90dTotal": 125069,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 39172686,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5997,
+        "d7": 0.2465,
+        "d30": 0.0895,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 4,
+      "name": "(unknown 6219e63b0c6ad83301492f26)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "1643509748",
+        "android": "com.merge.cooking.theme.restaurant.food"
+      },
+      "downloads": {
+        "last90dTotal": 88802,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 166948396,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.7119,
+        "d7": 0.4426,
+        "d30": 0.2497,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 5,
+      "name": "(unknown 6697ac96aa318ab3c8d162e7)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6503603603",
+        "android": "com.cedargames.mysterytown"
+      },
+      "downloads": {
+        "last90dTotal": 52643,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 68171846,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.4663,
+        "d7": 0.2749,
+        "d30": 0.14,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 6,
+      "name": "(unknown 66f622679845a1944923ee04)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6737874398",
+        "android": "com.infiniplay.merge.fashion.romance.story"
+      },
+      "downloads": {
+        "last90dTotal": 48805,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 6915968,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5381,
+        "d7": 0.2585,
+        "d30": 0.1098,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 7,
+      "name": "(unknown 67234eadc0640086e3a6ed74)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": null,
+        "android": "com.mobirix.ldwm"
+      },
+      "downloads": {
+        "last90dTotal": 44383,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 118304,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.4389,
+        "d7": 0.1587,
+        "d30": 0.0617,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 8,
+      "name": "(unknown 5f09e992d871ea7bfa1d261b)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "1521236603",
+        "android": "io.randomco.travel"
+      },
+      "downloads": {
+        "last90dTotal": 43862,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 73252295,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.2589,
+        "d7": 0.1009,
+        "d30": 0.0458,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 9,
+      "name": "(unknown 63492c69e87b39014950901d)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6443755785",
+        "android": "com.gamedots.seasideescape"
+      },
+      "downloads": {
+        "last90dTotal": 35269,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 180927052,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.7448,
+        "d7": 0.3031,
+        "d30": 0.1593,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 10,
+      "name": "(unknown 6237f80820799d1e79d2eedf)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "1577970257",
+        "android": "puzzle.merge.hotel.empire"
+      },
+      "downloads": {
+        "last90dTotal": 32802,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 4648623,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.63,
+        "d7": 0.2258,
+        "d30": 0.0657,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 11,
+      "name": "(unknown 687f300cf35ed1e66775d836)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6752369665",
+        "android": "com.whalejoy.horrorstory.gp"
+      },
+      "downloads": {
+        "last90dTotal": 26167,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 16669628,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.5698,
+        "d7": 0.3003,
+        "d30": 0.0973,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 12,
+      "name": "(unknown 66459c36d5a7dd5434749a57)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6502603453",
+        "android": "com.actionfit.catmerge"
+      },
+      "downloads": {
+        "last90dTotal": 25829,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 2904739,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.6574,
+        "d7": 0.2903,
+        "d30": 0.1315,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 13,
+      "name": "(unknown 650d350bd327dc5b96824081)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6738049542",
+        "android": "com.play.merge.restyle"
+      },
+      "downloads": {
+        "last90dTotal": 22091,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 9944746,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.679,
+        "d7": 0.3927,
+        "d30": 0.1263,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 14,
+      "name": "(unknown 69396d41282f1609c72c2c73)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6756044415",
+        "android": "com.mhcljp.xpvsfd"
+      },
+      "downloads": {
+        "last90dTotal": 19861,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 26858137,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 15,
+      "name": "(unknown 67a30338e914de1770b2fafc)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6746710194",
+        "android": "com.mergegames.cookieisland.gp"
+      },
+      "downloads": {
+        "last90dTotal": 18284,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 645106,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 16,
+      "name": "(unknown 68b5e6a94a4c0fdc63acd161)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6753862216",
+        "android": "com.merge.game.foodstars"
+      },
+      "downloads": {
+        "last90dTotal": 17604,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 6548225,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3031,
+        "d7": 0.2198,
+        "d30": 0.0812,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 17,
+      "name": "(unknown 670f5ddf227ce80fad574613)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6618142292",
+        "android": "com.cola.game"
+      },
+      "downloads": {
+        "last90dTotal": 16465,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 57665716,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.623,
+        "d7": 0.3515,
+        "d30": 0.1511,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 18,
+      "name": "(unknown 69121c1e547ced419350f6e3)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6747997074",
+        "android": "com.linecorp.LGSMJ21"
+      },
+      "downloads": {
+        "last90dTotal": 15958,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 0,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 19,
+      "name": "(unknown 68dc22021052067ace99108b)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6749032286",
+        "android": "kr.co.alohacorp.ipmerge"
+      },
+      "downloads": {
+        "last90dTotal": 14790,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 1887681,
+        "monthly": []
+      },
+      "retention": {
+        "d1": null,
+        "d7": null,
+        "d30": null,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    },
+    {
+      "rank": 20,
+      "name": "(unknown 67709bacb55f4a04b810dfc1)",
+      "publisher": "(unknown publisher)",
+      "appIds": {
+        "ios": "6742394601",
+        "android": "flower.merge.blossom.puzzle.sort.match"
+      },
+      "downloads": {
+        "last90dTotal": 14737,
+        "monthly": []
+      },
+      "revenue": {
+        "last90dTotalUsd": 305861,
+        "monthly": []
+      },
+      "retention": {
+        "d1": 0.3422,
+        "d7": 0.1304,
+        "d30": 0.0578,
+        "sampleSize": "ST estimate",
+        "fetchedAt": "2026-04-20T08:09:57.359Z"
+      }
+    }
+  ],
+  "genrePrior": {
+    "retention": {
+      "d1": {
+        "p10": 0.32265,
+        "p50": 0.58475,
+        "p90": 0.69545
+      },
+      "d7": {
+        "p10": 0.14455,
+        "p50": 0.2667,
+        "p90": 0.39085000000000003
+      },
+      "d30": {
+        "p10": 0.05975,
+        "p50": 0.1022,
+        "p90": 0.1552
+      }
+    },
+    "monthlyRevenueUsd": {
+      "p10": 287105.3,
+      "p50": 13307187,
+      "p90": 186995313.10000008
+    },
+    "monthlyDownloads": {
+      "p10": 15841.2,
+      "p50": 29484.5,
+      "p90": 132901.4000000001
+    }
+  }
+}
