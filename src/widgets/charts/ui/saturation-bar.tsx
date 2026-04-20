@@ -35,7 +35,7 @@ export function SaturationBar({ data }: SaturationBarProps) {
           <YAxis tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} axisLine={false} tickLine={false} />
           <Tooltip content={<ChartTooltip />} />
           <Legend wrapperStyle={{ ...CHART_TYPO.legend }} />
-          <Bar dataKey="myGame" fill={C.myGame} radius={[4, 4, 0, 0]} barSize={16} name="Match League" animationBegin={200} animationDuration={800} animationEasing="ease-out" />
+          <Bar dataKey="myGame" fill={C.myGame} radius={[4, 4, 0, 0]} barSize={16} name="포코머지" animationBegin={200} animationDuration={800} animationEasing="ease-out" />
           <Bar dataKey="genreAvg" fill={C.genreAvg} radius={[4, 4, 0, 0]} barSize={16} name={t("chart.genreAvg")} animationBegin={200} animationDuration={800} animationEasing="ease-out" />
         </BarChart>
       </ResponsiveContainer>

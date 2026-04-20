@@ -15,25 +15,25 @@ function assert(condition: boolean, message: string): void {
   console.log(`✅ ${message}`)
 }
 
-// Match League (INVEST): prior 14.2, posterior 18.7 → +31.7% → invest
+// 포코머지 (INVEST): prior 14.2, posterior 18.7 → +31.7% → invest
 {
   const r = computeMarketSignal(14.2, 18.7)
-  assert(r.signal === "invest", `Match League D7 → invest (got ${r.signal})`)
+  assert(r.signal === "invest", `포코머지 D7 → invest (got ${r.signal})`)
   assert(Math.abs(r.deltaPct - 31.7) < 0.1, `deltaPct ≈ 31.7 (got ${r.deltaPct})`)
   assert(r.direction === "above", `direction above (got ${r.direction})`)
 }
 
-// Weaving Fairy (HOLD): prior 14.2, posterior 14.8 → +4.2% → hold (within ±5%)
+// 포코머지 일본 (HOLD): prior 14.2, posterior 14.8 → +4.2% → hold (within ±5%)
 {
   const r = computeMarketSignal(14.2, 14.8)
-  assert(r.signal === "hold", `Weaving Fairy within hold band (got ${r.signal})`)
+  assert(r.signal === "hold", `포코머지 일본 within hold band (got ${r.signal})`)
   assert(Math.abs(r.deltaPct - 4.2) < 0.1, `deltaPct ≈ 4.2 (got ${r.deltaPct})`)
 }
 
-// Dig Infinity (REDUCE): prior 14.2, posterior 11.5 → -19.0% → reduce
+// 포코머지 국내 (REDUCE): prior 14.2, posterior 11.5 → -19.0% → reduce
 {
   const r = computeMarketSignal(14.2, 11.5)
-  assert(r.signal === "reduce", `Dig Infinity → reduce (got ${r.signal})`)
+  assert(r.signal === "reduce", `포코머지 국내 → reduce (got ${r.signal})`)
   assert(Math.abs(r.deltaPct + 19.0) < 0.1, `deltaPct ≈ -19.0 (got ${r.deltaPct})`)
   assert(r.direction === "below", `direction below (got ${r.direction})`)
 }

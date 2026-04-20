@@ -30,7 +30,7 @@ export function SaturationTrendChart({ data, expanded: externalExpanded, onToggl
     >
       <ChartHeader
         title={t("market.saturationTrend")}
-        subtitle="Match League vs 매출 상위권 기준선"
+        subtitle="포코머지 vs 매출 상위권 기준선"
         info={t("info.saturationTrend")}
         actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
       />

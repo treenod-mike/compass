@@ -118,8 +118,8 @@ export type ScenarioResult = {
 }
 
 export const mockRetention = {
-  gameId: "match-league",
-  gameName: "Match League",
+  gameId: "poco-global",
+  gameName: "포코머지",
   cohort: "2026-03",
   genre: "Puzzle",
   data: [
@@ -269,7 +269,7 @@ export const mockMarketKPIs = {
 export const mockCompetitors: CompetitorData[] = [
   { rank: 1,  name: "Candy Crush Saga",    d1: 45.2, d7: 22.1, d30: 12.3, revenue: "$45M" },
   { rank: 2,  name: "Royal Match",         d1: 43.8, d7: 20.5, d30: 11.1, revenue: "$38M" },
-  { rank: 3,  name: "Match League",        d1: 42.3, d7: 18.7, d30: 8.5,  revenue: "$12M" },
+  { rank: 3,  name: "포코머지",        d1: 42.3, d7: 18.7, d30: 8.5,  revenue: "$12M" },
   { rank: 4,  name: "Homescapes",          d1: 40.1, d7: 17.3, d30: 7.8,  revenue: "$28M" },
   { rank: 5,  name: "Gardenscapes",        d1: 39.5, d7: 16.8, d30: 7.2,  revenue: "$25M" },
   { rank: 6,  name: "Toon Blast",          d1: 38.2, d7: 15.9, d30: 6.5,  revenue: "$20M" },
@@ -606,9 +606,9 @@ export const mockMarketContext: MarketContext = {
 }
 
 export const mockTitleHealth: TitleHealthRow[] = [
-  { gameId: "match-league",  label: "Match League",  genre: "Puzzle",        signal: "invest", confidence: 82, paybackD: 47,  roas: 142, retentionTrend: "improving" },
-  { gameId: "weaving-fairy", label: "Weaving Fairy", genre: "Casual",        signal: "hold",   confidence: 65, paybackD: 72,  roas: 96,  retentionTrend: "stable"    },
-  { gameId: "dig-infinity",  label: "Dig Infinity",  genre: "Arcade / Idle", signal: "reduce", confidence: 58, paybackD: 104, roas: 72,  retentionTrend: "declining" },
+  { gameId: "poco-global",  label: "포코머지 글로벌", genre: "Merge",        signal: "invest", confidence: 82, paybackD: 47,  roas: 142, retentionTrend: "improving" },
+  { gameId: "poco-jp", label: "포코머지 일본",  genre: "Merge",        signal: "hold",   confidence: 65, paybackD: 72,  roas: 96,  retentionTrend: "stable"    },
+  { gameId: "poco-kr",  label: "포코머지 국내",  genre: "Merge", signal: "reduce", confidence: 58, paybackD: 104, roas: 72,  retentionTrend: "declining" },
 ]
 
 export const mockCapitalWaterfall: CapitalWaterfallStep[] = [
@@ -634,12 +634,12 @@ export const mockPortfolioSignal = {
   status: "invest" as SignalStatus,
   confidence: 78,
   reason: {
-    ko: "포트폴리오 MOIC 1.27x — Match League 1개 타이틀이 투자 시그널을 견인 (나머지 2개는 유지·축소)",
-    en: "Portfolio MOIC 1.27x — driven by Match League (1 of 3 titles signaling scale; 2 others hold/reduce)",
+    ko: "포트폴리오 MOIC 1.27x — 글로벌이 강한 투자 확대 신호, 일본은 유지, 국내는 축소 권고",
+    en: "Portfolio MOIC 1.27x — driven by 포코머지 Global (scale); JP hold, KR reduce",
   },
   recommendation: {
-    ko: "Match League에 UA 예산 60%를 재배분하세요 (+$45K/월)",
-    en: "Reallocate 60% of UA budget (+$45K/mo) to Match League",
+    ko: "포코머지 글로벌에 UA 예산 60%를 재배분하세요 (+$45K/월)",
+    en: "Reallocate 60% of UA budget (+$45K/mo) to 포코머지 글로벌",
   },
   rationale: {
     ko: "포트폴리오 유일의 투자 확대 시그널",
@@ -846,18 +846,18 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       status: "invest",
       confidence: 78,
       reason: {
-        ko: "포트폴리오 MOIC 1.27x — Match League 1개 타이틀이 투자 시그널을 견인 (나머지 2개는 유지·축소)",
-        en: "Portfolio MOIC 1.27x — driven by Match League (1 of 3 titles signaling scale; 2 others hold/reduce)",
+        ko: "포트폴리오 MOIC 1.27x — 글로벌이 강한 투자 확대 신호, 일본은 유지, 국내는 축소 권고",
+        en: "Portfolio MOIC 1.27x — driven by 포코머지 Global (scale); JP hold, KR reduce",
       },
       factors: [
-        { status: "ok" as const,   text: { ko: "Match League 성장 가속 중",          en: "Match League accelerating growth" } },
-        { status: "warn" as const, text: { ko: "Weaving Fairy 수익화 실험 필요",      en: "Weaving Fairy needs monetization work" } },
-        { status: "fail" as const, text: { ko: "Dig Infinity UA 축소 권고",           en: "Dig Infinity UA cut recommended" } },
+        { status: "ok" as const,   text: { ko: "포코머지 글로벌 성장 가속 중",          en: "포코머지 Global accelerating" } },
+        { status: "warn" as const, text: { ko: "포코머지 일본 수익화 실험 필요",      en: "포코머지 일본 needs monetization work" } },
+        { status: "fail" as const, text: { ko: "포코머지 국내 UA 축소 권고",           en: "포코머지 국내 UA cut recommended" } },
       ],
       payback: { p10: 35, p50: 44, p90: 58 },
       nextAction: {
-        ko: "Match League에 UA 예산 60%를 재배분하세요 (+$45K/월) — 포트폴리오 유일의 투자 확대 시그널",
-        en: "Reallocate 60% of UA budget (+$45K/mo) to Match League — the only title signaling scale",
+        ko: "포코머지 글로벌에 UA 예산 60%를 재배분하세요 (+$45K/월) — 포트폴리오 유일의 투자 확대 시그널",
+        en: "Reallocate 60% of UA budget (+$45K/mo) to 포코머지 글로벌 — Global only; regional hold/reduce",
       },
       impact: {
         value: { ko: "+$1.2M ARR 예상", en: "+$1.2M ARR projected" },
@@ -876,7 +876,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: 1.27 }, // mockPortfolioKPIs.portfolioMoic
     },
   },
-  "match-league": {
+  "poco-global": {
     signal: {
       status: mockSignal.status,
       confidence: mockSignal.confidence,
@@ -898,7 +898,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: mockCapitalKPIs.capitalEff.value },
     },
   },
-  "weaving-fairy": {
+  "poco-jp": {
     signal: {
       status: "hold",
       confidence: 65,
@@ -934,7 +934,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: 0.92 },
     },
   },
-  "dig-infinity": {
+  "poco-kr": {
     signal: {
       status: "reduce",
       confidence: 58,
@@ -973,7 +973,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
 }
 
 export function getGameData(gameId: string, cohortMonth: string = "2026-03") {
-  const variant = GAME_VARIANTS[gameId] ?? GAME_VARIANTS["match-league"]
+  const variant = GAME_VARIANTS[gameId] ?? GAME_VARIANTS["poco-global"]
   const m = COHORT_MULTIPLIERS[cohortMonth] ?? 1.0
 
   return {
@@ -1023,7 +1023,7 @@ type GameChartData = {
 }
 
 const GAME_CHART_DATA: Record<string, GameChartData> = {
-  "match-league": {
+  "poco-global": {
     kpis: {
       roas:    { value: 142, trend: 8.3,  trendLabel: "up" },
       payback: { value: 47,  trend: -12,  trendLabel: "faster" },
@@ -1092,7 +1092,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
     ],
   },
 
-  "weaving-fairy": {
+  "poco-jp": {
     // HOLD story — stable but not yet profitable, ARPDAU gap
     kpis: {
       roas:    { value: 96,  trend: 2.1,  trendLabel: "up" },
@@ -1160,7 +1160,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
     ],
   },
 
-  "dig-infinity": {
+  "poco-kr": {
     // REDUCE story — declining revenue, CPI rising, burning cash
     kpis: {
       roas:    { value: 72,  trend: -6.2, trendLabel: "down" },
@@ -1278,7 +1278,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
         },
         {
           id: "E-247",
-          name: { ko: "Match League — 리워드 캘린더", en: "Match League — Reward Calendar" },
+          name: { ko: "포코머지 — 리워드 캘린더", en: "포코머지 — Reward Calendar" },
           deltaLtvPerUser: 1.8,
           annualRevenueLift: 180,
           shipMonth: "Jun",
@@ -1299,7 +1299,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
 }
 
 export function getGameChartData(gameId: string): GameChartData {
-  return GAME_CHART_DATA[gameId] ?? GAME_CHART_DATA["match-league"]
+  return GAME_CHART_DATA[gameId] ?? GAME_CHART_DATA["poco-global"]
 }
 
 export function computeScenario(uaBudget: number, targetRoas: number): ScenarioResult {
@@ -1336,7 +1336,7 @@ export type CyclicUpdateData = {
 
 export const mockCyclicUpdate_matchLeague_d7: CyclicUpdateData = {
   metric: "D7 Retention",
-  gameId: "match-league",
+  gameId: "poco-global",
   steps: [
     {
       day: 0, label: "D0", updateRound: 0,

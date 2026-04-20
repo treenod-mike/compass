@@ -65,7 +65,7 @@ export default function MarketGapPage() {
           <div className="mb-4">
             <h3 className="text-[15px] font-bold text-[var(--text-primary)]">Top 10 Competitors</h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">Puzzle genre · Revenue ranked</p>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5 italic">Match League highlighted in blue</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5 italic">포코머지 highlighted in blue</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -80,7 +80,7 @@ export default function MarketGapPage() {
               </thead>
               <tbody>
                 {mockCompetitors.map((c) => (
-                  <tr key={c.rank} className={`border-b border-slate-50 ${c.name === "Match League" ? "bg-[var(--brand-light)]" : ""}`}>
+                  <tr key={c.rank} className={`border-b border-slate-50 ${c.name === "포코머지" ? "bg-[var(--brand-light)]" : ""}`}>
                     <td className="px-3 py-2.5 text-xs text-[var(--text-secondary)] font-mono-num">#{c.rank}</td>
                     <td className="px-3 py-2.5 text-xs font-medium text-[var(--text-primary)]">{c.name}</td>
                     <td className="px-3 py-2.5 text-xs text-right text-[var(--text-secondary)] font-mono-num">{c.d7}%</td>
