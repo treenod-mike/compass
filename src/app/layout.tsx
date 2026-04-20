@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import "@/styles/globals.css"
-import { ThemeProvider } from "next-themes"
 import { Toaster } from "sonner"
 import { TooltipProvider } from "@/shared/ui/tooltip"
 import { LocaleProvider } from "@/shared/i18n"
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | Compass",
   },
   description:
-    "Translate A/B tests, live ops, and market signals into capital allocation decisions. Built for mobile gaming operators.",
+    "A/B 테스트, 라이브 운영, 시장 시그널을 자본 배분 결정으로 번역하는 AI 기반 의사결정 플랫폼.",
   icons: {
     icon: [{ url: "/images/logo/icon.png", type: "image/png" }],
     apple: "/images/logo/icon.png",
@@ -24,19 +23,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko">
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <LocaleProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </LocaleProvider>
-          <Toaster position="top-right" closeButton duration={2000} />
-        </ThemeProvider>
+        <LocaleProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </LocaleProvider>
+        <Toaster position="top-right" closeButton duration={2000} />
       </body>
     </html>
   )
