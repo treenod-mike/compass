@@ -30,7 +30,7 @@ export function RankingTrend({ data, expanded: externalExpanded, onToggle: exter
     >
       <ChartHeader
         title={t("market.rankingTrend")}
-        subtitle="Match League · 6-month trend"
+        subtitle="Match League · 6개월 추세"
         info={t("info.rankingTrend")}
         actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
       />

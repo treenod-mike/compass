@@ -171,7 +171,7 @@ export function ExperimentRevenue({ data, stats, expanded: externalExpanded, onT
     >
       <ChartHeader
         title={t("chart.revenueDecomp")}
-        subtitle="Match League · 2025 Jul — 2026 Apr · $K"
+        subtitle="Match League · 2025.7 — 2026.4 · $K"
         info={t("info.revenueDecomp")}
         insight={
           locale === "ko"

@@ -24,7 +24,7 @@ export function CohortHeatmap() {
   return (
     <div className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6">
       <ChartHeader
-        title="Cohort Retention Heatmap"
+        title="코호트 리텐션 히트맵"
       />
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

@@ -47,7 +47,7 @@ export function RevenueVsInvest({ data, expanded: externalExpanded, onToggle: ex
     >
       <ChartHeader
         title={t("chart.rovsInvest")}
-        subtitle="Match League · 2025 Jul — 2026 Apr · $K"
+        subtitle="Match League · 2025.7 — 2026.4 · $K"
         info={t("info.revenueVsInvest")}
         insight={
           locale === "ko"
