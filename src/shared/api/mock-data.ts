@@ -606,9 +606,7 @@ export const mockMarketContext: MarketContext = {
 }
 
 export const mockTitleHealth: TitleHealthRow[] = [
-  { gameId: "poco-global",  label: "포코머지 글로벌", genre: "Merge",        signal: "invest", confidence: 82, paybackD: 47,  roas: 142, retentionTrend: "improving" },
-  { gameId: "poco-jp", label: "포코머지 일본",  genre: "Merge",        signal: "hold",   confidence: 65, paybackD: 72,  roas: 96,  retentionTrend: "stable"    },
-  { gameId: "poco-kr",  label: "포코머지 국내",  genre: "Merge", signal: "reduce", confidence: 58, paybackD: 104, roas: 72,  retentionTrend: "declining" },
+  { gameId: "poco-merge", label: "포코머지", genre: "Merge", signal: "invest", confidence: 82, paybackD: 47, roas: 148, retentionTrend: "improving" },
 ]
 
 export const mockCapitalWaterfall: CapitalWaterfallStep[] = [
@@ -634,16 +632,16 @@ export const mockPortfolioSignal = {
   status: "invest" as SignalStatus,
   confidence: 78,
   reason: {
-    ko: "포트폴리오 MOIC 1.27x — 글로벌이 강한 투자 확대 신호, 일본은 유지, 국내는 축소 권고",
-    en: "Portfolio MOIC 1.27x — driven by 포코머지 Global (scale); JP hold, KR reduce",
+    ko: "포코머지 MOIC 1.27x — ROAS 148% · 본전 회수 평균 44일 · 장르 3위",
+    en: "포코머지 MOIC 1.27x — ROAS 148%, payback 44d median, genre rank 3",
   },
   recommendation: {
-    ko: "지금 포코머지 글로벌에 예산을 더 투입하세요",
-    en: "Scale investment into 포코머지 Global now",
+    ko: "지금 포코머지에 예산을 더 투입하세요",
+    en: "Scale investment into 포코머지 now",
   },
   rationale: {
-    ko: "월 4,500만원 규모 UA 재배분이면 본전 회수 평균 44일",
-    en: "~$45K/mo UA reallocation pays back in 44 days (median)",
+    ko: "월 4,500만원 규모 UA 추가 투입이면 본전 회수 평균 44일",
+    en: "~$45K/mo UA top-up pays back in 44 days (median)",
   },
   payback: { p10: 35, p50: 44, p90: 58 },
   impact: {
@@ -846,21 +844,21 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       status: "invest",
       confidence: 78,
       reason: {
-        ko: "포트폴리오 MOIC 1.27x — 글로벌이 강한 투자 확대 신호, 일본은 유지, 국내는 축소 권고",
-        en: "Portfolio MOIC 1.27x — driven by 포코머지 Global (scale); JP hold, KR reduce",
+        ko: "포코머지 MOIC 1.27x — ROAS 148% · 본전 회수 평균 44일 · 장르 3위",
+        en: "포코머지 MOIC 1.27x — ROAS 148%, payback 44d median, genre rank 3",
       },
       factors: [
-        { status: "ok" as const,   text: { ko: "포코머지 글로벌 성장 가속 중",          en: "포코머지 Global accelerating" } },
-        { status: "warn" as const, text: { ko: "포코머지 일본 수익화 실험 필요",      en: "포코머지 일본 needs monetization work" } },
-        { status: "fail" as const, text: { ko: "포코머지 국내 UA 축소 권고",           en: "포코머지 국내 UA cut recommended" } },
+        { status: "ok" as const,   text: { ko: "ROAS 148% · 광고비 회수율 장르 상위 15%",  en: "ROAS 148% — top 15% in genre" } },
+        { status: "ok" as const,   text: { ko: "월 성장 +6.2%p — 가속 중",                 en: "Growth +6.2%p/mo — accelerating" } },
+        { status: "warn" as const, text: { ko: "MMP 데이터 24h 지연 (신뢰도 영향 ≤3%p)",   en: "MMP data 24h lag (confidence impact ≤3%p)" } },
       ],
       payback: { p10: 35, p50: 44, p90: 58 },
       nextAction: {
-        ko: "포코머지 글로벌에 UA 예산 60%를 재배분하세요 (+$45K/월) — 포트폴리오 유일의 투자 확대 시그널",
-        en: "Reallocate 60% of UA budget (+$45K/mo) to 포코머지 글로벌 — Global only; regional hold/reduce",
+        ko: "포코머지에 UA 예산을 더 투입하세요 (월 4,500만원 규모 권장)",
+        en: "Top up 포코머지 UA budget (~₩45M/mo recommended)",
       },
       impact: {
-        value: { ko: "+$1.2M ARR 예상", en: "+$1.2M ARR projected" },
+        value: { ko: "1년 내 매출 12억원 더 기대돼요", en: "+₩1.2B projected annually" },
         direction: "positive" as const,
       },
     },

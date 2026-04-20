@@ -28,9 +28,7 @@ import { motion } from "framer-motion"
 const GRID_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
 
 const REGION_REASONS: Record<string, string> = {
-  "포코머지 글로벌": "ROAS 148%, 월 +6% 성장",
-  "포코머지 일본": "수익화 실험 필요",
-  "포코머지 국내": "UA 효율 72%, 축소 권고",
+  "포코머지": "ROAS 148%, 월 +6% 성장",
 }
 
 export default function ExecutiveOverviewPage() {

@@ -176,41 +176,43 @@ export function DecisionStoryCard({
           ))}
         </div>
 
-        {/* 4. β — 지역별 상태 */}
-        <div className="rounded-xl bg-muted/40 border border-border/60 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-              지역별 상태
-            </span>
-            <span className="flex-1 h-px bg-border/60" />
+        {/* 4. β — 지역별 상태 (다중 지역일 때만 노출) */}
+        {regions.length >= 2 && (
+          <div className="rounded-xl bg-muted/40 border border-border/60 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+                지역별 상태
+              </span>
+              <span className="flex-1 h-px bg-border/60" />
+            </div>
+            <ul className="flex flex-col gap-2.5">
+              {regions.map((r) => (
+                <li key={r.label} className="flex items-center gap-3 text-sm">
+                  <span
+                    className={cn(
+                      "w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm",
+                      STATUS_DOT[r.status],
+                    )}
+                  />
+                  <span className="font-bold text-foreground flex-shrink-0">
+                    {r.label}
+                  </span>
+                  <span
+                    className={cn(
+                      "px-2 py-0.5 rounded-md text-[11px] font-bold flex-shrink-0",
+                      REGION_STATUS_TAG[r.status],
+                    )}
+                  >
+                    {STATUS_KO[r.status].replace(" 타이밍", "").replace(" 중", "").replace(" 권고", "")}
+                  </span>
+                  <span className="text-muted-foreground break-keep">
+                    {r.reason}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="flex flex-col gap-2.5">
-            {regions.map((r) => (
-              <li key={r.label} className="flex items-center gap-3 text-sm">
-                <span
-                  className={cn(
-                    "w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm",
-                    STATUS_DOT[r.status],
-                  )}
-                />
-                <span className="font-bold text-foreground flex-shrink-0">
-                  {r.label}
-                </span>
-                <span
-                  className={cn(
-                    "px-2 py-0.5 rounded-md text-[11px] font-bold flex-shrink-0",
-                    REGION_STATUS_TAG[r.status],
-                  )}
-                >
-                  {STATUS_KO[r.status].replace(" 타이밍", "").replace(" 중", "").replace(" 권고", "")}
-                </span>
-                <span className="text-muted-foreground break-keep">
-                  {r.reason}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
 
         {/* 5. CTA */}
         {onCta && (
