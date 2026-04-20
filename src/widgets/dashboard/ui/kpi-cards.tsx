@@ -2,7 +2,10 @@
 
 import { useLocale, type TranslationKey, translate } from "@/shared/i18n"
 import { cn } from "@/shared/lib"
-import { TrendingUp, TrendingDown, Minus } from "lucide-react"
+import { Icon as Iconify } from "@iconify/react"
+import graphUpBold from "@iconify-icons/solar/graph-up-bold"
+import graphDownBold from "@iconify-icons/solar/graph-down-bold"
+import minusBold from "@iconify-icons/solar/minus-circle-bold"
 import { AnimatedNumber } from "@/shared/ui/animated-number"
 import { InfoHint } from "@/shared/ui/info-hint"
 
@@ -12,7 +15,6 @@ export type KPIItem = {
   unit?: string
   trend: number
   trendLabel: string
-  /** Override auto-mapped infoKey. By default we try `info.{labelKey}`. */
   infoKey?: TranslationKey
 }
 
@@ -21,16 +23,12 @@ type KPICardsProps = {
   basisKey?: TranslationKey
 }
 
-/**
- * Given a KPI labelKey like "kpi.moic", returns "info.kpi.moic" if that key
- * exists in the dictionary, otherwise undefined. Lets each KPI auto-opt-in to
- * the ⓘ hint without changing every call site.
- */
-function resolveInfoKey(labelKey: TranslationKey, override?: TranslationKey): TranslationKey | undefined {
+function resolveInfoKey(
+  labelKey: TranslationKey,
+  override?: TranslationKey,
+): TranslationKey | undefined {
   if (override) return override
   const candidate = `info.${labelKey}` as TranslationKey
-  // translate() returns undefined for missing keys when accessed via dictionary;
-  // we guard by probing with the Korean locale (string result means key exists).
   try {
     const probe = translate(candidate, "ko")
     return typeof probe === "string" && probe.length > 0 ? candidate : undefined
@@ -39,59 +37,99 @@ function resolveInfoKey(labelKey: TranslationKey, override?: TranslationKey): Tr
   }
 }
 
+/**
+ * KPICards — gameboard metric-card 스타일 KPI 그리드.
+ *
+ * 계층:
+ *   label      10px uppercase tracking muted   ← 작게
+ *   value      32~36px extrabold foreground    ← 매우 크게 (3.6x 차이)
+ *   unit       14px semibold muted             ← value 옆 보조
+ *   trend      11px semibold signal-color      ← 아래 subtle
+ */
 export function KPICards({ items, basisKey }: KPICardsProps) {
   const { t } = useLocale()
 
-  // Responsive grid rules (static strings so Tailwind JIT picks them up):
-  //   ≤4 items  → one row at md+ (single-game view: unchanged)
-  //   5–6 items → 2 cols on sm, 3 cols on md, 6 cols only at xl (portfolio view)
-  // Prevents digit crunch in the "hero number" on mid-width screens where a
-  // 6-way split collapses to <160px per card.
   const n = items.length
   const gridClass =
     n <= 2 ? "grid-cols-2" :
     n === 3 ? "grid-cols-2 md:grid-cols-3" :
     n === 4 ? "grid-cols-2 md:grid-cols-4" :
     n === 5 ? "grid-cols-2 md:grid-cols-3 xl:grid-cols-5" :
-              "grid-cols-2 md:grid-cols-3 xl:grid-cols-6" // 6+
+              "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"
 
   return (
     <div>
-      <div className={cn("grid gap-5", gridClass)}>
+      <div className={cn("grid gap-4", gridClass)}>
         {items.map((item) => {
-          const isPositive = item.trend > 0
-          const isNegative = item.trend < 0
-          const TrendIcon = isPositive ? TrendingUp : isNegative ? TrendingDown : Minus
-          const trendColor = isPositive ? "text-[var(--signal-green)]" : isNegative ? "text-[var(--signal-red)]" : "text-[var(--text-muted)]"
-          const displayTrendColor = item.trendLabel === "faster" ? "text-[var(--signal-green)]" : trendColor
           const infoKey = resolveInfoKey(item.labelKey, item.infoKey)
+          const isPositiveTrend = item.trend > 0
+          const isNegativeTrend = item.trend < 0
+          const TrendIconData = isPositiveTrend
+            ? graphUpBold
+            : isNegativeTrend
+            ? graphDownBold
+            : minusBold
+          const trendColorClass = isPositiveTrend
+            ? "text-success"
+            : isNegativeTrend
+            ? "text-destructive"
+            : "text-muted-foreground"
 
           return (
             <div
               key={item.labelKey}
-              className="rounded-xl border border-[var(--border)] p-6 card-glow card-premium"
-              style={{ boxShadow: "0 4px 24px rgba(91,154,255,0.08)" }}
+              className={cn(
+                "rounded-2xl border border-border bg-card p-5",
+                "transition-colors hover:border-primary",
+              )}
             >
-              <div className="flex items-center gap-1">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
+              {/* Label — 작고 tracking-wide */}
+              <div className="flex items-center gap-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
                   {t(item.labelKey)}
                 </p>
                 {infoKey && <InfoHint content={t(infoKey)} size={12} />}
               </div>
-              <div className="flex items-baseline gap-2 mt-3">
-                <span className="text-hero font-mono-num text-[var(--text-primary)] text-glow">
-                  {typeof item.value === 'number'
-                    ? <AnimatedNumber value={item.value} />
-                    : item.value}
+
+              {/* Value — 거대하게 */}
+              <div className="flex items-baseline gap-1.5 mt-2.5">
+                <span
+                  className="text-[32px] md:text-[36px] font-extrabold text-foreground leading-none"
+                  style={{
+                    fontVariantNumeric: "tabular-nums",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {typeof item.value === "number" ? (
+                    <AnimatedNumber value={item.value} />
+                  ) : (
+                    item.value
+                  )}
                 </span>
                 {item.unit && (
-                  <span className="text-base text-[var(--text-muted)]">{item.unit}</span>
+                  <span className="text-sm font-semibold text-muted-foreground">
+                    {item.unit}
+                  </span>
                 )}
               </div>
-              <div className={cn("flex items-center gap-1.5 mt-3 text-sm font-medium", displayTrendColor)}>
-                <TrendIcon className="h-4 w-4" />
-                <span>
-                  {Math.abs(item.trend)}{item.unit === "%" ? "pp" : ""} {item.trendLabel}
+
+              {/* Trend — 작고 섬세 */}
+              <div className="flex items-center gap-1.5 mt-3">
+                <Iconify
+                  icon={TrendIconData}
+                  width={14}
+                  height={14}
+                  className={trendColorClass}
+                />
+                <span
+                  className={cn("text-xs font-bold", trendColorClass)}
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                >
+                  {Math.abs(item.trend)}
+                  {item.unit === "%" ? "pp" : ""}
+                </span>
+                <span className="text-xs text-muted-foreground font-normal break-keep">
+                  {item.trendLabel}
                 </span>
               </div>
             </div>
@@ -99,7 +137,7 @@ export function KPICards({ items, basisKey }: KPICardsProps) {
         })}
       </div>
       {basisKey && (
-        <p className="mt-3 text-[11px] text-[var(--text-muted)] text-right">
+        <p className="mt-3 text-[11px] text-muted-foreground text-right">
           {t(basisKey)}
         </p>
       )}

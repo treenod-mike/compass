@@ -1,7 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/shared/ui"
-import { DecisionStoryCard } from "@/widgets/dashboard"
+import { DashboardToolbar, DecisionStoryCard } from "@/widgets/dashboard"
 import { MarketBenchmark, PriorPosteriorChart, RankingTrend, SaturationTrendChart } from "@/widgets/charts"
 import { useLocale } from "@/shared/i18n"
 import {
@@ -58,6 +58,11 @@ export default function MarketGapPage() {
 
   return (
     <PageTransition>
+      {/* 0. Toolbar */}
+      <FadeInUp>
+        <DashboardToolbar />
+      </FadeInUp>
+
       {/* 1. Decision Story Card (market variant) */}
       <FadeInUp className="mb-10">
         <DecisionStoryCard

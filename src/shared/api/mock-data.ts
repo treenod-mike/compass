@@ -118,7 +118,7 @@ export type ScenarioResult = {
 }
 
 export const mockRetention = {
-  gameId: "poco-global",
+  gameId: "poco",
   gameName: "포코머지",
   cohort: "2026-03",
   genre: "Puzzle",
@@ -606,7 +606,9 @@ export const mockMarketContext: MarketContext = {
 }
 
 export const mockTitleHealth: TitleHealthRow[] = [
-  { gameId: "poco-merge", label: "포코머지", genre: "Merge", signal: "invest", confidence: 82, paybackD: 47, roas: 148, retentionTrend: "improving" },
+  { gameId: "poco",  label: "포코머지", genre: "Merge", signal: "invest", confidence: 82, paybackD: 47,  roas: 148, retentionTrend: "improving" },
+  { gameId: "game1", label: "게임 1",   genre: "Merge", signal: "hold",   confidence: 65, paybackD: 72,  roas: 96,  retentionTrend: "stable"    },
+  { gameId: "game2", label: "게임 2",   genre: "Merge", signal: "reduce", confidence: 58, paybackD: 104, roas: 72,  retentionTrend: "declining" },
 ]
 
 export const mockCapitalWaterfall: CapitalWaterfallStep[] = [
@@ -874,7 +876,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: 1.27 }, // mockPortfolioKPIs.portfolioMoic
     },
   },
-  "poco-global": {
+  "poco": {
     signal: {
       status: mockSignal.status,
       confidence: mockSignal.confidence,
@@ -896,7 +898,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: mockCapitalKPIs.capitalEff.value },
     },
   },
-  "poco-jp": {
+  "game1": {
     signal: {
       status: "hold",
       confidence: 65,
@@ -932,7 +934,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
       capitalEff: { value: 0.92 },
     },
   },
-  "poco-kr": {
+  "game2": {
     signal: {
       status: "reduce",
       confidence: 58,
@@ -971,7 +973,7 @@ const GAME_VARIANTS: Record<string, GameVariant> = {
 }
 
 export function getGameData(gameId: string, cohortMonth: string = "2026-03") {
-  const variant = GAME_VARIANTS[gameId] ?? GAME_VARIANTS["poco-global"]
+  const variant = GAME_VARIANTS[gameId] ?? GAME_VARIANTS["poco"]
   const m = COHORT_MULTIPLIERS[cohortMonth] ?? 1.0
 
   return {
@@ -1021,7 +1023,7 @@ type GameChartData = {
 }
 
 const GAME_CHART_DATA: Record<string, GameChartData> = {
-  "poco-global": {
+  "poco": {
     kpis: {
       roas:    { value: 142, trend: 8.3,  trendLabel: "up" },
       payback: { value: 47,  trend: -12,  trendLabel: "faster" },
@@ -1090,7 +1092,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
     ],
   },
 
-  "poco-jp": {
+  "game1": {
     // HOLD story — stable but not yet profitable, ARPDAU gap
     kpis: {
       roas:    { value: 96,  trend: 2.1,  trendLabel: "up" },
@@ -1158,7 +1160,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
     ],
   },
 
-  "poco-kr": {
+  "game2": {
     // REDUCE story — declining revenue, CPI rising, burning cash
     kpis: {
       roas:    { value: 72,  trend: -6.2, trendLabel: "down" },
@@ -1297,7 +1299,7 @@ const GAME_CHART_DATA: Record<string, GameChartData> = {
 }
 
 export function getGameChartData(gameId: string): GameChartData {
-  return GAME_CHART_DATA[gameId] ?? GAME_CHART_DATA["poco-global"]
+  return GAME_CHART_DATA[gameId] ?? GAME_CHART_DATA["poco"]
 }
 
 export function computeScenario(uaBudget: number, targetRoas: number): ScenarioResult {
@@ -1334,7 +1336,7 @@ export type CyclicUpdateData = {
 
 export const mockCyclicUpdate_matchLeague_d7: CyclicUpdateData = {
   metric: "D7 Retention",
-  gameId: "poco-global",
+  gameId: "poco",
   steps: [
     {
       day: 0, label: "D0", updateRound: 0,

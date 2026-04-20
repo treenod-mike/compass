@@ -2,8 +2,8 @@
 
 import { PageHeader } from "@/shared/ui"
 import {
+  DashboardToolbar,
   DecisionStoryCard,
-  HeroVerdict,
   KPICards,
   TitleHeatmap,
   MarketContextCard,
@@ -19,6 +19,7 @@ import {
   mockDataFreshness,
   mockMarketHero,
 } from "@/shared/api"
+import type { SignalStatus } from "@/shared/api/mock-data"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
@@ -29,6 +30,14 @@ const GRID_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, num
 
 const REGION_REASONS: Record<string, string> = {
   "포코머지": "ROAS 148%, 월 +6% 성장",
+  "게임 1": "수익화 실험 필요",
+  "게임 2": "UA 효율 72%, 축소 권고",
+}
+
+const PER_GAME_HEADLINES: Record<SignalStatus, string> = {
+  invest: "지금 이 게임에 예산을 더 투입하세요",
+  hold: "포지션을 유지하고 7일 후 재평가하세요",
+  reduce: "광고비를 절반 수준으로 축소하세요",
 }
 
 export default function ExecutiveOverviewPage() {
@@ -41,64 +50,72 @@ export default function ExecutiveOverviewPage() {
 
   const isPortfolioView = gameId === PORTFOLIO_ID
 
+  // Build card props based on view
+  const cardProps = isPortfolioView
+    ? {
+        status: mockPortfolioSignal.status,
+        headline: mockPortfolioSignal.recommendation.ko,
+        impactText: mockPortfolioSignal.impact.value.ko,
+        confidence: mockPortfolioSignal.confidence,
+        regions: mockTitleHealth.map((t) => ({
+          label: t.label,
+          status: t.signal,
+          reason: REGION_REASONS[t.label] ?? `ROAS ${t.roas}%, 본전 ${t.paybackD}일`,
+        })),
+      }
+    : {
+        status: gameData.signal.status as SignalStatus,
+        headline:
+          gameData.signal.nextAction?.ko ??
+          PER_GAME_HEADLINES[gameData.signal.status as SignalStatus],
+        impactText: gameData.signal.impact.value.ko,
+        confidence: gameData.signal.confidence,
+        regions: [] as { label: string; status: SignalStatus; reason: string }[],
+      }
+
   return (
     <PageTransition>
-      {/* 1. Decision Story Card (α+β hybrid) — 최상단 판정 덱 */}
+      {/* 0. Toolbar — 게임 선택 + 기간 */}
+      <FadeInUp>
+        <DashboardToolbar />
+      </FadeInUp>
+
+      {/* 1. Decision Story Card */}
       <FadeInUp className="mb-10">
-        {isPortfolioView ? (
-          <DecisionStoryCard
-            status={mockPortfolioSignal.status}
-            headline={mockPortfolioSignal.recommendation.ko}
-            impactText={mockPortfolioSignal.impact.value.ko}
-            confidence={mockPortfolioSignal.confidence}
-            metrics={[
-              {
-                label: "광고비 회수",
-                value: `${mockPortfolioKPIs.blendedRoas.value}%`,
-                trend: {
-                  text: `지난 달 +${mockPortfolioKPIs.blendedRoas.trend}%p`,
-                  direction: "up",
-                },
+        <DecisionStoryCard
+          {...cardProps}
+          metrics={[
+            {
+              label: "광고비 회수",
+              value: `${mockPortfolioKPIs.blendedRoas.value}%`,
+              trend: {
+                text: `지난 달 +${mockPortfolioKPIs.blendedRoas.trend}%p`,
+                direction: "up",
               },
-              {
-                label: "성장 속도",
-                value: `+${mockPortfolioKPIs.deployPace.trend > 0 ? mockPortfolioKPIs.deployPace.trend : 6.2}%/월`,
-                trend: { text: "가속 중", direction: "up" },
+            },
+            {
+              label: "성장 속도",
+              value: `+${mockPortfolioKPIs.deployPace.trend > 0 ? mockPortfolioKPIs.deployPace.trend : 6.2}%/월`,
+              trend: { text: "가속 중", direction: "up" },
+            },
+            {
+              label: "경쟁 위치",
+              value: `장르 ${mockMarketHero.rank}위`,
+              trend: {
+                text: `${Math.abs(mockMarketHero.rankChange)}계단 상승`,
+                direction: "up",
               },
-              {
-                label: "경쟁 위치",
-                value: `장르 ${mockMarketHero.rank}위`,
-                trend: {
-                  text: `${Math.abs(mockMarketHero.rankChange)}계단 상승`,
-                  direction: "up",
-                },
-              },
-            ]}
-            regions={mockTitleHealth.map((t) => ({
-              label: t.label,
-              status: t.signal,
-              reason: REGION_REASONS[t.label] ?? `ROAS ${t.roas}%, 본전 ${t.paybackD}일`,
-            }))}
-            ctaLabel="재배분 플랜 보기"
-          />
-        ) : (
-          <HeroVerdict
-            status={gameData.signal.status}
-            confidence={gameData.signal.confidence}
-            factors={gameData.signal.factors as unknown as Parameters<typeof HeroVerdict>[0]["factors"]}
-            payback={gameData.signal.payback}
-            nextAction={gameData.signal.nextAction}
-            reason={gameData.signal.reason}
-            impact={gameData.signal.impact}
-          />
-        )}
+            },
+          ]}
+          ctaLabel="재배분 플랜 보기"
+        />
       </FadeInUp>
 
       <FadeInUp className="mb-2">
         <PageHeader titleKey="exec.title" subtitleKey="exec.subtitle" />
       </FadeInUp>
 
-      {/* 2. KPI Strip — Portfolio (6 blended cards) or Single-game (4 cards) */}
+      {/* 2. KPI Strip */}
       <FadeInUp className="mb-8">
         {isPortfolioView ? (
           <KPICards
@@ -125,33 +142,35 @@ export default function ExecutiveOverviewPage() {
         )}
       </FadeInUp>
 
-      {/* 3. Title Heatmap + Market Context (3:2 split) */}
-      <FadeInUp className="grid grid-cols-5 gap-6 mb-8">
-        <motion.div
-          layout
-          className={heatmapGrid.expandedId ? "col-span-5" : "col-span-3"}
-          transition={GRID_TRANSITION}
-        >
-          <TitleHeatmap
-            titles={mockTitleHealth}
-            expanded={heatmapGrid.expandedId === "chart-0"}
-            onToggle={() => heatmapGrid.toggle("chart-0")}
-          />
-        </motion.div>
-        <motion.div
-          layout
-          className={heatmapGrid.expandedId ? "col-span-5" : "col-span-2"}
-          transition={GRID_TRANSITION}
-        >
-          <MarketContextCard
-            data={mockMarketContext}
-            expanded={heatmapGrid.expandedId === "chart-1"}
-            onToggle={() => heatmapGrid.toggle("chart-1")}
-          />
-        </motion.div>
-      </FadeInUp>
+      {/* 3. Title Heatmap + Market Context — portfolio view only */}
+      {isPortfolioView && (
+        <FadeInUp className="grid grid-cols-5 gap-6 mb-8">
+          <motion.div
+            layout
+            className={heatmapGrid.expandedId ? "col-span-5" : "col-span-3"}
+            transition={GRID_TRANSITION}
+          >
+            <TitleHeatmap
+              titles={mockTitleHealth}
+              expanded={heatmapGrid.expandedId === "chart-0"}
+              onToggle={() => heatmapGrid.toggle("chart-0")}
+            />
+          </motion.div>
+          <motion.div
+            layout
+            className={heatmapGrid.expandedId ? "col-span-5" : "col-span-2"}
+            transition={GRID_TRANSITION}
+          >
+            <MarketContextCard
+              data={mockMarketContext}
+              expanded={heatmapGrid.expandedId === "chart-1"}
+              onToggle={() => heatmapGrid.toggle("chart-1")}
+            />
+          </motion.div>
+        </FadeInUp>
+      )}
 
-      {/* 4. Capital Waterfall + Revenue vs Investment (2-col) */}
+      {/* 4. Capital Waterfall + Revenue vs Investment */}
       <FadeInUp className="grid grid-cols-2 gap-6 mb-8">
         <motion.div
           layout
@@ -177,7 +196,7 @@ export default function ExecutiveOverviewPage() {
         </motion.div>
       </FadeInUp>
 
-      {/* 5. Revenue Forecast + Data Freshness (3:1 split) */}
+      {/* 5. Revenue Forecast + Data Freshness */}
       <FadeInUp className="grid grid-cols-4 gap-6">
         <motion.div
           layout
