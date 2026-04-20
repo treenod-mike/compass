@@ -36,7 +36,7 @@ export function BrandAndProduct() {
       <div className="h-6 w-px bg-border shrink-0" aria-hidden />
 
       <div className="text-sm font-semibold text-foreground/70 shrink-0 break-keep">
-        Experiment-to-Investment Decision OS
+        실험→투자 의사결정 OS
       </div>
     </div>
   )

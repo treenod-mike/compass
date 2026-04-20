@@ -1,7 +1,7 @@
 "use client"
 
 import { PageHeader } from "@/shared/ui"
-import { PortfolioVerdict, HeroVerdict, KPICards, TitleHeatmap, MarketContextCard, DataFreshnessStrip } from "@/widgets/dashboard"
+import { PortfolioVerdict, HeroVerdict, KPICards, TitleHeatmap, MarketContextCard, DataFreshnessStrip, OverviewSummaryStrip } from "@/widgets/dashboard"
 import { RevenueVsInvest, CapitalWaterfall, RevenueForecast } from "@/widgets/charts"
 import { useLocale } from "@/shared/i18n"
 import {
@@ -10,6 +10,7 @@ import {
   mockTitleHealth,
   mockMarketContext,
   mockDataFreshness,
+  mockCapitalKPIs,
 } from "@/shared/api"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
@@ -44,6 +45,22 @@ export default function ExecutiveOverviewPage() {
 
   return (
     <PageTransition>
+      {/* 0. Summary Strip — 4 핵심 메트릭 요약 (런웨이, ROAS, 신뢰도, MOIC) */}
+      {isPortfolioView && (
+        <FadeInUp>
+          <OverviewSummaryStrip
+            runwayMonths={mockCapitalKPIs.burnMonths.value}
+            runwayTrend={mockCapitalKPIs.burnMonths.trend}
+            blendedRoas={mockPortfolioKPIs.blendedRoas.value}
+            blendedRoasTrend={mockPortfolioKPIs.blendedRoas.trend}
+            confidence={mockPortfolioSignal.confidence}
+            status={mockPortfolioSignal.status}
+            portfolioMoic={mockPortfolioKPIs.portfolioMoic.value}
+            portfolioMoicTrend={mockPortfolioKPIs.portfolioMoic.trend}
+          />
+        </FadeInUp>
+      )}
+
       {/* 1. Verdict — Portfolio aggregate or single-title drill-down */}
       <FadeInUp>
         {isPortfolioView ? (

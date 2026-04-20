@@ -6,7 +6,7 @@ import { LocaleProvider } from "@/shared/i18n"
 
 export const metadata: Metadata = {
   title: {
-    default: "Compass | Experiment-to-Investment Decision OS",
+    default: "Compass | 실험→투자 의사결정 OS",
     template: "%s | Compass",
   },
   description:
