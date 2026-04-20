@@ -18,19 +18,19 @@ export interface NavigationItem {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'overview', label: '종합', position: 'primary', icon: BarChart3 },
-  { id: 'market', label: '시장 분석', position: 'primary', icon: TrendingUp },
+  { id: 'overview', label: '투자 판정', position: 'primary', icon: BarChart3 },
+  { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: TrendingUp },
 ]
 
 export const navigationItems: NavigationItem[] = [
   {
-    title: 'Executive Overview',
+    title: '투자 판정',
     url: '/dashboard',
     icon: BarChart3,
     category: 'overview',
   },
   {
-    title: 'Market Gap',
+    title: '시장 포지셔닝',
     url: '/dashboard/market-gap',
     icon: TrendingUp,
     category: 'market',

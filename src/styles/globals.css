@@ -155,6 +155,49 @@
   --abtest-color-2: #58D68D;
   --abtest-color-3: #EC7063;
   --abtest-color-4: #BB8FCE;
+
+  /* ══════════════════════════════════════════════════════════════
+     Legacy token aliases — back-compat for Compass widgets authored
+     against the old Bloomberg palette. Each alias is a thin redirect
+     to its TDS equivalent, so dark-mode and purple-swap propagate
+     automatically via the underlying tokens.
+     ══════════════════════════════════════════════════════════════ */
+  --bg-0: var(--page-background);
+  --bg-1: var(--card);
+  --bg-2: var(--muted);
+  --bg-3: var(--accent);
+
+  --fg-0: var(--foreground);
+  --fg-1: var(--foreground);
+  --fg-2: var(--muted-foreground);
+  --fg-3: var(--muted-foreground);
+
+  --text-primary: var(--foreground);
+  --text-secondary: var(--foreground);
+  --text-muted: var(--muted-foreground);
+
+  --border-subtle: var(--border);
+  --border-default: var(--border);
+
+  --brand: var(--primary);
+  --brand-hover: color-mix(in srgb, var(--primary) 80%, black);
+  --brand-light: color-mix(in srgb, var(--primary) 10%, transparent);
+
+  --chart-grid: var(--grey-200);
+
+  --radius-inline: 0.25rem;
+  --radius-card: 0.5rem;
+  --radius-md: 0.5rem;
+
+  --signal-positive: var(--success);
+  --signal-green: var(--success);
+  --signal-caution: var(--warning);
+  --signal-risk: var(--destructive);
+  --signal-red: var(--destructive);
+
+  --signal-positive-bg: color-mix(in srgb, var(--success) 8%, transparent);
+  --signal-caution-bg: color-mix(in srgb, var(--warning) 8%, transparent);
+  --signal-risk-bg: color-mix(in srgb, var(--destructive) 8%, transparent);
 }
 
 .dark {
