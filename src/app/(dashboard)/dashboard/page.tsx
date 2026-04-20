@@ -1,6 +1,6 @@
 "use client"
 
-import { PageHeader } from "@/widgets/sidebar"
+import { PageHeader } from "@/shared/ui"
 import { PortfolioVerdict, HeroVerdict, KPICards, TitleHeatmap, MarketContextCard, DataFreshnessStrip } from "@/widgets/dashboard"
 import { RevenueVsInvest, CapitalWaterfall, RevenueForecast } from "@/widgets/charts"
 import { useLocale } from "@/shared/i18n"

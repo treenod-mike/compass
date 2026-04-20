@@ -1,6 +1,6 @@
 "use client"
 
-import { PageHeader } from "@/widgets/sidebar"
+import { PageHeader } from "@/shared/ui"
 import { MarketHeroVerdict } from "@/widgets/dashboard"
 import { MarketBenchmark, PriorPosteriorChart, RankingTrend, SaturationTrendChart } from "@/widgets/charts"
 import { useLocale } from "@/shared/i18n"
