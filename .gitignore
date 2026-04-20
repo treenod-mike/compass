@@ -45,3 +45,9 @@ next-env.d.ts
 .omc/
 .superpowers/
 .claude/
+
+# macOS screenshots (accidental drops)
+스크린샷 *.png
+스크린샷 *.jpg
+Screen Shot *.png
+Screenshot *.png
