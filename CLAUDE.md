@@ -22,6 +22,8 @@ A/B 테스트, 라이브 운영, 시장 시그널을 자본 배분 결정으로 
 
 ## 2. Tech Stack
 
+### Compass 대시보드 (`src/`)
+
 | 영역 | 기술 |
 |------|------|
 | Framework | Next.js 15 (App Router) + TypeScript |
@@ -30,15 +32,32 @@ A/B 테스트, 라이브 운영, 시장 시그널을 자본 배분 결정으로 
 | Visualization | Recharts + visx (custom SVG charts) |
 | UI | Tailwind CSS v4 + Radix UI + Framer Motion |
 | Fonts | Geist Sans/Mono + Pretendard (KR) + Instrument Serif + Noto Serif KR |
+| Icons | @iconify/react + Solar Bold set |
 | Animation | Framer Motion (layout animations, page transitions) |
 | i18n | Custom ko/en dictionary + LocaleProvider |
+| Runtime Validation | Zod (prior-data.ts, 빌드 타임 snapshot 검증) |
 
-### Vercel 배포
+### Sensor Tower 크롤러 (`crawler/`)
+
+Compass와 **물리적으로 분리된** Node-only CLI 패키지. Playwright 바이너리가 Next.js 빌드에 들어가지 않도록 독립 `package.json` 유지.
+
+| 영역 | 기술 |
+|------|------|
+| Runtime | Node.js 24 LTS + ESM (NodeNext) |
+| Browser Automation | Playwright (headed Chromium, OAuth 세션 재사용) |
+| Language | TypeScript + tsx (no build step) |
+| Schema Validation | Zod (env + snapshot 양방향 검증) |
+| CLI | Commander |
+| Testing | Vitest (단위 테스트, transformer·schema·lib) |
+| Session Storage | `storageState.json` (OAuth 쿠키, gitignore + chmod 600) |
+
+### Vercel 배포 (Compass만)
 
 - Root Directory: 프로젝트 루트 (`.`)
 - Install Command: `npm install --legacy-peer-deps` (`@visx`의 React 18 peer dep 충돌 방지)
 - Build Command: `next build`
 - 모든 페이지 Static 빌드 → Hobby 플랜 가능
+- `crawler/`는 배포 대상 아님 (로컬 CLI 전용)
 
 ---
 
