@@ -152,7 +152,7 @@ export function DecisionStoryCard({
         }}
       />
 
-      <div className="relative p-8 md:p-10 flex flex-col gap-7">
+      <div className="relative p-6 md:p-8 flex flex-col gap-5">
         {/* 1. Top — 단일 status 뱃지 (emoji + 한글 권고) */}
         <div className="flex items-center justify-between gap-4">
           <motion.div
@@ -204,8 +204,8 @@ export function DecisionStoryCard({
 
         {/* 4. β — 지역별 상태 (2개 이상일 때만) */}
         {regions.length >= 2 && (
-          <div className="rounded-xl bg-muted/40 border border-border/60 p-5">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="rounded-xl bg-muted/40 border border-border/60 p-4">
+            <div className="flex items-center gap-2 mb-2.5">
               <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
                 {regionsLabel}
               </span>
