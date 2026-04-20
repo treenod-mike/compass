@@ -1,10 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
   <!-- Outer ring -->
-  <circle cx="20" cy="20" r="17.5" stroke="currentColor" stroke-width="2.8" />
-  <!-- North needle (solid) -->
-  <path d="M20 5.5 L27 22 L20 18.5 L13 22 Z" fill="currentColor" />
-  <!-- South needle (muted) -->
-  <path d="M20 34.5 L13 18 L20 21.5 L27 18 Z" fill="currentColor" fill-opacity="0.35" />
+  <circle cx="20" cy="20" r="17.5" stroke="#9128b4" stroke-width="2.5" />
+  <!-- Cardinal ticks -->
+  <g stroke="#9128b4" stroke-width="1.5" stroke-linecap="round">
+    <line x1="20" y1="2" x2="20" y2="5" />
+    <line x1="20" y1="35" x2="20" y2="38" />
+    <line x1="2" y1="20" x2="5" y2="20" />
+    <line x1="35" y1="20" x2="38" y2="20" />
+  </g>
+  <!-- South needle: white fill + purple stroke -->
+  <path d="M20 34 L14 20 L20 21.5 L26 20 Z" fill="#ffffff" stroke="#9128b4" stroke-width="1.5" stroke-linejoin="round" />
+  <!-- North needle: purple solid -->
+  <path d="M20 6 L26 20 L20 18.5 L14 20 Z" fill="#9128b4" stroke="#9128b4" stroke-width="1.5" stroke-linejoin="round" />
   <!-- Center pivot -->
-  <circle cx="20" cy="20" r="2" fill="currentColor" />
+  <circle cx="20" cy="20" r="2.2" fill="#9128b4" />
+  <circle cx="20" cy="20" r="0.9" fill="#ffffff" />
 </svg>
