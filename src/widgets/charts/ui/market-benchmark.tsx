@@ -10,16 +10,33 @@ import { useChartExpand } from "@/shared/hooks/use-chart-expand"
 import { MARKET_BENCHMARK_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { priorTopGames } from "@/shared/api/prior-data"
 
 type MarketBenchmarkProps = { data: RetentionDataPoint[]; expanded?: boolean; onToggle?: () => void }
 
 const C = MARKET_BENCHMARK_COLORS
 
+// Top 5 ST games for D7 benchmark reference (retention as fraction → percentage)
+const top5Benchmark = priorTopGames.slice(0, 5).map((g) => ({
+  name: g.name,
+  value: ((g.retention.d7 ?? g.retention.d1 ?? 0) * 100),
+}))
+// Use the median of top-5 D7 retention as the genre benchmark line value
+const top5D7Median = top5Benchmark.map((g) => g.value).sort((a, b) => a - b)[Math.floor(top5Benchmark.length / 2)]
+
 export function MarketBenchmark({ data, expanded: externalExpanded, onToggle: externalToggle }: MarketBenchmarkProps) {
   const { t } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 280, expanded: externalExpanded, onToggle: externalToggle })
 
-  const chartData = data.map((d) => ({ day: `D${d.day}`, p50: d.p50, p10: d.p10, p90: d.p90, genre: d.genre }))
+  // Replace the genre benchmark value with real ST top-5 median
+  const chartData = data.map((d) => ({
+    day: `D${d.day}`,
+    p50: d.p50,
+    p10: d.p10,
+    p90: d.p90,
+    // For D7 row use the real ST median; for other days scale proportionally from p50 ratio
+    genre: d.day === 7 ? top5D7Median : (d.genre / (data.find((r) => r.day === 7)?.genre || d.genre || 1)) * top5D7Median,
+  }))
 
   return (
     <motion.div
