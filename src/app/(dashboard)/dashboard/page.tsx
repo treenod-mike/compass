@@ -2,7 +2,6 @@
 
 import { PageHeader } from "@/shared/ui"
 import {
-  DashboardToolbar,
   DecisionStoryCard,
   KPICards,
   TitleHeatmap,
@@ -75,11 +74,6 @@ export default function ExecutiveOverviewPage() {
 
   return (
     <PageTransition>
-      {/* 0. Toolbar — 게임 선택 + 기간 */}
-      <FadeInUp>
-        <DashboardToolbar />
-      </FadeInUp>
-
       {/* 1. Decision Story Card */}
       <FadeInUp className="mb-10">
         <DecisionStoryCard

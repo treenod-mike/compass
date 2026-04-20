@@ -28,8 +28,8 @@ type CapitalWaterfallProps = {
 }
 
 const PALETTE = {
-  inflow:     "#00875A",
-  outflow:    "#C9372C",
+  inflow:     "#02a262",
+  outflow:    "#d22030",
   netPos:     "#1A7FE8",
   netNeg:     "#8B2A1F",
   running:    "#6B7280",
