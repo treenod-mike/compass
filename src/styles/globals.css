@@ -522,6 +522,18 @@ code { font-family: var(--font-mono); font-size: var(--tds-t7-size); }
 }
 
 /* ══════════════════════════════════════════════════════════════
+   Brand duotone compass — iconify solar compass-bold-duotone
+   경로별 색 override: 링=primary purple, 바늘=warning amber
+   ══════════════════════════════════════════════════════════════ */
+.brand-duotone-compass svg g path:nth-child(1) {
+  fill: var(--primary);
+  opacity: 1;
+}
+.brand-duotone-compass svg g path:nth-child(2) {
+  fill: var(--warning);
+}
+
+/* ══════════════════════════════════════════════════════════════
    Legacy typography utilities — back-compat for widgets authored
    against the old Compass semantic classes. Values align with TDS
    typography scale but lean casual (Pretendard, softer tracking).
