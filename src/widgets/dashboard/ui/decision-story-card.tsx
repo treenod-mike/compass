@@ -36,6 +36,8 @@ type DecisionStoryCardProps = {
   confidence: number
   metrics: Metric[]
   regions: RegionStatus[]
+  /** Override for the regions section label (default: "지역별 상태"). */
+  regionsLabel?: string
   ctaLabel?: string
   onCta?: () => void
 }
@@ -101,6 +103,7 @@ export function DecisionStoryCard({
   confidence,
   metrics,
   regions,
+  regionsLabel = "지역별 상태",
   ctaLabel = "자세히 보기",
   onCta,
 }: DecisionStoryCardProps) {
@@ -181,7 +184,7 @@ export function DecisionStoryCard({
           <div className="rounded-xl bg-muted/40 border border-border/60 p-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
-                지역별 상태
+                {regionsLabel}
               </span>
               <span className="flex-1 h-px bg-border/60" />
             </div>
