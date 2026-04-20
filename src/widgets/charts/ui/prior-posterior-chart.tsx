@@ -12,6 +12,15 @@ import { computeMarketSignal } from "@/shared/lib"
 import { MethodologyModal } from "@/shared/ui/methodology-modal"
 import { CyclicUpdateTimeline } from "./cyclic-update-timeline"
 import { mockCyclicUpdate_matchLeague_d7 } from "@/shared/api/mock-data"
+import { priorByGenre } from "@/shared/api/prior-data"
+
+// Map real ST retention priors (fractions 0-1 → percentages, p10/p50/p90 → ci_low/mean/ci_high)
+const ST = priorByGenre.Merge.JP.retention
+const stPriorByMetric: Record<string, { mean: number; ci_low: number; ci_high: number }> = {
+  "D1 Retention":  { mean: ST.d1.p50 * 100, ci_low: ST.d1.p10 * 100, ci_high: ST.d1.p90 * 100 },
+  "D7 Retention":  { mean: ST.d7.p50 * 100, ci_low: ST.d7.p10 * 100, ci_high: ST.d7.p90 * 100 },
+  "D30 Retention": { mean: ST.d30.p50 * 100, ci_low: ST.d30.p10 * 100, ci_high: ST.d30.p90 * 100 },
+}
 
 const C = MARKET_GAP_PROOF_COLORS
 
@@ -46,7 +55,10 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
 
       <div className="space-y-6">
         {data.map((item) => {
-          const { signal, deltaPct, direction } = computeMarketSignal(item.prior.mean, item.posterior.mean)
+          // Use real Sensor Tower genre prior when available; fall back to mock
+          const priorOverride = stPriorByMetric[item.metric]
+          const resolvedPrior = priorOverride ?? item.prior
+          const { signal, deltaPct, direction } = computeMarketSignal(resolvedPrior.mean, item.posterior.mean)
           const signalColor =
             signal === "invest" ? C.signalInvest : signal === "reduce" ? C.signalReduce : C.signalHold
           const signalLabel = t(
@@ -55,14 +67,14 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
           const gapLabel = t(direction === "above" ? "market.proof.gapAbove" : "market.proof.gapBelow")
           const deltaDisplay = `${deltaPct > 0 ? "+" : ""}${deltaPct.toFixed(1)}%`
 
-          const allValues = [item.prior.ci_low, item.prior.ci_high, item.posterior.ci_low, item.posterior.ci_high]
+          const allValues = [resolvedPrior.ci_low, resolvedPrior.ci_high, item.posterior.ci_low, item.posterior.ci_high]
           const min = Math.min(...allValues) * 0.8
           const max = Math.max(...allValues) * 1.2
           const range = max - min
 
-          const genreLeft = ((item.prior.ci_low - min) / range) * 100
-          const genreWidth = ((item.prior.ci_high - item.prior.ci_low) / range) * 100
-          const genreMean = ((item.prior.mean - min) / range) * 100
+          const genreLeft = ((resolvedPrior.ci_low - min) / range) * 100
+          const genreWidth = ((resolvedPrior.ci_high - resolvedPrior.ci_low) / range) * 100
+          const genreMean = ((resolvedPrior.mean - min) / range) * 100
 
           const ourLeft = ((item.posterior.ci_low - min) / range) * 100
           const ourWidth = ((item.posterior.ci_high - item.posterior.ci_low) / range) * 100
@@ -74,7 +86,7 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
                 <span className="text-sm font-bold text-[var(--fg-0)]">{item.metric}</span>
                 <div className="flex items-center gap-3 text-xs font-mono-num">
                   <span className="text-[var(--fg-2)]">
-                    {t("market.proof.genreLabel")}: {item.prior.mean.toFixed(2)}
+                    {t("market.proof.genreLabel")}: {resolvedPrior.mean.toFixed(2)}
                   </span>
                   <span className="text-[var(--fg-3)]">→</span>
                   <span className="font-bold" style={{ color: C.our }}>
