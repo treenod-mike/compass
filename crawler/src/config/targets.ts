@@ -6,6 +6,7 @@ export const targets = {
   chart: env.ST_TARGET_CHART,
   topN: env.ST_TARGET_TOP_N,
   maxGamesPerRun: env.ST_MAX_GAMES_PER_RUN,
+  marketAnalysisUrl: env.ST_MARKET_ANALYSIS_URL,
 } as const;
 
 export type Targets = typeof targets;
