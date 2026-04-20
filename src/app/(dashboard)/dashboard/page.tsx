@@ -46,7 +46,7 @@ export default function ExecutiveOverviewPage() {
   return (
     <PageTransition>
       {/* 1. Decision Story Card (α+β hybrid) — 최상단 판정 덱 */}
-      <FadeInUp>
+      <FadeInUp className="mb-10">
         {isPortfolioView ? (
           <DecisionStoryCard
             status={mockPortfolioSignal.status}
@@ -100,7 +100,7 @@ export default function ExecutiveOverviewPage() {
         )}
       </FadeInUp>
 
-      <FadeInUp>
+      <FadeInUp className="mb-2">
         <PageHeader titleKey="exec.title" subtitleKey="exec.subtitle" />
       </FadeInUp>
 
