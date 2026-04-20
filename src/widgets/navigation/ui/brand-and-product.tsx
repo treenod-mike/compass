@@ -1,8 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { Icon as Iconify } from '@iconify/react'
-import compassBoldDuotone from '@iconify-icons/solar/compass-bold-duotone'
 import {
   Tooltip,
   TooltipContent,
@@ -10,6 +8,31 @@ import {
   TooltipTrigger,
 } from '@/shared/ui/tooltip'
 import { GameSelector } from '@/widgets/dashboard/ui/game-selector'
+
+function CompassMark() {
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      className="w-8 h-8"
+      fill="none"
+      stroke="currentColor"
+      aria-hidden
+    >
+      <path
+        d="M20 6 L33 20 L7 20 Z"
+        fill="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M20 34 L7 20 L33 20 Z"
+        fill="var(--bg-0, #ffffff)"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
 
 /**
  * BrandAndProduct — AppTopBar 좌측 영역.
@@ -29,9 +52,7 @@ export function BrandAndProduct() {
               className="flex items-center gap-2.5 shrink-0 text-primary"
               aria-label="대시보드로 돌아가기"
             >
-              <span className="brand-duotone-compass inline-flex">
-                <Iconify icon={compassBoldDuotone} className="w-8 h-8" />
-              </span>
+              <CompassMark />
               <span
                 className="leading-none"
                 style={{

@@ -2,8 +2,9 @@ import type { IconifyIcon } from '@iconify/types'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
+import { flaskBold } from './custom-icons'
 
-export type CategoryId = 'overview' | 'market' | 'settings'
+export type CategoryId = 'overview' | 'market' | 'experiments' | 'settings'
 
 export interface CategoryMeta {
   id: CategoryId
@@ -23,6 +24,7 @@ export interface NavigationItem {
 export const CATEGORIES: CategoryMeta[] = [
   { id: 'overview', label: '투자 판정', position: 'primary', icon: chart2Bold },
   { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: graphUpBold },
+  { id: 'experiments', label: '실험 영향 (PRISM)', position: 'primary', icon: flaskBold },
   { id: 'settings', label: '데이터 연결', position: 'utility', icon: plugCircleBold },
 ]
 
@@ -38,6 +40,13 @@ export const navigationItems: NavigationItem[] = [
     url: '/dashboard/market-gap',
     icon: graphUpBold,
     category: 'market',
+  },
+  {
+    title: 'PRISM 연동',
+    url: '/dashboard/prism',
+    icon: flaskBold,
+    category: 'experiments',
+    badge: '개발 예정',
   },
   {
     title: '데이터 연결',

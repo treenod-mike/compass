@@ -185,26 +185,14 @@ export const mockConnections: Connection[] = [
     ],
   },
 
-  // ── 분석 (API) ──────────────────────────
+  // ── 분석 (사내 게임보드) ──────────────────────────
   {
-    id: "ga4",
-    brand: "Google Analytics 4",
-    initials: "GA",
-    brandColor: "#f9ab00",
+    id: "gameboard",
+    brand: "게임보드",
+    initials: "GB",
+    brandColor: "#1A7FE8",
     category: "analytics",
-    description: "웹/앱 행동 분석 · 페이지뷰/이벤트",
-    status: "error",
-    lastSync: "6시간 전",
-    metrics: [{ label: "Property", value: "2" }],
-    primaryMethod: "api",
-  },
-  {
-    id: "amplitude",
-    brand: "Amplitude",
-    initials: "AM",
-    brandColor: "#1059e7",
-    category: "analytics",
-    description: "프로덕트 분석 · 코호트/리텐션",
+    description: "사내 인게임 이벤트 · 플레이 행태 원천 (연동 범위 기획 중)",
     status: "disconnected",
     primaryMethod: "api",
   },
