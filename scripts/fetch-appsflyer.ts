@@ -30,13 +30,18 @@ const fromDate = new Date(today)
 fromDate.setUTCDate(fromDate.getUTCDate() - WINDOW_DAYS)
 const from = fromDate.toISOString().slice(0, 10)
 
-const devToken = process.env.APPSFLYER_DEV_TOKEN
-if (!devToken) {
+const rawToken: string | undefined = process.env.APPSFLYER_DEV_TOKEN
+if (!rawToken) {
   console.error("[AF] APPSFLYER_DEV_TOKEN is not set in .env.local")
   process.exit(1)
 }
+const devToken: string = rawToken
 
-const appId = DEFAULT_APP_IDS[0]
+const appId: string = DEFAULT_APP_IDS[0] ?? ""
+if (!appId) {
+  console.error("[AF] DEFAULT_APP_IDS is empty — edit scripts/fetch-appsflyer.ts")
+  process.exit(1)
+}
 
 const master: MasterParams | null = cohortOnly
   ? null
