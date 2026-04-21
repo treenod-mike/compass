@@ -70,3 +70,6 @@ Screenshot *.png
 # Reference / scratch directories (not part of the app build)
 /gameboard-src/
 /Project Compass/
+
+# Local environment (contains AppsFlyer dev token)
+.env.local
