@@ -3,18 +3,8 @@
 /*
   CompassLogo — project compass wordmark.
   ----------------------------------------
-  Direction γ (Nautical N) — confirmed 2026-04-08 deep BI session.
-
-  Design:
-    - Solid upward triangle (north needle) in brand blue
-    - "project compass" in Geist Sans 600, all lowercase, tight tracking
-    - One unified mark across status bar, sidebar, login, future surfaces
-
-  Replaces the previous Inter 900 UPPERCASE COMPASS + ornate compass-rose
-  SVG (which carried a stray "N" text artifact and used the old #2563EB
-  brand color).
-
-  Source of truth: docs/Project_Compass_Design_Migration_Log.md §1.2
+  Mark: compass rose (outer ring + inner needle fletching) in brand purple.
+  One unified mark across status bar, sidebar, login, future surfaces.
 */
 
 type CompassLogoProps = {
@@ -46,14 +36,19 @@ export function CompassLogo({
       style={{ gap: s.gap }}
     >
       <svg
+        xmlns="http://www.w3.org/2000/svg"
         width={s.icon}
         height={s.icon}
-        viewBox="0 0 14 14"
+        viewBox="0 0 16 16"
         fill="none"
         aria-hidden
       >
-        {/* Nautical N — north needle, ship's compass arrow */}
-        <path d="M7 1 L13 13 L1 13 Z" fill="var(--brand)" />
+        <path
+          fill="var(--brand)"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M14.5 8a6.5 6.5 0 1 1-13 0a6.5 6.5 0 0 1 13 0M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M7.186 5.605L12 4l-1.605 4.814a2.5 2.5 0 0 1-1.58 1.581L4 12l1.605-4.814a2.5 2.5 0 0 1 1.58-1.581ZM9 8a1 1 0 1 1-2 0a1 1 0 0 1 2 0"
+        />
       </svg>
       {variant === "full" && (
         <span
