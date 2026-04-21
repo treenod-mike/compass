@@ -6,7 +6,13 @@
  *   npm run fetch:af -- --cohort-only
  *   npm run fetch:af -- --dry-run
  */
-import "dotenv/config"
+import { config as loadDotenv } from "dotenv"
+import { resolve } from "node:path"
+
+// Next.js 관례 따름: .env.local 우선, 없으면 .env 폴백
+loadDotenv({ path: resolve(process.cwd(), ".env.local") })
+loadDotenv({ path: resolve(process.cwd(), ".env") })
+
 import {
   runAppsFlyerSync,
   writeSnapshot,
