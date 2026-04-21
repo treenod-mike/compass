@@ -62,14 +62,17 @@ export async function fetchCohortRetention(
   params: CohortParams,
 ): Promise<CohortRow[]> {
   const url = `${COHORT_BASE}/${encodeURIComponent(params.appId)}`
-  const body = {
+  const body: Record<string, unknown> = {
     cohort_type: params.cohortType,
     from: params.from,
     to: params.to,
+    aggregation_type: params.aggregationType ?? "on_day",
     groupings: params.groupings,
     kpis: params.kpis,
     per_user: params.perUser ?? false,
   }
+  if (params.granularity) body.granularity = params.granularity
+  if (params.minCohortSize) body.min_cohort_size = params.minCohortSize
   const raw = await afHttp({ url, method: "POST", token: devToken, body })
   return parseCohortRows(raw)
 }
