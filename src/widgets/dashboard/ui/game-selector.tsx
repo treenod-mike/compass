@@ -35,7 +35,12 @@ export function GameSelector() {
         <SelectValue />
         <Iconify icon={altArrowDownBold} width={14} height={14} className="text-muted-foreground ml-auto" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent
+        alignItemWithTrigger={false}
+        side="bottom"
+        sideOffset={6}
+        align="start"
+      >
         {GAMES.map((g) => (
           <SelectItem key={g.id} value={g.id}>
             {g.label}

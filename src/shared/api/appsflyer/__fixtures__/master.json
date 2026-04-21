@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "date": "2026-04-18",
+      "pid": "google_int",
+      "installs": 42,
+      "non_organic_installs": 38,
+      "cost": 0,
+      "impressions": 12400,
+      "clicks": 510
+    },
+    {
+      "date": "2026-04-19",
+      "pid": "facebook",
+      "installs": 15,
+      "non_organic_installs": 12,
+      "cost": 0,
+      "impressions": 8800,
+      "clicks": 211
+    }
+  ]
+}

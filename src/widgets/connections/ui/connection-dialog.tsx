@@ -83,13 +83,43 @@ function ApiConnectionForm({
   const allRequiredFilled =
     connection.apiFields?.every((f) => !f.required || (values[f.name] ?? "").trim() !== "") ?? false
 
-  const runTest = () => {
+  const postSync = async (dryRun: boolean) => {
+    const res = await fetch("/api/appsflyer/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dev_token: values.dev_token ?? "",
+        home_currency: values.home_currency ?? "KRW",
+        app_ids: values.app_ids ?? "",
+        sync_frequency: values.sync_frequency ?? "1h",
+        dry_run: dryRun,
+      }),
+    })
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean }
+    return { ok: res.ok && data.ok === true }
+  }
+
+  const runTest = async () => {
     setTesting(true)
     setTestResult(null)
-    setTimeout(() => {
+    try {
+      const { ok } = await postSync(true)
+      setTestResult(ok ? "ok" : "fail")
+    } catch {
+      setTestResult("fail")
+    } finally {
       setTesting(false)
-      setTestResult("ok")
-    }, 900)
+    }
+  }
+
+  const handleSave = async () => {
+    try {
+      const { ok } = await postSync(false)
+      if (ok) onDone()
+      else setTestResult("fail")
+    } catch {
+      setTestResult("fail")
+    }
   }
 
   if (!hasApiFields) {
@@ -143,7 +173,17 @@ function ApiConnectionForm({
           <div>
             <div className="text-sm font-bold text-success">연결 테스트 성공</div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              3개 앱, 1.2M 이벤트 감지 · 저장 후 1시간 이내 첫 sync
+              AppsFlyer 토큰 유효 · 저장 시 스냅샷 업데이트
+            </div>
+          </div>
+        </div>
+      )}
+      {testResult === "fail" && (
+        <div className="flex items-start gap-2 rounded-xl bg-destructive/10 border border-destructive/25 p-3">
+          <div>
+            <div className="text-sm font-bold text-destructive">연결 실패</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              토큰 또는 app_id를 다시 확인하세요
             </div>
           </div>
         </div>
@@ -166,7 +206,7 @@ function ApiConnectionForm({
         <button
           type="button"
           disabled={!allRequiredFilled || testResult !== "ok"}
-          onClick={onDone}
+          onClick={handleSave}
           className={cn(
             "rounded-full px-5 py-2 text-sm font-bold",
             allRequiredFilled && testResult === "ok"
@@ -177,10 +217,6 @@ function ApiConnectionForm({
           저장 · 연동 시작
         </button>
       </div>
-
-      <p className="text-[11px] text-muted-foreground italic text-right">
-        * 1차 MVP — 저장 시 데모 목적 mock 동작, 실제 API 호출 없음
-      </p>
     </div>
   )
 }

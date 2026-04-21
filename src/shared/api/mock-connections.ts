@@ -86,12 +86,7 @@ export const mockConnections: Connection[] = [
     brandColor: "#00b2e5",
     category: "attribution",
     description: "MMP · 어트리뷰션 데이터 (설치·인스톨 소스·캠페인 성과) 자동 sync",
-    status: "connected",
-    lastSync: "12분 전",
-    metrics: [
-      { label: "이벤트", value: "1.2M" },
-      { label: "앱", value: "3" },
-    ],
+    status: "disconnected",
     primaryMethod: "api",
     syncCadence: "1시간마다 자동 sync",
     apiFields: [
