@@ -1,78 +1,122 @@
 import { afHttp } from "./client"
 import { ValidationError } from "./errors"
-import {
-  CohortRowSchema,
-  MasterRowSchema,
-  type CohortParams,
-  type CohortRow,
-  type MasterParams,
-  type MasterRow,
-} from "./types"
-import { z } from "zod"
+import type { CsvRow, InstallsParams } from "./types"
 
-const MASTER_BASE = "https://hq1.appsflyer.com/api/master-agg-data/v4/app"
-const COHORT_BASE = "https://hq1.appsflyer.com/api/cohorts/v1/data/app"
+const PULL_BASE = "https://hq1.appsflyer.com/api/raw-data/export/app"
 
-const MasterResponseSchema = z.object({ data: z.array(z.record(z.string(), z.any())) })
-const CohortResponseSchema = z.object({ data: z.array(z.record(z.string(), z.any())) })
+/**
+ * Minimal CSV 파서 — RFC 4180 준수:
+ * - 큰따옴표로 감싼 필드 내 쉼표 / 개행 허용
+ * - 이스케이프: `""` → `"`
+ * - 맨 앞 BOM 제거
+ */
+export function parseCsv(text: string): CsvRow[] {
+  const stripped = text.replace(/^\uFEFF/, "")
+  if (!stripped.trim()) return []
 
-export function parseMasterRows(raw: unknown): MasterRow[] {
-  const parsed = MasterResponseSchema.safeParse(raw)
-  if (!parsed.success) {
-    throw new ValidationError("master.response", parsed.error.message)
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ""
+  let inQuotes = false
+
+  for (let i = 0; i < stripped.length; i++) {
+    const ch = stripped[i]
+    if (inQuotes) {
+      if (ch === '"') {
+        if (stripped[i + 1] === '"') {
+          field += '"'
+          i++
+        } else {
+          inQuotes = false
+        }
+      } else {
+        field += ch
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true
+      } else if (ch === ",") {
+        row.push(field)
+        field = ""
+      } else if (ch === "\n" || ch === "\r") {
+        row.push(field)
+        if (row.some((f) => f !== "")) rows.push(row)
+        row = []
+        field = ""
+        if (ch === "\r" && stripped[i + 1] === "\n") i++
+      } else {
+        field += ch
+      }
+    }
   }
-  return parsed.data.data.map((row) => {
-    const r = MasterRowSchema.safeParse(row)
-    if (!r.success) throw new ValidationError("master.row", r.error.message)
-    return r.data
+  if (field !== "" || row.length > 0) {
+    row.push(field)
+    if (row.some((f) => f !== "")) rows.push(row)
+  }
+
+  if (rows.length === 0) return []
+  const header = rows[0]
+  return rows.slice(1).map((cols) => {
+    const obj: CsvRow = {}
+    header.forEach((key, idx) => {
+      const raw = cols[idx] ?? ""
+      if (raw === "") {
+        obj[key] = null
+      } else if (/^-?\d+(\.\d+)?$/.test(raw)) {
+        obj[key] = Number(raw)
+      } else {
+        obj[key] = raw
+      }
+    })
+    return obj
   })
 }
 
-export function parseCohortRows(raw: unknown): CohortRow[] {
-  const parsed = CohortResponseSchema.safeParse(raw)
-  if (!parsed.success) {
-    throw new ValidationError("cohort.response", parsed.error.message)
-  }
-  return parsed.data.data.map((row) => {
-    const r = CohortRowSchema.safeParse(row)
-    if (!r.success) throw new ValidationError("cohort.row", r.error.message)
-    return r.data
-  })
-}
-
-export async function fetchMasterAggregate(
+/**
+ * Pull API v5 raw data report fetcher.
+ *
+ * @param reportType installs_report | organic_installs_report | in_app_events_report 등
+ */
+export async function fetchPullReport(
   devToken: string,
-  params: MasterParams,
-): Promise<MasterRow[]> {
-  const url = `${MASTER_BASE}/${encodeURIComponent(params.appId)}/${encodeURIComponent(params.reportType)}`
+  params: InstallsParams,
+  reportType: string,
+): Promise<CsvRow[]> {
+  const url = `${PULL_BASE}/${encodeURIComponent(params.appId)}/${encodeURIComponent(reportType)}/v5`
   const query: Record<string, string> = {
     from: params.from,
     to: params.to,
-    groupings: params.groupings.join(","),
-    kpis: params.kpis.join(","),
-    format: "json",
-    ...(params.extraQuery ?? {}),
+    ...(params.additionalFields
+      ? { additional_fields: params.additionalFields.join(",") }
+      : {}),
   }
-  const raw = await afHttp({ url, method: "GET", token: devToken, query })
-  return parseMasterRows(raw)
+
+  const raw = await afHttp({
+    url,
+    method: "GET",
+    token: devToken,
+    query,
+    accept: "text/csv",
+  })
+  if (typeof raw !== "string") {
+    throw new ValidationError(
+      `pull.${reportType}`,
+      "Expected CSV text response from Pull API",
+    )
+  }
+  return parseCsv(raw)
 }
 
-export async function fetchCohortRetention(
+export async function fetchNonOrganicInstalls(
   devToken: string,
-  params: CohortParams,
-): Promise<CohortRow[]> {
-  const url = `${COHORT_BASE}/${encodeURIComponent(params.appId)}`
-  const body: Record<string, unknown> = {
-    cohort_type: params.cohortType,
-    from: params.from,
-    to: params.to,
-    aggregation_type: params.aggregationType ?? "on_day",
-    groupings: params.groupings,
-    kpis: params.kpis,
-    per_user: params.perUser ?? false,
-  }
-  if (params.granularity) body.granularity = params.granularity
-  if (params.minCohortSize) body.min_cohort_size = params.minCohortSize
-  const raw = await afHttp({ url, method: "POST", token: devToken, body })
-  return parseCohortRows(raw)
+  params: InstallsParams,
+): Promise<CsvRow[]> {
+  return fetchPullReport(devToken, params, "installs_report")
+}
+
+export async function fetchOrganicInstalls(
+  devToken: string,
+  params: InstallsParams,
+): Promise<CsvRow[]> {
+  return fetchPullReport(devToken, params, "organic_installs_report")
 }

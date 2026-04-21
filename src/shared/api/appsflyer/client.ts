@@ -13,6 +13,7 @@ export type AfHttpOptions = {
   query?: Record<string, string>
   timeoutMs?: number
   maxRetries?: number
+  accept?: "application/json" | "text/csv"
 }
 
 const DEFAULT_TIMEOUT_MS = 30_000
@@ -27,6 +28,8 @@ export async function afHttp(opts: AfHttpOptions): Promise<unknown> {
     for (const [k, v] of Object.entries(opts.query)) url.searchParams.set(k, v)
   }
 
+  const accept = opts.accept ?? "application/json"
+
   const doRequest = async (): Promise<unknown> => {
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), timeoutMs)
@@ -35,7 +38,7 @@ export async function afHttp(opts: AfHttpOptions): Promise<unknown> {
         method: opts.method,
         headers: {
           Authorization: `Bearer ${opts.token}`,
-          Accept: "application/json",
+          Accept: accept,
           ...(opts.method === "POST" ? { "Content-Type": "application/json" } : {}),
         },
         body: opts.method === "POST" && opts.body !== undefined
@@ -54,6 +57,7 @@ export async function afHttp(opts: AfHttpOptions): Promise<unknown> {
       if (!res.ok) {
         throw new NetworkError(`HTTP ${res.status}`)
       }
+      if (accept === "text/csv") return (await res.text()) as unknown
       return (await res.json()) as unknown
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {

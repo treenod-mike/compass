@@ -7,8 +7,7 @@ import {
   runAppsFlyerSync,
   writeSnapshot,
   SyncRequestSchema,
-  type CohortParams,
-  type MasterParams,
+  type InstallsParams,
 } from "@/shared/api/appsflyer"
 
 export const runtime = "nodejs"
@@ -60,36 +59,21 @@ export async function POST(req: Request) {
     )
   }
 
-  const days = dry_run ? 1 : 30
+  // Pull API Window: 최대 14일 (플랜 한도). dry_run 은 1일만.
+  const days = dry_run ? 1 : 14
   const { from, to } = windowFromNow(days)
-  const appId = appIds[0]
+  const appId = appIds[0] ?? ""
 
-  const master: MasterParams | null = {
-    appId,
-    reportType: "daily_report",
-    from,
-    to,
-    groupings: ["pid"],
-    kpis: ["installs", "non_organic_installs", "cost", "impressions", "clicks"],
-  }
-  const cohort: CohortParams | null = dry_run
-    ? null
-    : {
-        appId,
-        from,
-        to,
-        cohortType: "user_acquisition",
-        groupings: ["pid"],
-        kpis: ["retention_day_0", "retention_day_1", "retention_day_3"],
-      }
+  const installs: InstallsParams = { appId, from, to }
 
   try {
     const result = await runAppsFlyerSync({
       devToken: dev_token,
       appIds,
       homeCurrency: home_currency,
-      master,
-      cohort,
+      installs,
+      // dry_run 시에는 organic 생략해 호출 1회만
+      fetchOrganic: !dry_run,
     })
 
     const isVercelProd = process.env.VERCEL_ENV === "production"
