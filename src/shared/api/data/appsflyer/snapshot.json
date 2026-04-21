@@ -1,8 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "fetchedAt": "1970-01-01T00:00:00.000Z",
-  "request": { "master": null, "cohort": null },
-  "master": null,
-  "cohort": null,
-  "meta": { "warnings": ["initial empty snapshot — pipeline not yet run"] }
+  "request": null,
+  "installs": null,
+  "meta": {
+    "warnings": ["initial empty snapshot — pipeline not yet run"],
+    "source": "pull-api-v5"
+  }
 }

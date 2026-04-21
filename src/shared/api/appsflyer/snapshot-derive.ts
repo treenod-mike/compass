@@ -2,9 +2,8 @@ import {
   EMPTY_CARD,
   type AppsFlyerCardData,
   type AppsFlyerSnapshot,
+  type CompactInstall,
   type ConnectionStatusLive,
-  type CohortRow,
-  type MasterRow,
 } from "./types"
 
 export function deriveStatus(fetchedAt: string): ConnectionStatusLive {
@@ -26,37 +25,27 @@ export function formatRelative(fetchedAt: string): string {
   return `${Math.floor(diffSec / 86400)}일 전`
 }
 
-function sumNumber(
-  rows: Array<Record<string, string | number>>,
-  key: string,
-): number {
+function sumCost(rows: CompactInstall[]): number {
   let sum = 0
-  for (const row of rows) {
-    const v = row[key]
-    if (typeof v === "number") sum += v
-  }
+  for (const r of rows) if (typeof r.costValue === "number") sum += r.costValue
   return sum
 }
 
-function hasKey(
-  rows: Array<Record<string, string | number>>,
-  key: string,
-): boolean {
-  return rows.some((row) => key in row)
+function sumRevenue(rows: CompactInstall[]): number {
+  let sum = 0
+  for (const r of rows)
+    if (typeof r.eventRevenueUsd === "number") sum += r.eventRevenueUsd
+  return sum
 }
 
-function pickRetentionDepth(rows: CohortRow[]): string | null {
-  const candidates: Array<[string, string]> = [
-    ["retention_day_30", "D30"],
-    ["retention_day_14", "D14"],
-    ["retention_day_7", "D7"],
-    ["retention_day_3", "D3"],
-    ["retention_day_1", "D1"],
-  ]
-  for (const [key, label] of candidates) {
-    if (hasKey(rows, key)) return label
-  }
-  return null
+function formatKrw(v: number): string {
+  return `₩${Math.round(v).toLocaleString("ko-KR")}`
+}
+
+function formatUsd(v: number): string {
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`
+  return `$${v.toFixed(2)}`
 }
 
 export function deriveCardFromSnapshot(
@@ -64,33 +53,35 @@ export function deriveCardFromSnapshot(
 ): AppsFlyerCardData {
   const metrics: AppsFlyerCardData["metrics"] = []
 
-  const masterRows: MasterRow[] = snap.master?.rows ?? []
-  if (masterRows.length > 0) {
-    const installs = sumNumber(masterRows, "installs")
-    if (installs > 0) {
-      metrics.push({ label: "설치", value: installs.toLocaleString("ko-KR") })
-    }
-    const cost = sumNumber(masterRows, "cost")
-    const nonOrganic = sumNumber(masterRows, "non_organic_installs")
-    const hasCostCol = hasKey(masterRows, "cost")
-    const hasNonOrganicCol = hasKey(masterRows, "non_organic_installs")
-    if (hasCostCol && hasNonOrganicCol && cost > 0 && nonOrganic > 0) {
-      const cpi = Math.round(cost / nonOrganic)
-      metrics.push({ label: "CPI", value: `₩${cpi.toLocaleString("ko-KR")}` })
+  const nonOrganic = snap.installs?.nonOrganic ?? []
+  const organic = snap.installs?.organic ?? []
+  const totalInstalls = nonOrganic.length + organic.length
+
+  if (totalInstalls > 0) {
+    metrics.push({
+      label: "설치",
+      value: totalInstalls.toLocaleString("ko-KR"),
+    })
+  }
+
+  if (nonOrganic.length > 0) {
+    const cost = sumCost(nonOrganic)
+    if (cost > 0) {
+      const cpi = cost / nonOrganic.length
+      metrics.push({ label: "CPI", value: formatKrw(cpi) })
     }
   }
 
-  const cohortRows: CohortRow[] = snap.cohort?.rows ?? []
-  const retentionDepth = pickRetentionDepth(cohortRows)
-  if (retentionDepth) {
-    metrics.push({ label: "리텐션", value: retentionDepth })
+  const revenue = sumRevenue([...nonOrganic, ...organic])
+  if (revenue > 0) {
+    metrics.push({ label: "매출", value: formatUsd(revenue) })
   }
 
   return {
     status: deriveStatus(snap.fetchedAt),
     lastSync: formatRelative(snap.fetchedAt),
     metrics,
-    retentionDepth,
+    retentionDepth: null, // 현재 플랜에 retention_report 미포함
   }
 }
 

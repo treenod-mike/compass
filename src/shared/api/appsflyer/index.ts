@@ -1,8 +1,8 @@
-import { fetchCohortRetention, fetchMasterAggregate } from "./fetcher"
+import { fetchNonOrganicInstalls, fetchOrganicInstalls } from "./fetcher"
+import { toCompactInstall } from "./types"
 import type {
   AppsFlyerSnapshot,
-  CohortRow,
-  MasterRow,
+  CompactInstall,
   RunSyncOptions,
   RunSyncResult,
 } from "./types"
@@ -10,7 +10,12 @@ import type {
 export * from "./types"
 export * from "./errors"
 export { afHttp } from "./client"
-export { fetchMasterAggregate, fetchCohortRetention } from "./fetcher"
+export {
+  fetchPullReport,
+  fetchNonOrganicInstalls,
+  fetchOrganicInstalls,
+  parseCsv,
+} from "./fetcher"
 export {
   readSnapshot,
   writeSnapshot,
@@ -24,42 +29,49 @@ export async function runAppsFlyerSync(
   const started = Date.now()
   const warnings: string[] = []
 
-  let masterRows: MasterRow[] = []
-  let cohortRows: CohortRow[] = []
+  let nonOrganic: CompactInstall[] = []
+  let organic: CompactInstall[] = []
 
-  if (opts.master) {
+  if (opts.installs) {
     try {
-      masterRows = await fetchMasterAggregate(opts.devToken, opts.master)
+      const rows = await fetchNonOrganicInstalls(opts.devToken, opts.installs)
+      nonOrganic = rows.map(toCompactInstall)
     } catch (err) {
-      warnings.push(`master fetch failed: ${(err as Error).message}`)
+      warnings.push(`non-organic installs fetch failed: ${(err as Error).message}`)
       throw err
     }
-  }
 
-  if (opts.cohort) {
-    try {
-      cohortRows = await fetchCohortRetention(opts.devToken, opts.cohort)
-    } catch (err) {
-      warnings.push(`cohort fetch failed: ${(err as Error).message}`)
-      throw err
+    if (opts.fetchOrganic !== false) {
+      try {
+        const rows = await fetchOrganicInstalls(opts.devToken, opts.installs)
+        organic = rows.map(toCompactInstall)
+      } catch (err) {
+        // organic 은 선택 — 실패해도 non-organic 결과는 살림
+        warnings.push(`organic installs fetch failed: ${(err as Error).message}`)
+      }
     }
   }
 
   const snapshot: AppsFlyerSnapshot = {
-    version: 1,
+    version: 2,
     fetchedAt: new Date().toISOString(),
-    request: { master: opts.master, cohort: opts.cohort },
-    master: opts.master ? { rows: masterRows } : null,
-    cohort: opts.cohort ? { rows: cohortRows } : null,
-    meta: { warnings },
+    request: opts.installs
+      ? {
+          appId: opts.installs.appId,
+          from: opts.installs.from,
+          to: opts.installs.to,
+        }
+      : null,
+    installs: opts.installs ? { nonOrganic, organic } : null,
+    meta: { warnings, source: "pull-api-v5" },
   }
 
   return {
     snapshot,
     warnings,
     summary: {
-      masterRows: masterRows.length,
-      cohortRows: cohortRows.length,
+      nonOrganicCount: nonOrganic.length,
+      organicCount: organic.length,
       durationMs: Date.now() - started,
     },
   }

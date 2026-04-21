@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs"
+import { mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { readSnapshotFrom, writeSnapshotTo } from "../snapshot"
@@ -12,12 +12,11 @@ function tmp(): string {
 }
 
 const makeSnap = (fetchedAt: string): AppsFlyerSnapshot => ({
-  version: 1,
+  version: 2,
   fetchedAt,
-  request: { master: null, cohort: null },
-  master: null,
-  cohort: null,
-  meta: { warnings: [] },
+  request: null,
+  installs: null,
+  meta: { warnings: [], source: "pull-api-v5" },
 })
 
 test("writeSnapshotTo + readSnapshotFrom: round-trip", () => {
