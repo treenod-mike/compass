@@ -7,6 +7,19 @@ import type {
   ConnectionStatus,
 } from "@/shared/api/mock-connections"
 import { cn } from "@/shared/lib/utils"
+import snapshotJson from "@/shared/api/data/appsflyer/snapshot.json"
+import {
+  deriveCardFromSnapshot,
+  EMPTY_CARD,
+} from "@/shared/api/appsflyer/snapshot-derive"
+import { SnapshotSchema } from "@/shared/api/appsflyer/types"
+
+function getAppsFlyerLiveCard() {
+  const parsed = SnapshotSchema.safeParse(snapshotJson)
+  if (!parsed.success) return EMPTY_CARD
+  if (Date.parse(parsed.data.fetchedAt) <= 0) return EMPTY_CARD
+  return deriveCardFromSnapshot(parsed.data)
+}
 
 type ConnectionCardProps = {
   connection: Connection
@@ -47,9 +60,21 @@ const PRIMARY_CTA: Record<ConnectionStatus, string> = {
 }
 
 export function ConnectionCard({ connection, onClick }: ConnectionCardProps) {
-  const style = STATUS_STYLE[connection.status]
-  const cta = PRIMARY_CTA[connection.status]
-  const isActive = connection.status !== "disconnected"
+  const live =
+    connection.id === "appsflyer" ? getAppsFlyerLiveCard() : null
+
+  const effective: Connection = live
+    ? {
+        ...connection,
+        status: live.status,
+        lastSync: live.lastSync,
+        metrics: live.metrics.length > 0 ? live.metrics : connection.metrics,
+      }
+    : connection
+
+  const style = STATUS_STYLE[effective.status]
+  const cta = PRIMARY_CTA[effective.status]
+  const isActive = effective.status !== "disconnected"
 
   return (
     <button
@@ -93,9 +118,9 @@ export function ConnectionCard({ connection, onClick }: ConnectionCardProps) {
       </p>
 
       {/* 3행 — 메트릭 + 마지막 동기화 */}
-      {(connection.metrics || connection.lastSync) && (
+      {(effective.metrics || effective.lastSync) && (
         <div className="flex items-center gap-4 mt-4 text-[11px]">
-          {connection.metrics?.map((m) => (
+          {effective.metrics?.map((m) => (
             <div key={m.label} className="flex items-baseline gap-1">
               <span
                 className="font-bold text-foreground"
@@ -106,9 +131,9 @@ export function ConnectionCard({ connection, onClick }: ConnectionCardProps) {
               <span className="text-muted-foreground">{m.label}</span>
             </div>
           ))}
-          {connection.lastSync && (
+          {effective.lastSync && (
             <span className="text-muted-foreground ml-auto">
-              · {connection.lastSync}
+              · {effective.lastSync}
             </span>
           )}
         </div>
