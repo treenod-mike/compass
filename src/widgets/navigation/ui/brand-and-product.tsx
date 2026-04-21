@@ -12,23 +12,19 @@ import { GameSelector } from '@/widgets/dashboard/ui/game-selector'
 function CompassMark() {
   return (
     <svg
-      viewBox="0 0 40 40"
-      className="w-8 h-8"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      className="w-[30px] h-[30px] shrink-0"
       fill="none"
-      stroke="currentColor"
       aria-hidden
+      style={{
+        filter:
+          'drop-shadow(0 0 0.4px currentColor) drop-shadow(0 0 0.4px currentColor)',
+      }}
     >
       <path
-        d="M20 6 L33 20 L7 20 Z"
         fill="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M20 34 L7 20 L33 20 Z"
-        fill="var(--bg-0, #ffffff)"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
+        d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M1.5 8a6.5 6.5 0 0 1 10.93-4.756L6 6l-2.756 6.43A6.48 6.48 0 0 1 1.5 8m7.643 1.143l-4.001 1.715l1.715-4.001zM8 14.5a6.48 6.48 0 0 1-4.43-1.744L10 10l2.756-6.43A6.5 6.5 0 0 1 8 14.5"
       />
     </svg>
   )
