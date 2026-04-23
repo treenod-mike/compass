@@ -1,12 +1,12 @@
 import { getState, putState } from "./blob-store"
-import { ThrottledError } from "./errors"
+import { AppMissingError, ThrottledError } from "./errors"
 
 const QUOTA = 20
 const LOCK_TTL_MS = 300_000  // 5분
 
 export async function incrementCalls(appId: string, delta: number): Promise<void> {
   const state = await getState(appId)
-  if (!state) throw new Error(`state not found for ${appId}`)
+  if (!state) throw new AppMissingError(appId)
   const newCount = state.callsUsedToday + delta
   if (newCount > QUOTA) {
     const retryAfter = Math.max(1, Math.ceil((new Date(state.callsResetAt).getTime() - Date.now()) / 1000))
