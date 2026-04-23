@@ -13,6 +13,12 @@ import { REVENUE_FORECAST_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { cn } from "@/shared/lib"
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
+import { getPrior } from "@/shared/api/prior-data"
+import { lognormalModel } from "@/shared/lib/bayesian-stats/lognormal"
+import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
+
+// Validity threshold: need ≥ 3 monthly revenue observations for Bayesian posterior
+const MIN_REVENUE_MONTHS = 3
 
 // Dropdown animation — mirrors runway-status-bar patterns for app-wide consistency
 const dropdownVariants = {
@@ -115,6 +121,39 @@ export function RevenueForecast({ data, meta, title, expanded: externalExpanded,
   const [selectedExpId, setSelectedExpId] = useState<string | null>(null)
   const [expOpen, setExpOpen] = useState(false)
 
+  const { summary } = useLiveAfData()
+
+  // Compute Bayesian posterior from live AF revenue data
+  const bayesianRevenue = useMemo(() => {
+    const prior = getPrior({ genre: "Merge", region: "JP" })
+    if (!prior) return null
+
+    const dailyRevenue = summary?.revenue?.daily ?? []
+    const monthlySamples = dailyRevenue.map((d) => d.sumUsd)
+    const ml3 = monthlySamples.length < MIN_REVENUE_MONTHS
+
+    const priorParams = lognormalModel.priorFromEmpirical(prior.monthlyRevenueUsd, prior.effectiveN)
+    const priorInterval = lognormalModel.priorAsInterval(priorParams)
+
+    let posteriorInterval = null
+    if (!ml3 && monthlySamples.length > 0) {
+      try {
+        posteriorInterval = lognormalModel.posterior(priorParams, {
+          monthlyRevenueUsd: monthlySamples,
+          monthsCount: monthlySamples.length,
+        })
+      } catch {
+        posteriorInterval = null
+      }
+    }
+
+    return {
+      prior: priorInterval,
+      posterior: posteriorInterval,
+      ml3,
+    }
+  }, [summary])
+
   const expListId = useId()
   const expMenuRef = useRef<HTMLDivElement>(null)
   const expTriggerRef = useRef<HTMLButtonElement>(null)
@@ -175,7 +214,16 @@ export function RevenueForecast({ data, meta, title, expanded: externalExpanded,
         title={title || t("chart.revenue")}
         info={t("info.revenueForecast")}
         insight={insight}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
+        actions={
+          <div className="flex items-center gap-2">
+            {bayesianRevenue?.ml3 && (
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
+                ML3 · Sample too small
+              </span>
+            )}
+            <ExpandButton expanded={expanded} onToggle={toggle} />
+          </div>
+        }
       />
 
       {/* Control strip: compact 13px scale with items-center for stable alignment.
@@ -426,6 +474,24 @@ export function RevenueForecast({ data, meta, title, expanded: externalExpanded,
 
             {/* Layer 4: Posterior P50 (top, always) — solid blue 2px */}
             <Line type="monotone" dataKey="p50" stroke={C.line} strokeWidth={2.25} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
+
+            {/* Layer 4.5: Bayesian live posterior P50 overlay — dashed blue, only when sample ≥ 3 months */}
+            {bayesianRevenue?.posterior && !bayesianRevenue.ml3 && (
+              <ReferenceLine
+                y={bayesianRevenue.posterior.mean}
+                stroke={C.line}
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
+                strokeOpacity={0.7}
+                label={{
+                  value: `Live P50: $${Math.round(bayesianRevenue.posterior.mean / 1000)}K`,
+                  position: "insideTopRight",
+                  ...CHART_TYPO.axisLabel,
+                  fill: C.line,
+                  offset: 6,
+                }}
+              />
+            )}
 
             {/* Layer 5: Experiment fork (conditional, topmost line) — green dashed */}
             {selectedExp && (

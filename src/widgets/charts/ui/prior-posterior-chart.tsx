@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { PriorPosterior } from "@/shared/api/mock-data"
@@ -12,20 +12,24 @@ import { computeMarketSignal } from "@/shared/lib"
 import { MethodologyModal } from "@/shared/ui/methodology-modal"
 import { CyclicUpdateTimeline } from "./cyclic-update-timeline"
 import { mockCyclicUpdate_matchLeague_d7 } from "@/shared/api/mock-data"
-import { priorByGenre } from "@/shared/api/prior-data"
+import { getPrior } from "@/shared/api/prior-data"
+import { betaBinomialModel } from "@/shared/lib/bayesian-stats/beta-binomial"
+import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
 
-// Map real ST retention priors (fractions 0-1 → percentages, p10/p50/p90 → ci_low/mean/ci_high)
-const ST = priorByGenre.Merge.JP.retention
-const stPriorByMetric: Record<string, { mean: number; ci_low: number; ci_high: number }> = {
-  "D1 Retention":  { mean: ST.d1.p50 * 100, ci_low: ST.d1.p10 * 100, ci_high: ST.d1.p90 * 100 },
-  "D7 Retention":  { mean: ST.d7.p50 * 100, ci_low: ST.d7.p10 * 100, ci_high: ST.d7.p90 * 100 },
-  "D30 Retention": { mean: ST.d30.p50 * 100, ci_low: ST.d30.p10 * 100, ci_high: ST.d30.p90 * 100 },
-}
+// Validity thresholds per spec §6
+const RETENTION_N_THRESHOLD = { d1: 25, d7: 80, d30: 200 } as const
 
 const C = MARKET_GAP_PROOF_COLORS
 
 type PriorPosteriorChartProps = {
   data: PriorPosterior[]
+}
+
+/** Posterior band for one metric, or null if ML3 (sample too small) */
+type BayesianBand = {
+  prior: { mean: number; ci_low: number; ci_high: number }
+  posterior: { mean: number; ci_low: number; ci_high: number } | null
+  ml3: boolean
 }
 
 /**
@@ -39,6 +43,58 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
   const { t } = useLocale()
   const [methodologyOpen, setMethodologyOpen] = useState(false)
   const { expanded, toggle, gridClassName } = useChartExpand()
+
+  const { summary } = useLiveAfData()
+
+  // Compute Bayesian posterior for each retention day from live AF cohorts
+  const bayesianBands = useMemo((): Record<string, BayesianBand> => {
+    const prior = getPrior({ genre: "Merge", region: "JP" })
+    if (!prior) return {}
+
+    const cohorts = summary?.cohorts ?? []
+
+    function bandForDay(
+      dayKey: "d1" | "d7" | "d30",
+      priorDist: { p10: number; p50: number; p90: number },
+      threshold: number,
+    ): BayesianBand {
+      const priorParams = betaBinomialModel.priorFromEmpirical(priorDist, prior!.effectiveN)
+      const priorInterval = betaBinomialModel.priorAsInterval(priorParams)
+      // Convert 0–1 fractions to percentages for display consistency
+      const priorBand = {
+        mean: priorInterval.mean * 100,
+        ci_low: priorInterval.ci_low * 100,
+        ci_high: priorInterval.ci_high * 100,
+      }
+
+      const measurable = cohorts.filter((c) => c.retainedByDay[dayKey] !== null)
+      const trials = measurable.reduce((s, c) => s + c.installs, 0)
+      const successes = measurable.reduce((s, c) => s + (c.retainedByDay[dayKey] ?? 0), 0)
+      const ml3 = trials < threshold
+
+      let posteriorBand: BayesianBand["posterior"] = null
+      if (!ml3 && trials > 0) {
+        try {
+          const interval = betaBinomialModel.posterior(priorParams, { n: trials, k: successes })
+          posteriorBand = {
+            mean: interval.mean * 100,
+            ci_low: interval.ci_low * 100,
+            ci_high: interval.ci_high * 100,
+          }
+        } catch {
+          posteriorBand = null
+        }
+      }
+
+      return { prior: priorBand, posterior: posteriorBand, ml3 }
+    }
+
+    return {
+      "D1 Retention": bandForDay("d1", prior.retention.d1, RETENTION_N_THRESHOLD.d1),
+      "D7 Retention": bandForDay("d7", prior.retention.d7, RETENTION_N_THRESHOLD.d7),
+      "D30 Retention": bandForDay("d30", prior.retention.d30, RETENTION_N_THRESHOLD.d30),
+    }
+  }, [summary])
 
   return (
     <motion.div
@@ -55,10 +111,12 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
 
       <div className="space-y-6">
         {data.map((item) => {
-          // Use real Sensor Tower genre prior when available; fall back to mock
-          const priorOverride = stPriorByMetric[item.metric]
-          const resolvedPrior = priorOverride ?? item.prior
-          const { signal, deltaPct, direction } = computeMarketSignal(resolvedPrior.mean, item.posterior.mean)
+          // Use Bayesian prior band when available; fall back to mock prior
+          const band = bayesianBands[item.metric]
+          const resolvedPrior = band?.prior ?? item.prior
+          // Use Bayesian posterior when available; fall back to mock posterior
+          const resolvedPosterior = band?.posterior ?? item.posterior
+          const { signal, deltaPct, direction } = computeMarketSignal(resolvedPrior.mean, resolvedPosterior.mean)
           const signalColor =
             signal === "invest" ? C.signalInvest : signal === "reduce" ? C.signalReduce : C.signalHold
           const signalLabel = t(
@@ -67,7 +125,7 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
           const gapLabel = t(direction === "above" ? "market.proof.gapAbove" : "market.proof.gapBelow")
           const deltaDisplay = `${deltaPct > 0 ? "+" : ""}${deltaPct.toFixed(1)}%`
 
-          const allValues = [resolvedPrior.ci_low, resolvedPrior.ci_high, item.posterior.ci_low, item.posterior.ci_high]
+          const allValues = [resolvedPrior.ci_low, resolvedPrior.ci_high, resolvedPosterior.ci_low, resolvedPosterior.ci_high]
           const min = Math.min(...allValues) * 0.8
           const max = Math.max(...allValues) * 1.2
           const range = max - min
@@ -76,9 +134,9 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
           const genreWidth = ((resolvedPrior.ci_high - resolvedPrior.ci_low) / range) * 100
           const genreMean = ((resolvedPrior.mean - min) / range) * 100
 
-          const ourLeft = ((item.posterior.ci_low - min) / range) * 100
-          const ourWidth = ((item.posterior.ci_high - item.posterior.ci_low) / range) * 100
-          const ourMean = ((item.posterior.mean - min) / range) * 100
+          const ourLeft = ((resolvedPosterior.ci_low - min) / range) * 100
+          const ourWidth = ((resolvedPosterior.ci_high - resolvedPosterior.ci_low) / range) * 100
+          const ourMean = ((resolvedPosterior.mean - min) / range) * 100
 
           return (
             <div key={item.metric}>
@@ -90,7 +148,7 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
                   </span>
                   <span className="text-[var(--fg-3)]">→</span>
                   <span className="font-bold" style={{ color: C.our }}>
-                    {t("market.proof.ourLabel")}: {item.posterior.mean.toFixed(2)}
+                    {t("market.proof.ourLabel")}: {resolvedPosterior.mean.toFixed(2)}
                   </span>
                   <span className="font-bold" style={{ color: C.gapAccent }}>
                     {gapLabel} {deltaDisplay}
@@ -101,6 +159,11 @@ export function PriorPosteriorChart({ data }: PriorPosteriorChartProps) {
                   >
                     {signalLabel}
                   </span>
+                  {band?.ml3 && (
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
+                      ML3 · Sample too small
+                    </span>
+                  )}
                 </div>
               </div>
 
