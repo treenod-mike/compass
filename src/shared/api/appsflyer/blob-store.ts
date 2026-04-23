@@ -1,0 +1,149 @@
+import { put, list, head } from "@vercel/blob"
+import {
+  AccountSchema, AppSchema, StateSchema, CohortSummarySchema,
+  type Account, type App, type State, type CohortSummary,
+  type ExtendedInstall, type EventRow,
+} from "./types"
+
+const PREFIX = "appsflyer"
+
+async function fetchJson<T>(path: string, schema: { parse: (x: unknown) => T }): Promise<T | null> {
+  try {
+    const meta = await head(path)
+    if (!meta) return null
+    const res = await fetch(meta.url)
+    if (!res.ok) return null
+    return schema.parse(await res.json())
+  } catch {
+    return null
+  }
+}
+
+async function fetchJsonl(path: string): Promise<string[]> {
+  try {
+    const meta = await head(path)
+    if (!meta) return []
+    const res = await fetch(meta.url)
+    if (!res.ok) return []
+    const text = await res.text()
+    return text.trim() === "" ? [] : text.trim().split("\n")
+  } catch {
+    return []
+  }
+}
+
+const writeOpts = { access: "public" as const, contentType: "application/json", addRandomSuffix: false }
+
+// ========== accounts ==========
+export async function putAccount(acc: Account): Promise<void> {
+  const v = AccountSchema.parse(acc)
+  await put(`${PREFIX}/accounts/${v.id}.json`, JSON.stringify(v), writeOpts)
+}
+export async function getAccount(id: string): Promise<Account | null> {
+  return fetchJson(`${PREFIX}/accounts/${id}.json`, AccountSchema)
+}
+
+// ========== apps ==========
+export async function putApp(app: App): Promise<void> {
+  const v = AppSchema.parse(app)
+  await put(`${PREFIX}/apps/${v.appId}.json`, JSON.stringify(v), writeOpts)
+}
+export async function getApp(appId: string): Promise<App | null> {
+  return fetchJson(`${PREFIX}/apps/${appId}.json`, AppSchema)
+}
+export async function listApps(): Promise<App[]> {
+  const { blobs } = await list({ prefix: `${PREFIX}/apps/` })
+  const apps = await Promise.all(
+    blobs.map(async (b) => {
+      const res = await fetch(b.url)
+      if (!res.ok) return null
+      try { return AppSchema.parse(await res.json()) } catch { return null }
+    }),
+  )
+  return apps.filter((a): a is App => a !== null)
+}
+
+// ========== state ==========
+export async function putState(state: State): Promise<void> {
+  const v = StateSchema.parse(state)
+  await put(`${PREFIX}/state/${v.appId}.json`, JSON.stringify(v), { ...writeOpts, cacheControlMaxAge: 0 })
+}
+export async function getState(appId: string): Promise<State | null> {
+  return fetchJson(`${PREFIX}/state/${appId}.json`, StateSchema)
+}
+
+// ========== cohort summary ==========
+export async function putCohortSummary(appId: string, summary: CohortSummary): Promise<void> {
+  const v = CohortSummarySchema.parse(summary)
+  await put(`${PREFIX}/cohort/${appId}/summary.json`, JSON.stringify(v), writeOpts)
+}
+export async function getCohortSummary(appId: string): Promise<CohortSummary | null> {
+  return fetchJson(`${PREFIX}/cohort/${appId}/summary.json`, CohortSummarySchema)
+}
+
+// ========== installs JSONL ==========
+function installKey(i: ExtendedInstall): string {
+  return `${i.appsflyerId ?? ""}|${i.installTime ?? ""}`
+}
+
+export async function appendInstalls(
+  appId: string, yyyymm: string, fresh: ExtendedInstall[],
+): Promise<void> {
+  const path = `${PREFIX}/installs/${appId}/${yyyymm}.jsonl`
+  const existingLines = await fetchJsonl(path)
+  const existing: ExtendedInstall[] = existingLines.map((l) => JSON.parse(l))
+  const seen = new Set(existing.map(installKey))
+  const merged = [...existing]
+  for (const i of fresh) {
+    const k = installKey(i)
+    if (!seen.has(k)) { merged.push(i); seen.add(k) }
+  }
+  await put(path, merged.map((i) => JSON.stringify(i)).join("\n"),
+    { ...writeOpts, contentType: "application/x-ndjson" })
+}
+
+export async function listInstallShards(appId: string): Promise<string[]> {
+  const { blobs } = await list({ prefix: `${PREFIX}/installs/${appId}/` })
+  return blobs.map((b) => b.pathname)
+}
+
+export async function readAllInstalls(appId: string): Promise<ExtendedInstall[]> {
+  const shards = await listInstallShards(appId)
+  const all: ExtendedInstall[] = []
+  for (const path of shards) {
+    const lines = await fetchJsonl(path)
+    for (const l of lines) all.push(JSON.parse(l))
+  }
+  return all
+}
+
+// ========== events JSONL ==========
+function eventKey(e: EventRow): string {
+  return `${e.appsflyerId ?? ""}|${e.eventName ?? ""}|${e.eventTime ?? ""}`
+}
+
+export async function appendEvents(
+  appId: string, yyyymm: string, fresh: EventRow[],
+): Promise<void> {
+  const path = `${PREFIX}/events/${appId}/${yyyymm}.jsonl`
+  const existingLines = await fetchJsonl(path)
+  const existing: EventRow[] = existingLines.map((l) => JSON.parse(l))
+  const seen = new Set(existing.map(eventKey))
+  const merged = [...existing]
+  for (const e of fresh) {
+    const k = eventKey(e)
+    if (!seen.has(k)) { merged.push(e); seen.add(k) }
+  }
+  await put(path, merged.map((e) => JSON.stringify(e)).join("\n"),
+    { ...writeOpts, contentType: "application/x-ndjson" })
+}
+
+export async function readAllEvents(appId: string): Promise<EventRow[]> {
+  const { blobs } = await list({ prefix: `${PREFIX}/events/${appId}/` })
+  const all: EventRow[] = []
+  for (const b of blobs) {
+    const lines = await fetchJsonl(b.pathname)
+    for (const l of lines) all.push(JSON.parse(l))
+  }
+  return all
+}
