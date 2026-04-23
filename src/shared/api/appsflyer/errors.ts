@@ -50,3 +50,31 @@ export class NetworkError extends AppsFlyerError {
     this.name = "NetworkError"
   }
 }
+
+export class CredentialInvalidError extends Error {
+  override name = "CredentialInvalidError"
+  constructor(public readonly httpStatus: 401 | 403, message: string) {
+    super(message)
+  }
+}
+
+export class AppMissingError extends Error {
+  override name = "AppMissingError"
+  constructor(public readonly appId: string) {
+    super(`AppsFlyer app not found: ${appId}`)
+  }
+}
+
+export class ThrottledError extends Error {
+  override name = "ThrottledError"
+  constructor(public readonly retryAfterSec: number) {
+    super(`AppsFlyer rate limit hit, retry after ${retryAfterSec}s`)
+  }
+}
+
+export class BackfillInProgressError extends Error {
+  override name = "BackfillInProgressError"
+  constructor(public readonly accountId: string, public readonly heldBy: string) {
+    super(`backfill already in progress for ${accountId} (held by ${heldBy})`)
+  }
+}
