@@ -205,16 +205,20 @@ export const StateSchema = z.object({
 })
 export type AppState = z.infer<typeof StateSchema>
 
-export const CohortEntrySchema = z.object({
-  n: z.number().int().nonnegative(),
-  d1_retained: z.number().int().nonnegative().optional(),
-  d7_retained: z.number().int().nonnegative().optional(),
-  d30_retained: z.number().int().nonnegative().optional(),
+export const CohortObservationSchema = z.object({
+  cohortDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  installs: z.number().int().nonnegative(),
+  retainedByDay: z.object({
+    d1: z.number().int().nonnegative().nullable(),
+    d7: z.number().int().nonnegative().nullable(),
+    d30: z.number().int().nonnegative().nullable(),
+  }),
 })
+export type CohortObservation = z.infer<typeof CohortObservationSchema>
 
 export const CohortSummarySchema = z.object({
   updatedAt: z.string().datetime(),
-  cohorts: z.record(z.string(), CohortEntrySchema),
+  cohorts: z.array(CohortObservationSchema),
   revenue: z.object({
     daily: z.array(
       z.object({
