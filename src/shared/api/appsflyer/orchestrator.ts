@@ -144,7 +144,18 @@ export async function runAppsFlyerSync(
           return finalState
         }
 
-        // throttled / partial: accumulate warning, continue to next step
+        // Quota exhausted — abort the whole sync to avoid a false "active" state
+        // with no new data written.
+        if (err instanceof ThrottledError) {
+          state = {
+            ...state,
+            failureHistory: [...state.failureHistory, failureEntry].slice(-10) as AppState["failureHistory"],
+          }
+          await putState(state)
+          throw err
+        }
+
+        // partial: accumulate warning, continue to next step
         state = {
           ...state,
           failureHistory: [...state.failureHistory, failureEntry].slice(-10) as AppState["failureHistory"],
@@ -152,7 +163,12 @@ export async function runAppsFlyerSync(
       }
     }
 
-    // Aggregate all stored data and write cohort summary
+    // Step 5/5: aggregate stored data + cohort summary write.
+    // Surface this phase in `progress` so the UI doesn't jump 4/5 → 5/5.
+    await putState({
+      ...state,
+      progress: { step: 5, total: 5, currentReport: "aggregate", rowsFetched },
+    })
     const allInstalls = await readAllInstalls(appId)
     const allEvents = await readAllEvents(appId)
     const summary = aggregate(allInstalls, allEvents)
