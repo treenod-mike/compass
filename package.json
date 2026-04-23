@@ -7,7 +7,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test \"src/**/*.test.ts\"",
     "crawl:st": "cd crawler && npx tsx src/index.ts",
     "crawl:st:login": "cd crawler && npx tsx src/index.ts --login",
     "crawl:st:dry": "cd crawler && npx tsx src/index.ts --dry-run --limit 1",
@@ -15,7 +14,8 @@
     "crawl:cpi": "cd crawler && npx tsx src/cpi-benchmarks/ingest.ts",
     "crawl:cpi:verify": "cd crawler && npx tsx src/cpi-benchmarks/verify.ts",
     "migrate:snapshot": "tsx scripts/migrate-snapshot-to-blob.ts",
-    "test:af": "tsx --test src/shared/api/appsflyer/__tests__/*.test.ts",
+    "test": "vitest run",
+    "test:af": "vitest run src/shared/api/appsflyer/__tests__/",
     "test:vc": "tsx --test src/shared/api/vc-simulation/__tests__/*.test.ts"
   },
   "dependencies": {
