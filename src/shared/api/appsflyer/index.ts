@@ -35,4 +35,7 @@ export type {
   CsvRow, InstallsParams, CompactInstall,
 } from "./types"
 
-export { toExtendedInstall, toEventRow } from "./types"
+export {
+  RegisterRequestSchema, AccountSchema, AppSchema, StateSchema,
+  toExtendedInstall, toEventRow,
+} from "./types"
