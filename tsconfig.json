@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "gameboard-src", "crawler", "Project Compass", "scripts"]
+  "exclude": ["node_modules", "gameboard-src", "crawler", "Project Compass"]
 }

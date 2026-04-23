@@ -14,8 +14,7 @@
     "crawl:st:discover": "cd crawler && npx tsx src/discover.ts",
     "crawl:cpi": "cd crawler && npx tsx src/cpi-benchmarks/ingest.ts",
     "crawl:cpi:verify": "cd crawler && npx tsx src/cpi-benchmarks/verify.ts",
-    "fetch:af": "tsx scripts/fetch-appsflyer.ts",
-    "fetch:af:dry": "tsx scripts/fetch-appsflyer.ts -- --dry-run",
+    "migrate:snapshot": "tsx scripts/migrate-snapshot-to-blob.ts",
     "test:af": "tsx --test src/shared/api/appsflyer/__tests__/*.test.ts",
     "test:vc": "tsx --test src/shared/api/vc-simulation/__tests__/*.test.ts"
   },
