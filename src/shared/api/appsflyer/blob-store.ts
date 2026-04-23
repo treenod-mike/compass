@@ -1,22 +1,25 @@
 import { put, list, head } from "@vercel/blob"
 import {
   AccountSchema, AppSchema, StateSchema, CohortSummarySchema,
-  type Account, type App, type State, type CohortSummary,
+  type Account, type App, type AppState as State, type CohortSummary,
   type ExtendedInstall, type EventRow,
 } from "./types"
 
 const PREFIX = "appsflyer"
 
 async function fetchJson<T>(path: string, schema: { parse: (x: unknown) => T }): Promise<T | null> {
+  let meta
   try {
-    const meta = await head(path)
-    if (!meta) return null
-    const res = await fetch(meta.url)
-    if (!res.ok) return null
-    return schema.parse(await res.json())
+    meta = await head(path)
   } catch {
-    return null
+    return null  // blob doesn't exist
   }
+  if (!meta) return null
+  const res = await fetch(meta.url)
+  if (!res.ok) return null
+  // Let schema.parse errors propagate — corrupt blob ≠ "not found".
+  // Caller can decide whether to re-initialize state vs alert.
+  return schema.parse(await res.json())
 }
 
 async function fetchJsonl(path: string): Promise<string[]> {
@@ -83,7 +86,7 @@ export async function getCohortSummary(appId: string): Promise<CohortSummary | n
 
 // ========== installs JSONL ==========
 function installKey(i: ExtendedInstall): string {
-  return `${i.appsflyerId ?? ""}|${i.installTime ?? ""}`
+  return `${i.appsflyerId}|${i.installTime}`
 }
 
 export async function appendInstalls(
@@ -92,9 +95,12 @@ export async function appendInstalls(
   const path = `${PREFIX}/installs/${appId}/${yyyymm}.jsonl`
   const existingLines = await fetchJsonl(path)
   const existing: ExtendedInstall[] = existingLines.map((l) => JSON.parse(l))
-  const seen = new Set(existing.map(installKey))
+  // Filter rows lacking the join key — they cannot dedup or join with events.
+  // (Plan §1.4: caller filter contract is now enforced at the storage boundary.)
+  const usable = fresh.filter((i) => i.appsflyerId !== null && i.installTime !== null)
+  const seen = new Set(existing.filter((i) => i.appsflyerId !== null && i.installTime !== null).map(installKey))
   const merged = [...existing]
-  for (const i of fresh) {
+  for (const i of usable) {
     const k = installKey(i)
     if (!seen.has(k)) { merged.push(i); seen.add(k) }
   }
@@ -119,7 +125,7 @@ export async function readAllInstalls(appId: string): Promise<ExtendedInstall[]>
 
 // ========== events JSONL ==========
 function eventKey(e: EventRow): string {
-  return `${e.appsflyerId ?? ""}|${e.eventName ?? ""}|${e.eventTime ?? ""}`
+  return `${e.appsflyerId}|${e.eventName}|${e.eventTime}`
 }
 
 export async function appendEvents(
@@ -128,9 +134,13 @@ export async function appendEvents(
   const path = `${PREFIX}/events/${appId}/${yyyymm}.jsonl`
   const existingLines = await fetchJsonl(path)
   const existing: EventRow[] = existingLines.map((l) => JSON.parse(l))
-  const seen = new Set(existing.map(eventKey))
+  // Filter rows lacking the join key (boundary-enforced caller contract).
+  const usable = fresh.filter((e) => e.appsflyerId !== null && e.eventTime !== null && e.eventName !== null)
+  const seen = new Set(
+    existing.filter((e) => e.appsflyerId !== null && e.eventTime !== null && e.eventName !== null).map(eventKey),
+  )
   const merged = [...existing]
-  for (const e of fresh) {
+  for (const e of usable) {
     const k = eventKey(e)
     if (!seen.has(k)) { merged.push(e); seen.add(k) }
   }
