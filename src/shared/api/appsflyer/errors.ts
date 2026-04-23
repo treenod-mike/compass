@@ -51,30 +51,40 @@ export class NetworkError extends AppsFlyerError {
   }
 }
 
-export class CredentialInvalidError extends Error {
-  override name = "CredentialInvalidError"
-  constructor(public readonly httpStatus: 401 | 403, message: string) {
-    super(message)
+export class CredentialInvalidError extends AppsFlyerError {
+  readonly httpStatus: 401 | 403
+  constructor(httpStatus: 401 | 403, message: string) {
+    super("credential_invalid", message)
+    this.name = "CredentialInvalidError"
+    this.httpStatus = httpStatus
   }
 }
 
-export class AppMissingError extends Error {
-  override name = "AppMissingError"
-  constructor(public readonly appId: string) {
-    super(`AppsFlyer app not found: ${appId}`)
+export class AppMissingError extends AppsFlyerError {
+  readonly appId: string
+  constructor(appId: string) {
+    super("app_missing", `AppsFlyer app not found: ${appId}`)
+    this.name = "AppMissingError"
+    this.appId = appId
   }
 }
 
-export class ThrottledError extends Error {
-  override name = "ThrottledError"
-  constructor(public readonly retryAfterSec: number) {
-    super(`AppsFlyer rate limit hit, retry after ${retryAfterSec}s`)
+export class ThrottledError extends AppsFlyerError {
+  readonly retryAfterSec: number
+  constructor(retryAfterSec: number) {
+    super("throttled", `AppsFlyer rate limit hit, retry after ${retryAfterSec}s`)
+    this.name = "ThrottledError"
+    this.retryAfterSec = retryAfterSec
   }
 }
 
-export class BackfillInProgressError extends Error {
-  override name = "BackfillInProgressError"
-  constructor(public readonly accountId: string, public readonly heldBy: string) {
-    super(`backfill already in progress for ${accountId} (held by ${heldBy})`)
+export class BackfillInProgressError extends AppsFlyerError {
+  readonly accountId: string
+  readonly heldBy: string
+  constructor(accountId: string, heldBy: string) {
+    super("backfill_in_progress", `backfill already in progress for ${accountId} (held by ${heldBy})`)
+    this.name = "BackfillInProgressError"
+    this.accountId = accountId
+    this.heldBy = heldBy
   }
 }
