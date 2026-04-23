@@ -1,9 +1,13 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto"
 
+const HEX_KEY = /^[0-9a-fA-F]{64}$/
+
 function getKey(): Buffer {
   const hex = process.env.APPSFLYER_MASTER_KEY
   if (!hex) throw new Error("APPSFLYER_MASTER_KEY env var missing")
-  if (hex.length !== 64) throw new Error("APPSFLYER_MASTER_KEY must be 32 bytes (64 hex chars)")
+  if (!HEX_KEY.test(hex)) {
+    throw new Error("APPSFLYER_MASTER_KEY must be 64 hex characters (32 bytes)")
+  }
   return Buffer.from(hex, "hex")
 }
 
@@ -15,14 +19,27 @@ export function encryptToken(plain: string): string {
   return `${iv.toString("hex")}:${enc.toString("hex")}:${tag.toString("hex")}`
 }
 
+const HEX_RE = /^[0-9a-fA-F]*$/
+
 export function decryptToken(packed: string): string {
   const parts = packed.split(":")
-  if (parts.length !== 3) throw new Error("invalid ciphertext format")
+  if (parts.length !== 3) throw new Error("decryption failed")
   const [ivHex, cipherHex, tagHex] = parts
-  const decipher = createDecipheriv("aes-256-gcm", getKey(), Buffer.from(ivHex, "hex"))
-  decipher.setAuthTag(Buffer.from(tagHex, "hex"))
-  const dec = Buffer.concat([decipher.update(Buffer.from(cipherHex, "hex")), decipher.final()])
-  return dec.toString("utf8")
+  // Defensive: Buffer.from(_, "hex") silently truncates non-hex/odd-length input,
+  // and a zero-length tag would skip GCM authentication. Reject up front.
+  if (ivHex.length !== 24 || !HEX_RE.test(ivHex)) throw new Error("decryption failed")  // 12 bytes = 24 hex
+  if (tagHex.length !== 32 || !HEX_RE.test(tagHex)) throw new Error("decryption failed")  // 16 bytes = 32 hex
+  if (!HEX_RE.test(cipherHex)) throw new Error("decryption failed")
+  try {
+    const decipher = createDecipheriv("aes-256-gcm", getKey(), Buffer.from(ivHex, "hex"))
+    decipher.setAuthTag(Buffer.from(tagHex, "hex"))
+    const dec = Buffer.concat([decipher.update(Buffer.from(cipherHex, "hex")), decipher.final()])
+    return dec.toString("utf8")
+  } catch {
+    // Normalize Node's GCM auth error so callers cannot distinguish
+    // structural format failures from authentication failures.
+    throw new Error("decryption failed")
+  }
 }
 
 export function hashToken(plain: string): string {

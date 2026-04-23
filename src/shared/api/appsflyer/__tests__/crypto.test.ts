@@ -45,4 +45,19 @@ describe("crypto", () => {
     delete process.env.APPSFLYER_MASTER_KEY
     expect(() => encryptToken("x")).toThrow(/APPSFLYER_MASTER_KEY/)
   })
+
+  it("rejects non-hex key with 64 length (would silently truncate via Buffer.from)", () => {
+    process.env.APPSFLYER_MASTER_KEY = "z".repeat(64)
+    expect(() => encryptToken("x")).toThrow(/APPSFLYER_MASTER_KEY/)
+  })
+
+  it("decrypt rejects empty tag segment (would skip GCM authentication)", () => {
+    const ct = encryptToken("secret")
+    const [iv, cipher] = ct.split(":")
+    expect(() => decryptToken(`${iv}:${cipher}:`)).toThrow(/decryption failed/)
+  })
+
+  it("decrypt rejects malformed iv length", () => {
+    expect(() => decryptToken("ab:00:00")).toThrow(/decryption failed/)
+  })
 })
