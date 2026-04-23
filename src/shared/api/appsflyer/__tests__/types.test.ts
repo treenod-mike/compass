@@ -62,12 +62,16 @@ describe("StateSchema", () => {
 })
 
 describe("CohortSummarySchema", () => {
-  it("accepts partial retention metrics", () => {
+  it("accepts cohorts array (engine-input shape, post C2 alignment)", () => {
     const ok = CohortSummarySchema.safeParse({
       updatedAt: "2026-04-23T00:00:00.000Z",
-      cohorts: {
-        "2026-04-10": { n: 12, d1_retained: 5 },
-      },
+      cohorts: [
+        {
+          cohortDate: "2026-04-10",
+          installs: 12,
+          retainedByDay: { d1: 5, d7: null, d30: null },
+        },
+      ],
       revenue: {
         daily: [{ date: "2026-04-10", sumUsd: 123.45, purchasers: 3 }],
         total: { sumUsd: 123.45, purchasers: 3 },

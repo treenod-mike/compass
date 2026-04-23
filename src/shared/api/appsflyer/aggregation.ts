@@ -5,8 +5,9 @@ const SESSION_EVENTS = new Set(["af_session", "af_app_opened"])
 
 function parseEpoch(iso: string): number {
   // AppsFlyer Pull API CSV: "YYYY-MM-DD HH:MM:SS" implicit UTC.
-  // Defensive: replace space with T and ensure trailing Z (idempotent).
-  const normalized = iso.replace(" ", "T").replace(/Z?$/, "Z")
+  // Defensive: trim whitespace (CSV fields may carry trailing spaces),
+  // replace space with T, ensure trailing Z (idempotent).
+  const normalized = iso.trim().replace(" ", "T").replace(/Z?$/, "Z")
   return new Date(normalized).getTime()
 }
 
