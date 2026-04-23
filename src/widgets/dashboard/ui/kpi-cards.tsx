@@ -8,6 +8,7 @@ import graphDownBold from "@iconify-icons/solar/graph-down-bold"
 import minusBold from "@iconify-icons/solar/minus-circle-bold"
 import { AnimatedNumber } from "@/shared/ui/animated-number"
 import { InfoHint } from "@/shared/ui/info-hint"
+import { useLiveAfData } from "../lib/use-live-af-data"
 
 export type KPIItem = {
   labelKey: TranslationKey
@@ -48,8 +49,25 @@ function resolveInfoKey(
  */
 export function KPICards({ items, basisKey }: KPICardsProps) {
   const { t } = useLocale()
+  const { state, summary, badge } = useLiveAfData()
 
-  const n = items.length
+  // Merge live AF data into items: replace installs + revenue values when active
+  const liveInstalls =
+    summary?.cohorts.reduce((s, c) => s + c.installs, 0) ?? null
+  const liveRevenue = summary?.revenue.total.sumUsd ?? null
+  const isActive = state?.status === "active"
+
+  const mergedItems: KPIItem[] = items.map((item) => {
+    if (!isActive) return item
+    const key = item.labelKey as string
+    if (key === "kpi.installs" && liveInstalls !== null)
+      return { ...item, value: liveInstalls }
+    if ((key === "kpi.revenue" || key === "kpi.totalRevenue") && liveRevenue !== null)
+      return { ...item, value: Math.round(liveRevenue) }
+    return item
+  })
+
+  const n = mergedItems.length
   const gridClass =
     n <= 2 ? "grid-cols-2" :
     n === 3 ? "grid-cols-2 md:grid-cols-3" :
@@ -58,9 +76,16 @@ export function KPICards({ items, basisKey }: KPICardsProps) {
               "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"
 
   return (
-    <div>
+    <div className="relative">
+      {badge && (
+        <span className="absolute right-2 top-2 z-10 rounded-[var(--radius-inline)] bg-[var(--bg-3)] px-2 py-0.5 text-xs text-[var(--fg-2)]">
+          {badge === "ML1"
+            ? "Live data unavailable"
+            : `Data from ${state?.lastSyncAt?.slice(0, 10) ?? "—"}`}
+        </span>
+      )}
       <div className={cn("grid gap-4", gridClass)}>
-        {items.map((item) => {
+        {mergedItems.map((item) => {
           const infoKey = resolveInfoKey(item.labelKey, item.infoKey)
           const isPositiveTrend = item.trend > 0
           const isNegativeTrend = item.trend < 0

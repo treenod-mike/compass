@@ -3,6 +3,7 @@
 import { useLocale } from "@/shared/i18n"
 import type { DataFreshness } from "@/shared/api/mock-data"
 import { InfoHint } from "@/shared/ui/info-hint"
+import { useLiveAfData } from "../lib/use-live-af-data"
 
 type DataFreshnessStripProps = {
   data: DataFreshness
@@ -71,6 +72,8 @@ function Row({ color, label, value, info }: RowProps) {
 
 export function DataFreshnessStrip({ data }: DataFreshnessStripProps) {
   const { t, locale } = useLocale()
+  const { state, badge } = useLiveAfData()
+  const lastSync = state?.lastSyncAt ?? null
 
   const syncColor = getLastSyncColor(data.lastSync.minutesAgo)
   const sourceColor = getSourceCoverageColor(data.sourceCoverage.connected)
@@ -121,6 +124,26 @@ export function DataFreshnessStrip({ data }: DataFreshnessStripProps) {
           value={`${data.modelConvergence}%`}
           info={t("info.data.convergence")}
         />
+
+        {/* AppsFlyer live sync row */}
+        {lastSync && (
+          <Row
+            color={
+              badge === "ML2"
+                ? "var(--signal-caution)"
+                : "var(--signal-positive)"
+            }
+            label="AppsFlyer"
+            value={(() => {
+              const diffMs = Date.now() - new Date(lastSync).getTime()
+              const diffMin = Math.round(diffMs / 60_000)
+              if (diffMin < 60) return `${diffMin}m ago`
+              const diffHr = Math.round(diffMin / 60)
+              if (diffHr < 24) return `${diffHr}h ago`
+              return `${Math.round(diffHr / 24)}d ago`
+            })()}
+          />
+        )}
 
         {/* Anomalies */}
         {data.anomalies.length > 0 && (
