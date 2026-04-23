@@ -239,3 +239,60 @@ export const RegisterRequestSchema = z.object({
   home_currency: z.enum(["KRW", "USD", "JPY", "EUR"]).default("KRW"),
 })
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>
+
+// === Row-level types for sync pipeline (used by blob-store + aggregation) ===
+
+export const ExtendedInstallSchema = z.object({
+  installTime: z.string().nullable(),
+  partner: z.string().nullable(),
+  mediaSource: z.string().nullable(),
+  costValue: z.number().nullable(),
+  eventRevenueUsd: z.number().nullable(),
+  eventName: z.string().nullable(),
+  countryCode: z.string().nullable(),
+  platform: z.string().nullable(),
+  appsflyerId: z.string().nullable(),
+  eventTime: z.string().nullable(),
+})
+export type ExtendedInstall = z.infer<typeof ExtendedInstallSchema>
+
+export const EventRowSchema = z.object({
+  appsflyerId: z.string().nullable(),
+  eventTime: z.string().nullable(),
+  eventName: z.string().nullable(),
+  eventRevenueUsd: z.number().nullable(),
+})
+export type EventRow = z.infer<typeof EventRowSchema>
+
+const str = (v: unknown): string | null =>
+  typeof v === "string" && v !== "" ? v : null
+const num = (v: unknown): number | null =>
+  typeof v === "number" ? v : null
+
+/**
+ * Map an 81-column AppsFlyer Pull API CSV row → ExtendedInstall.
+ * Caller filters out rows with null `appsflyerId` before joining.
+ */
+export function toExtendedInstall(row: CsvRow): ExtendedInstall {
+  return {
+    installTime: str(row["Install Time"]),
+    partner: str(row["Partner"]),
+    mediaSource: str(row["Media Source"]),
+    costValue: num(row["Cost Value"]),
+    eventRevenueUsd: num(row["Event Revenue USD"]),
+    eventName: str(row["Event Name"]),
+    countryCode: str(row["Country Code"]),
+    platform: str(row["Platform"]),
+    appsflyerId: str(row["AppsFlyer ID"]),
+    eventTime: str(row["Event Time"]),
+  }
+}
+
+export function toEventRow(row: CsvRow): EventRow {
+  return {
+    appsflyerId: str(row["AppsFlyer ID"]),
+    eventTime: str(row["Event Time"]),
+    eventName: str(row["Event Name"]),
+    eventRevenueUsd: num(row["Event Revenue USD"]),
+  }
+}

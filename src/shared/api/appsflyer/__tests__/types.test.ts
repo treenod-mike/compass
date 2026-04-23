@@ -88,3 +88,38 @@ describe("RegisterRequestSchema", () => {
     expect(parsed.home_currency).toBe("KRW")
   })
 })
+
+import { toExtendedInstall, toEventRow } from "../types"
+
+describe("toExtendedInstall", () => {
+  it("preserves AppsFlyer ID and Event Time, returns null for empty", () => {
+    const row = {
+      "AppsFlyer ID": "1234-abc",
+      "Install Time": "2026-04-01 12:00:00",
+      "Event Time": "2026-04-01 12:00:00",
+      "Partner": "googleadwords",
+    }
+    const out = toExtendedInstall(row as any)
+    expect(out.appsflyerId).toBe("1234-abc")
+    expect(out.installTime).toBe("2026-04-01 12:00:00")
+    expect(out.partner).toBe("googleadwords")
+
+    const empty = toExtendedInstall({ "AppsFlyer ID": "" } as any)
+    expect(empty.appsflyerId).toBeNull()
+  })
+})
+
+describe("toEventRow", () => {
+  it("extracts join key + event metadata only", () => {
+    const out = toEventRow({
+      "AppsFlyer ID": "abc",
+      "Event Time": "2026-04-02 09:00:00",
+      "Event Name": "af_session",
+      "Event Revenue USD": null,
+      "Install Time": "ignored",
+    } as any)
+    expect(out.appsflyerId).toBe("abc")
+    expect(out.eventName).toBe("af_session")
+    expect(out.eventRevenueUsd).toBeNull()
+  })
+})
