@@ -121,3 +121,121 @@ export const EMPTY_CARD: AppsFlyerCardData = {
   metrics: [],
   retentionDepth: null,
 }
+
+// === v3 schemas: Account / App / State / CohortSummary / Register ===
+
+export const AccountSchema = z.object({
+  id: z.string().regex(/^acc_[a-f0-9]{8}$/),
+  tokenHash: z.string().length(64),
+  encryptedToken: z.string().min(1),
+  currency: z.enum(["KRW", "USD", "JPY", "EUR"]),
+  label: z.string().max(80),
+  createdAt: z.string().datetime(),
+})
+export type Account = z.infer<typeof AccountSchema>
+
+const GameKeySchema = z.enum([
+  "portfolio",
+  "match-league",
+  "weaving-fairy",
+  "dig-infinity",
+])
+export type GameKey = z.infer<typeof GameKeySchema>
+
+export const AppSchema = z.object({
+  appId: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
+  accountId: z.string().regex(/^acc_[a-f0-9]{8}$/),
+  gameKey: GameKeySchema,
+  label: z.string().max(80),
+  createdAt: z.string().datetime(),
+})
+export type App = z.infer<typeof AppSchema>
+
+export const AppStatusSchema = z.enum([
+  "backfilling",
+  "active",
+  "stale",
+  "failed",
+  "credential_invalid",
+  "app_missing",
+])
+export type AppStatus = z.infer<typeof AppStatusSchema>
+
+export const FailureTypeSchema = z.enum([
+  "retryable",
+  "throttled",
+  "auth_invalid",
+  "not_found",
+  "partial",
+  "full_failure",
+])
+
+export const StateSchema = z.object({
+  appId: z.string(),
+  status: AppStatusSchema,
+  progress: z.object({
+    step: z.number().int().min(0).max(5),
+    total: z.literal(5),
+    currentReport: z.string().optional(),
+    rowsFetched: z.number().int().nonnegative(),
+  }),
+  lastSyncAt: z.string().datetime().optional(),
+  lastWindow: z
+    .object({ from: z.string(), to: z.string() })
+    .optional(),
+  callsUsedToday: z.number().int().min(0).max(20),
+  callsResetAt: z.string().datetime(),
+  syncLock: z
+    .object({
+      heldBy: z.string(),
+      heldAt: z.string().datetime(),
+      ttlMs: z.literal(300_000),
+    })
+    .nullable(),
+  failureHistory: z
+    .array(
+      z.object({
+        at: z.string().datetime(),
+        type: FailureTypeSchema,
+        message: z.string(),
+        report: z.string().optional(),
+      })
+    )
+    .max(10),
+})
+export type AppState = z.infer<typeof StateSchema>
+
+export const CohortEntrySchema = z.object({
+  n: z.number().int().nonnegative(),
+  d1_retained: z.number().int().nonnegative().optional(),
+  d7_retained: z.number().int().nonnegative().optional(),
+  d30_retained: z.number().int().nonnegative().optional(),
+})
+
+export const CohortSummarySchema = z.object({
+  updatedAt: z.string().datetime(),
+  cohorts: z.record(z.string(), CohortEntrySchema),
+  revenue: z.object({
+    daily: z.array(
+      z.object({
+        date: z.string(),
+        sumUsd: z.number().nonnegative(),
+        purchasers: z.number().int().nonnegative(),
+      })
+    ),
+    total: z.object({
+      sumUsd: z.number().nonnegative(),
+      purchasers: z.number().int().nonnegative(),
+    }),
+  }),
+})
+export type CohortSummary = z.infer<typeof CohortSummarySchema>
+
+export const RegisterRequestSchema = z.object({
+  dev_token: z.string().min(20),
+  app_id: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
+  app_label: z.string().max(80),
+  game_key: GameKeySchema,
+  home_currency: z.enum(["KRW", "USD", "JPY", "EUR"]).default("KRW"),
+})
+export type RegisterRequest = z.infer<typeof RegisterRequestSchema>
