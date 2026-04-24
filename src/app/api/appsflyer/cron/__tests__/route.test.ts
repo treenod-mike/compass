@@ -22,8 +22,8 @@ describe("GET /api/appsflyer/cron", () => {
   it("syncs all listed apps and returns per-app results", async () => {
     process.env.CRON_SECRET = "secret"
     vi.spyOn(af, "listApps").mockResolvedValue([
-      { appId: "com.a", accountId: "acc_1", gameKey: "match-league", label: "x", createdAt: "2026-04-23T00:00:00.000Z" },
-      { appId: "com.b", accountId: "acc_2", gameKey: "weaving-fairy", label: "y", createdAt: "2026-04-23T00:00:00.000Z" },
+      { appId: "com.a", accountId: "acc_1", gameKey: "sample-match-3", label: "x", createdAt: "2026-04-23T00:00:00.000Z" },
+      { appId: "com.b", accountId: "acc_2", gameKey: "sample-puzzle", label: "y", createdAt: "2026-04-23T00:00:00.000Z" },
     ] as any)
     vi.spyOn(af, "runAppsFlyerSync").mockResolvedValue({ status: "active" } as any)
     const res = await GET(new Request("http://t", {
@@ -40,8 +40,8 @@ describe("GET /api/appsflyer/cron", () => {
   it("isolates per-app failure (one app's error doesn't abort the loop)", async () => {
     process.env.CRON_SECRET = "secret"
     vi.spyOn(af, "listApps").mockResolvedValue([
-      { appId: "com.a", accountId: "acc_1", gameKey: "match-league", label: "x", createdAt: "2026-04-23T00:00:00.000Z" },
-      { appId: "com.b", accountId: "acc_2", gameKey: "weaving-fairy", label: "y", createdAt: "2026-04-23T00:00:00.000Z" },
+      { appId: "com.a", accountId: "acc_1", gameKey: "sample-match-3", label: "x", createdAt: "2026-04-23T00:00:00.000Z" },
+      { appId: "com.b", accountId: "acc_2", gameKey: "sample-puzzle", label: "y", createdAt: "2026-04-23T00:00:00.000Z" },
     ] as any)
     vi.spyOn(af, "runAppsFlyerSync")
       .mockRejectedValueOnce(new Error("a failed"))

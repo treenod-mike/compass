@@ -7,7 +7,7 @@ import * as crypto from "../crypto"
 
 const baseAppCtx = {
   app: {
-    appId: "com.x", accountId: "acc_a1b2c3d4", gameKey: "match-league" as const,
+    appId: "com.x", accountId: "acc_a1b2c3d4", gameKey: "sample-match-3" as const,
     label: "x", createdAt: "2026-04-23T00:00:00.000Z",
   },
   account: {

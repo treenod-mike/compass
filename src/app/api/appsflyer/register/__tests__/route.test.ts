@@ -25,7 +25,7 @@ describe("POST /api/appsflyer/register", () => {
       method: "POST",
       body: JSON.stringify({
         dev_token: "x".repeat(20), app_id: "com.x",
-        app_label: "test", game_key: "match-league", home_currency: "KRW",
+        app_label: "test", game_key: "sample-match-3", home_currency: "KRW",
       }),
       headers: { "Content-Type": "application/json" },
     }))
@@ -40,7 +40,7 @@ describe("POST /api/appsflyer/register", () => {
       method: "POST",
       body: JSON.stringify({
         dev_token: "x".repeat(20), app_id: "com.x",
-        app_label: "test", game_key: "match-league", home_currency: "KRW",
+        app_label: "test", game_key: "sample-match-3", home_currency: "KRW",
       }),
       headers: { "Content-Type": "application/json" },
     }))
@@ -53,7 +53,7 @@ describe("POST /api/appsflyer/register", () => {
       method: "POST",
       body: JSON.stringify({
         dev_token: "x".repeat(20), app_id: "com.x",
-        app_label: "test", game_key: "match-league", home_currency: "KRW",
+        app_label: "test", game_key: "sample-match-3", home_currency: "KRW",
       }),
       headers: { "Content-Type": "application/json" },
     }))
@@ -72,7 +72,7 @@ describe("POST /api/appsflyer/register", () => {
       method: "POST",
       body: JSON.stringify({
         dev_token: "x".repeat(20), app_id: "com.x",
-        app_label: "test", game_key: "match-league", home_currency: "KRW",
+        app_label: "test", game_key: "sample-match-3", home_currency: "KRW",
       }),
       headers: { "Content-Type": "application/json" },
     }))

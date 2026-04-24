@@ -79,7 +79,7 @@ await putAccount({
 await putApp({
   appId,
   accountId,
-  gameKey: "match-league", // adjust manually after migration if needed
+  gameKey: "sample-match-3", // adjust manually after migration if needed
   label: "migrated",
   createdAt: now,
 })

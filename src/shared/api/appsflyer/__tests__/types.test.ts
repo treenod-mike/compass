@@ -87,7 +87,7 @@ describe("RegisterRequestSchema", () => {
       dev_token: "a".repeat(32),
       app_id: "com.example.app",
       app_label: "Example",
-      game_key: "match-league",
+      game_key: "sample-match-3",
     })
     expect(parsed.home_currency).toBe("KRW")
   })

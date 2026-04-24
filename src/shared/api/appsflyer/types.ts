@@ -136,9 +136,9 @@ export type Account = z.infer<typeof AccountSchema>
 
 const GameKeySchema = z.enum([
   "portfolio",
-  "match-league",
-  "weaving-fairy",
-  "dig-infinity",
+  "sample-match-3",
+  "sample-puzzle",
+  "sample-idle",
 ])
 export type GameKey = z.infer<typeof GameKeySchema>
 

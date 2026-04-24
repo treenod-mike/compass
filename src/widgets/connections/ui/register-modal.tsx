@@ -12,7 +12,7 @@ type FormState = {
   dev_token: string
   app_id: string
   app_label: string
-  game_key: "match-league" | "weaving-fairy" | "dig-infinity" | "portfolio"
+  game_key: "sample-match-3" | "sample-puzzle" | "sample-idle" | "portfolio"
   home_currency: "KRW" | "USD" | "JPY" | "EUR"
 }
 
@@ -20,7 +20,7 @@ const INITIAL: FormState = {
   dev_token: "",
   app_id: "",
   app_label: "",
-  game_key: "match-league",
+  game_key: "sample-match-3",
   home_currency: "KRW",
 }
 
@@ -157,9 +157,9 @@ export function RegisterModal({ open, onClose, onSuccess }: RegisterModalProps) 
               }
               className="w-full rounded-[var(--radius-inline)] border border-[var(--bg-3)] bg-[var(--bg-0)] px-2 py-1 text-sm text-[var(--fg-0)]"
             >
-              <option value="match-league">Match League</option>
-              <option value="weaving-fairy">Weaving Fairy</option>
-              <option value="dig-infinity">Dig Infinity</option>
+              <option value="sample-match-3">Sample Match-3 Game</option>
+              <option value="sample-puzzle">Sample Puzzle Game</option>
+              <option value="sample-idle">Sample Idle Game</option>
               <option value="portfolio">Portfolio (aggregate)</option>
             </select>
           </Field>
