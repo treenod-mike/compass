@@ -37,6 +37,30 @@ describe("MetricsSchema", () => {
   it("rejects cpi > 100", () => {
     expect(() => MetricsSchema.parse({ cpi: 150 })).toThrow()
   })
+  it("rejects cpi === 0 (positive is exclusive)", () => {
+    expect(() => MetricsSchema.parse({ cpi: 0 })).toThrow()
+  })
+  it("accepts cpi === 100 (max is inclusive)", () => {
+    expect(() => MetricsSchema.parse({ cpi: 100 })).not.toThrow()
+  })
+  it("rejects cpi just over 100", () => {
+    expect(() => MetricsSchema.parse({ cpi: 100.01 })).toThrow()
+  })
+  it("accepts metrics with cpi and cpm", () => {
+    expect(() => MetricsSchema.parse({ cpi: 3.2, cpm: 18.5 })).not.toThrow()
+  })
+  it("accepts cpm === 200 (max is inclusive)", () => {
+    expect(() => MetricsSchema.parse({ cpi: 3.2, cpm: 200 })).not.toThrow()
+  })
+  it("rejects cpm just over 200", () => {
+    expect(() => MetricsSchema.parse({ cpi: 3.2, cpm: 200.01 })).toThrow()
+  })
+  it("rejects negative cpm", () => {
+    expect(() => MetricsSchema.parse({ cpi: 3.2, cpm: -1 })).toThrow()
+  })
+  it("rejects metrics with unknown keys (.strict)", () => {
+    expect(() => MetricsSchema.parse({ cpi: 3.2, roas: 1.5 })).toThrow()
+  })
 })
 
 describe("SnapshotSchema", () => {
@@ -60,5 +84,29 @@ describe("SnapshotSchema", () => {
   it("allows partial country coverage", () => {
     const partial = { ...valid, platforms: { ios: {} } }
     expect(() => SnapshotSchema.parse(partial)).not.toThrow()
+  })
+  it("allows partial platform coverage (only ios, no android)", () => {
+    const partial = {
+      ...valid,
+      platforms: {
+        ios: { JP: { merge: { cpi: 3.8 } } },
+      },
+    }
+    expect(() => SnapshotSchema.parse(partial)).not.toThrow()
+  })
+  it("allows mixed partial coverage (country with genres, country without)", () => {
+    const partial = {
+      ...valid,
+      platforms: {
+        ios: {
+          JP: { merge: { cpi: 3.8 } },
+          US: {},
+        },
+      },
+    }
+    expect(() => SnapshotSchema.parse(partial)).not.toThrow()
+  })
+  it("rejects snapshot with unknown top-level keys (.strict)", () => {
+    expect(() => SnapshotSchema.parse({ ...valid, extra: "field" })).toThrow()
   })
 })

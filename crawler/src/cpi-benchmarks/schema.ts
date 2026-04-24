@@ -1,3 +1,13 @@
+/**
+ * CPI benchmark snapshot schema.
+ *
+ * Design decisions:
+ * - `.strict()` on object schemas: unknown keys REJECTED. LevelPlay format
+ *   changes must bump the schema version explicitly rather than silently drop fields.
+ * - `z.record(…)` partial semantics: missing keys = absent-by-design (not fetch failure).
+ *   Fetch failures are logged + excluded upstream before this schema sees them.
+ * - `version: z.literal(1)`: hard gate for future v2 migration.
+ */
 import { z } from "zod"
 
 export const CountryCodeSchema = z.enum([
@@ -17,7 +27,7 @@ export type Platform = z.infer<typeof PlatformSchema>
 export const MetricsSchema = z.object({
   cpi: z.number().positive().max(100),
   cpm: z.number().positive().max(200).optional(),
-})
+}).strict()
 export type Metrics = z.infer<typeof MetricsSchema>
 
 export const GenreMetricsMapSchema = z.record(GenreSchema, MetricsSchema)
@@ -31,7 +41,7 @@ export const SnapshotSchema = z.object({
   sourceRange: z.object({
     start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  }),
+  }).strict(),
   platforms: PlatformCountryMapSchema,
-})
+}).strict()
 export type Snapshot = z.infer<typeof SnapshotSchema>
