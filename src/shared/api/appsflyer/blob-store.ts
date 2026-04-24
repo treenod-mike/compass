@@ -35,7 +35,8 @@ async function fetchJsonl(path: string): Promise<string[]> {
   }
 }
 
-const writeOpts = { access: "public" as const, contentType: "application/json", addRandomSuffix: false }
+// Vercel Blob private store 에 저장. Token 은 AES-256-GCM 암호화 + store private = 2중 방어.
+const writeOpts = { access: "private" as const, contentType: "application/json", addRandomSuffix: false, allowOverwrite: true }
 
 // ========== accounts ==========
 export async function putAccount(acc: Account): Promise<void> {
