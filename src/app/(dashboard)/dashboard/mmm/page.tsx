@@ -37,7 +37,7 @@ function fmtK(v: number): string {
 }
 
 export default function MmmPage() {
-  const { locale } = useLocale()
+  const { locale, t } = useLocale()
   const [detailChannel, setDetailChannel] = useState<MmmChannel | null>(null)
 
   const totalSpend = mmmChannels.reduce((s, c) => s + c.currentSpend, 0)
@@ -77,11 +77,11 @@ export default function MmmPage() {
           <PageHeader titleKey="mmm.title" subtitleKey="mmm.subtitle" />
           {isMmmStale() ? (
             <span className="inline-flex items-center gap-1 rounded-sm border border-[var(--signal-caution)]/40 bg-[var(--signal-caution)]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--signal-caution)]">
-              STALE · {mmmAgeDays()}일 경과
+              {t("mmm.badge.stale").replace("{{days}}", String(mmmAgeDays()))}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-[var(--bg-2)] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              Mock (Phase 1)
+              {t("mmm.badge.mock")}
             </span>
           )}
         </div>

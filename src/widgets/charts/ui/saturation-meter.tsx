@@ -48,7 +48,14 @@ export function SaturationMeter({ portfolio }: SaturationMeterProps) {
         </div>
       </div>
 
-      <div className="relative h-6 rounded-full bg-[var(--bg-2)] overflow-hidden">
+      <div
+        className="relative h-6 rounded-full bg-[var(--bg-2)] overflow-hidden"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={t("mmm.saturation.meter.label")}
+      >
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: fill }}

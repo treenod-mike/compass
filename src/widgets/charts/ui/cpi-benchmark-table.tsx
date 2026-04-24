@@ -58,6 +58,7 @@ export function CpiBenchmarkTable({ channels }: CpiBenchmarkTableProps) {
               const dev = deviationPct(c)
               const v = verdictFor(dev)
               const style = VERDICT_STYLE[v]
+              const roundedDev = Math.abs(dev) < 0.5 ? 0 : Math.round(dev)
               return (
                 <tr key={c.key} className="border-b border-[var(--border-default)]/40">
                   <td className="px-2 py-2 text-[var(--fg-0)] font-medium">
@@ -70,8 +71,8 @@ export function CpiBenchmarkTable({ channels }: CpiBenchmarkTableProps) {
                     ${c.benchmark.marketMedianCpi.toFixed(2)}
                   </td>
                   <td className="px-2 py-2 text-right" style={{ fontVariantNumeric: "tabular-nums" }}>
-                    <span className={dev > 0 ? "text-[#fb8800]" : dev < 0 ? "text-[#02a262]" : "text-[var(--fg-2)]"}>
-                      {dev > 0 ? "+" : ""}{dev.toFixed(0)}%
+                    <span className={roundedDev > 0 ? "text-[#fb8800]" : roundedDev < 0 ? "text-[#02a262]" : "text-[var(--fg-2)]"}>
+                      {roundedDev > 0 ? "+" : ""}{roundedDev}%
                     </span>
                   </td>
                   <td className="px-2 py-2 text-right">

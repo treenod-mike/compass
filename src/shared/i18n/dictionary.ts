@@ -641,6 +641,10 @@ const dictionary = {
   "mmm.reallocation.before":                { ko: "현재",            en: "Before" },
   "mmm.reallocation.after":                 { ko: "권고",            en: "After" },
   "mmm.reallocation.totalMoved":            { ko: "총 이동",         en: "Total Moved" },
+  "mmm.reallocation.total":                 { ko: "합계",            en: "Total" },
+  "mmm.contribution.total":                 { ko: "총계",            en: "Total" },
+  "mmm.badge.stale":                        { ko: "STALE · {{days}}일 경과", en: "STALE · {{days}}d old" },
+  "mmm.badge.mock":                         { ko: "Mock (Phase 1)",  en: "Mock (Phase 1)" },
 
 } as const
 

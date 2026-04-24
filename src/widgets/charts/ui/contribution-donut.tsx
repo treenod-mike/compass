@@ -22,7 +22,7 @@ const CHANNEL_LABEL_KEY = {
 export function ContributionDonut({ contribution }: ContributionDonutProps) {
   const { t, locale } = useLocale()
   const total = contribution.totalInstalls
-  const organicPct = Math.round((contribution.organic / total) * 100)
+  const organicPct = total > 0 ? Math.round((contribution.organic / total) * 100) : 0
 
   const slices = [
     {
@@ -69,7 +69,7 @@ export function ContributionDonut({ contribution }: ContributionDonutProps) {
                       <div>
                         {payload.map((p, i) => {
                           const v = typeof p.value === "number" ? p.value : 0
-                          const pct = Math.round((v / total) * 100)
+                          const pct = total > 0 ? Math.round((v / total) * 100) : 0
                           return (
                             <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, ...CHART_TYPO.tooltipLabel, lineHeight: 1.6 }}>
                               <TooltipDot color={p.color ?? PALETTE.fg2} />
@@ -91,7 +91,7 @@ export function ContributionDonut({ contribution }: ContributionDonutProps) {
 
         <div className="flex flex-col gap-2">
           {slices.map((s) => {
-            const pct = Math.round((s.value / total) * 100)
+            const pct = total > 0 ? Math.round((s.value / total) * 100) : 0
             return (
               <div key={s.name} className="flex items-center gap-2 text-sm">
                 <span className="inline-block w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: s.color }} />
@@ -109,7 +109,7 @@ export function ContributionDonut({ contribution }: ContributionDonutProps) {
             )
           })}
           <div className="mt-2 pt-2 border-t border-[var(--border-default)] flex items-center gap-2 text-sm font-bold">
-            <span className="flex-1 text-[var(--fg-0)]">{locale === "ko" ? "총계" : "Total"}</span>
+            <span className="flex-1 text-[var(--fg-0)]">{t("mmm.contribution.total")}</span>
             <span className="text-[var(--fg-0)]" style={{ fontVariantNumeric: "tabular-nums" }}>
               {total.toLocaleString()}
             </span>

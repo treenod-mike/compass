@@ -26,6 +26,8 @@ function computeAfter(
 ): Record<ChannelKey, number> {
   const after = Object.fromEntries(channels.map((c) => [c.key, c.currentSpend])) as Record<ChannelKey, number>
   for (const m of reallocation.moves) {
+    if (after[m.from] == null) after[m.from] = 0
+    if (after[m.to] == null) after[m.to] = 0
     after[m.from] -= m.amount
     after[m.to] += m.amount
   }
@@ -44,7 +46,6 @@ export function ReallocationSummary({ channels, reallocation }: ReallocationSumm
     label: t(CHANNEL_LABEL_KEY[c.key]),
     Before: c.currentSpend,
     After: after[c.key],
-    delta: after[c.key] - c.currentSpend,
   }))
 
   const totalBefore = data.reduce((s, d) => s + d.Before, 0)
@@ -132,7 +133,7 @@ export function ReallocationSummary({ channels, reallocation }: ReallocationSumm
           </span>
         </span>
         <span style={{ fontVariantNumeric: "tabular-nums" }}>
-          Total: {fmtK(totalBefore)} → {fmtK(totalAfter)}
+          {t("mmm.reallocation.total")}: {fmtK(totalBefore)} → {fmtK(totalAfter)}
         </span>
       </div>
     </div>
