@@ -607,8 +607,6 @@ export const mockMarketContext: MarketContext = {
 
 export const mockTitleHealth: TitleHealthRow[] = [
   { gameId: "poco",  label: "포코머지", genre: "Merge", signal: "invest", confidence: 82, paybackD: 47,  roas: 148, retentionTrend: "improving" },
-  { gameId: "game1", label: "게임 1",   genre: "Merge", signal: "hold",   confidence: 65, paybackD: 72,  roas: 96,  retentionTrend: "stable"    },
-  { gameId: "game2", label: "게임 2",   genre: "Merge", signal: "reduce", confidence: 58, paybackD: 104, roas: 72,  retentionTrend: "declining" },
 ]
 
 export const mockCapitalWaterfall: CapitalWaterfallStep[] = [

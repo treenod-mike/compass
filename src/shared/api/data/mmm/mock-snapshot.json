@@ -3,7 +3,7 @@
   "metadata": {
     "generatedAt": "2026-04-24T04:00:00.000Z",
     "source": "mock-v1",
-    "gameKey": "match-league",
+    "gameKey": "poco",
     "fiscalWindow": { "from": "2026-01-01", "to": "2026-03-31" },
     "currency": "USD"
   },
