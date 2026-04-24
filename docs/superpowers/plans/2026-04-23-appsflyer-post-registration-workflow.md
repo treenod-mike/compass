@@ -258,7 +258,7 @@ describe("RegisterRequestSchema", () => {
       dev_token: "a".repeat(32),
       app_id: "com.example.app",
       app_label: "Example",
-      game_key: "match-league",
+      game_key: "sample-match-3",
     })
     expect(parsed.home_currency).toBe("KRW")
   })
@@ -292,9 +292,9 @@ export type Account = z.infer<typeof AccountSchema>
 
 const GameKeySchema = z.enum([
   "portfolio",
-  "match-league",
-  "weaving-fairy",
-  "dig-infinity",
+  "sample-match-3",
+  "sample-puzzle",
+  "sample-idle",
 ])
 export type GameKey = z.infer<typeof GameKeySchema>
 
@@ -656,14 +656,14 @@ describe("blob-store: app list", () => {
     await putApp({
       appId: "com.a.one",
       accountId: "acc_aabbccdd",
-      gameKey: "match-league",
+      gameKey: "sample-match-3",
       label: "One",
       createdAt: new Date().toISOString(),
     })
     await putApp({
       appId: "com.b.two",
       accountId: "acc_aabbccdd",
-      gameKey: "weaving-fairy",
+      gameKey: "sample-puzzle",
       label: "Two",
       createdAt: new Date().toISOString(),
     })
@@ -1627,7 +1627,7 @@ beforeEach(() => {
   blobData.set("app:com.test.a", {
     appId: "com.test.a",
     accountId: "acc_12345678",
-    gameKey: "match-league",
+    gameKey: "sample-match-3",
     label: "Test",
     createdAt: new Date().toISOString(),
   })
@@ -2616,9 +2616,9 @@ import { RegisterRequestSchema } from "@/shared/api/appsflyer"
 
 const GAME_OPTIONS = [
   { key: "portfolio", label: "Portfolio" },
-  { key: "match-league", label: "Match League" },
-  { key: "weaving-fairy", label: "Weaving Fairy" },
-  { key: "dig-infinity", label: "Dig Infinity" },
+  { key: "sample-match-3", label: "Sample Match-3" },
+  { key: "sample-puzzle", label: "Weaving Fairy" },
+  { key: "sample-idle", label: "Dig Infinity" },
 ] as const
 
 const CURRENCY_OPTIONS = ["KRW", "USD", "JPY", "EUR"] as const
@@ -2634,7 +2634,7 @@ export function RegisterModal({ open, onOpenChange }: Props) {
   const [appId, setAppId] = useState("")
   const [appLabel, setAppLabel] = useState("")
   const [gameKey, setGameKey] = useState<(typeof GAME_OPTIONS)[number]["key"]>(
-    "match-league"
+    "sample-match-3"
   )
   const [currency, setCurrency] = useState<(typeof CURRENCY_OPTIONS)[number]>(
     "KRW"
@@ -2725,7 +2725,7 @@ export function RegisterModal({ open, onOpenChange }: Props) {
           <Input
             value={appLabel}
             onChange={(e) => setAppLabel(e.target.value)}
-            placeholder="Match League JP"
+            placeholder="Sample Match-3 JP"
             required
             maxLength={80}
           />
@@ -3773,7 +3773,7 @@ Expected: 두 줄 존재. `BLOB_READ_WRITE_TOKEN` 이 없으면 `vercel env pull
 - [ ] **Step 2: dry-run 없음 (파괴적 action 없어서 바로 실행 OK)**
 
 ```bash
-npm run migrate:af-to-blob match-league
+npm run migrate:af-to-blob sample-match-3
 ```
 
 Expected: 콘솔에 "installs 2026-02: +X ... ✓ Migration complete" 출력.
