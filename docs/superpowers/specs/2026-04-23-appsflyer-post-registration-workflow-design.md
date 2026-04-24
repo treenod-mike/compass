@@ -209,7 +209,7 @@ export const AccountSchema = z.object({
 export const AppSchema = z.object({
   appId: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
   accountId: z.string(),
-  gameKey: z.enum(["portfolio", "match-league", "weaving-fairy", "dig-infinity"]),
+  gameKey: z.enum(["portfolio", "sample-match-3", "sample-puzzle", "sample-idle"]),
   label: z.string().max(80),
   createdAt: z.string().datetime(),
 })
@@ -280,7 +280,7 @@ export const RegisterRequestSchema = z.object({
   dev_token: z.string().min(20),
   app_id: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
   app_label: z.string().max(80),
-  game_key: z.enum(["portfolio", "match-league", "weaving-fairy", "dig-infinity"]),
+  game_key: z.enum(["portfolio", "sample-match-3", "sample-puzzle", "sample-idle"]),
   home_currency: z.enum(["KRW", "USD", "JPY", "EUR"]).default("KRW"),
 })
 ```
