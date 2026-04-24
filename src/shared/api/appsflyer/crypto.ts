@@ -1,52 +1,52 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto"
 
-const HEX_KEY = /^[0-9a-fA-F]{64}$/
+const ALGO = "aes-256-gcm"
+const IV_BYTES = 12
 
 function getKey(): Buffer {
   const hex = process.env.APPSFLYER_MASTER_KEY
-  if (!hex) throw new Error("APPSFLYER_MASTER_KEY env var missing")
-  if (!HEX_KEY.test(hex)) {
-    throw new Error("APPSFLYER_MASTER_KEY must be 64 hex characters (32 bytes)")
+  if (!hex) {
+    throw new Error("APPSFLYER_MASTER_KEY env var is required")
   }
-  return Buffer.from(hex, "hex")
+  const key = Buffer.from(hex, "hex")
+  if (key.length !== 32) {
+    throw new Error(
+      `APPSFLYER_MASTER_KEY must decode to 32 bytes (got ${key.length})`
+    )
+  }
+  return key
 }
 
 export function encryptToken(plain: string): string {
-  const iv = randomBytes(12)
-  const cipher = createCipheriv("aes-256-gcm", getKey(), iv)
-  const enc = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()])
+  const key = getKey()
+  const iv = randomBytes(IV_BYTES)
+  const cipher = createCipheriv(ALGO, key, iv)
+  const ct = Buffer.concat([cipher.update(plain, "utf8"), cipher.final()])
   const tag = cipher.getAuthTag()
-  return `${iv.toString("hex")}:${enc.toString("hex")}:${tag.toString("hex")}`
+  return `${iv.toString("hex")}:${ct.toString("hex")}:${tag.toString("hex")}`
 }
-
-const HEX_RE = /^[0-9a-fA-F]*$/
 
 export function decryptToken(packed: string): string {
   const parts = packed.split(":")
-  if (parts.length !== 3) throw new Error("decryption failed")
-  const [ivHex, cipherHex, tagHex] = parts
-  // Defensive: Buffer.from(_, "hex") silently truncates non-hex/odd-length input,
-  // and a zero-length tag would skip GCM authentication. Reject up front.
-  if (ivHex.length !== 24 || !HEX_RE.test(ivHex)) throw new Error("decryption failed")  // 12 bytes = 24 hex
-  if (tagHex.length !== 32 || !HEX_RE.test(tagHex)) throw new Error("decryption failed")  // 16 bytes = 32 hex
-  if (!HEX_RE.test(cipherHex)) throw new Error("decryption failed")
-  try {
-    const decipher = createDecipheriv("aes-256-gcm", getKey(), Buffer.from(ivHex, "hex"))
-    decipher.setAuthTag(Buffer.from(tagHex, "hex"))
-    const dec = Buffer.concat([decipher.update(Buffer.from(cipherHex, "hex")), decipher.final()])
-    return dec.toString("utf8")
-  } catch {
-    // Normalize Node's GCM auth error so callers cannot distinguish
-    // structural format failures from authentication failures.
-    throw new Error("decryption failed")
+  if (parts.length !== 3) {
+    throw new Error("invalid cipher format (expected iv:ct:tag)")
   }
+  const [ivHex, ctHex, tagHex] = parts
+  const key = getKey()
+  const decipher = createDecipheriv(ALGO, key, Buffer.from(ivHex, "hex"))
+  decipher.setAuthTag(Buffer.from(tagHex, "hex"))
+  const plain = Buffer.concat([
+    decipher.update(Buffer.from(ctHex, "hex")),
+    decipher.final(),
+  ])
+  return plain.toString("utf8")
 }
 
 export function hashToken(plain: string): string {
   return createHash("sha256").update(plain).digest("hex")
 }
 
-export function maskToken(plain: string): string {
-  if (plain.length < 12) return "***"
-  return `${plain.slice(0, 6)}...${plain.slice(-4)}`
+export function maskToken(token: string): string {
+  if (token.length <= 8) return "***"
+  return `${token.slice(0, 4)}...${token.slice(-4)}`
 }

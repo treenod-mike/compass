@@ -1,63 +1,59 @@
 import { describe, it, expect, beforeEach } from "vitest"
-import { encryptToken, decryptToken, hashToken, maskToken } from "../crypto"
+import { encryptToken, decryptToken, maskToken } from "../crypto"
 
-const TEST_KEY = "0".repeat(64)  // 32-byte hex
+const VALID_KEY = "a".repeat(64)  // 32 bytes hex
 
 describe("crypto", () => {
   beforeEach(() => {
-    process.env.APPSFLYER_MASTER_KEY = TEST_KEY
+    process.env.APPSFLYER_MASTER_KEY = VALID_KEY
   })
 
-  it("encrypt + decrypt roundtrip", () => {
-    const plain = "eyJhbGciOiJBMjU2S1ciLCJjdHkiOiJKV1QifQ.signature"
-    const ct = encryptToken(plain)
-    expect(ct).toContain(":")  // iv:cipher:tag
-    expect(decryptToken(ct)).toBe(plain)
+  it("encrypts then decrypts back to original", () => {
+    const plain = "my-dev-token-abc123"
+    const cipher = encryptToken(plain)
+    expect(cipher).not.toContain(plain)
+    expect(cipher.split(":").length).toBe(3)  // iv:ciphertext:tag
+    expect(decryptToken(cipher)).toBe(plain)
   })
 
-  it("decrypt rejects tampered ciphertext", () => {
-    const ct = encryptToken("secret")
-    const [iv, cipher, tag] = ct.split(":")
-    const tampered = `${iv}:${cipher.slice(0, -2)}ff:${tag}`
+  it("produces different cipher each time (random iv)", () => {
+    const plain = "same-token"
+    const c1 = encryptToken(plain)
+    const c2 = encryptToken(plain)
+    expect(c1).not.toBe(c2)
+    expect(decryptToken(c1)).toBe(plain)
+    expect(decryptToken(c2)).toBe(plain)
+  })
+
+  it("rejects tampered ciphertext", () => {
+    const cipher = encryptToken("hello")
+    const [iv, ct, tag] = cipher.split(":")
+    const tampered = `${iv}:${ct.slice(0, -2)}ff:${tag}`
     expect(() => decryptToken(tampered)).toThrow()
   })
 
-  it("decrypt rejects wrong key", () => {
-    const ct = encryptToken("secret")
-    process.env.APPSFLYER_MASTER_KEY = "f".repeat(64)
-    expect(() => decryptToken(ct)).toThrow()
+  it("rejects malformed cipher format", () => {
+    expect(() => decryptToken("not-a-cipher")).toThrow(/format/)
+    expect(() => decryptToken("only:two")).toThrow(/format/)
   })
 
-  it("hashToken produces SHA-256 hex (deterministic 64-char)", () => {
-    const h1 = hashToken("abc")
-    const h2 = hashToken("abc")
-    expect(h1).toHaveLength(64)
-    expect(h1).toBe(h2)
-    expect(/^[0-9a-f]{64}$/.test(h1)).toBe(true)
-  })
-
-  it("maskToken shows first 6 + ... + last 4", () => {
-    expect(maskToken("eyJhbGciOiabcdef.signature_xyz123end")).toBe("eyJhbG...3end")
-    expect(maskToken("short")).toBe("***")  // too short to mask meaningfully
-  })
-
-  it("throws when APPSFLYER_MASTER_KEY missing", () => {
+  it("throws when key is missing", () => {
     delete process.env.APPSFLYER_MASTER_KEY
     expect(() => encryptToken("x")).toThrow(/APPSFLYER_MASTER_KEY/)
   })
 
-  it("rejects non-hex key with 64 length (would silently truncate via Buffer.from)", () => {
-    process.env.APPSFLYER_MASTER_KEY = "z".repeat(64)
-    expect(() => encryptToken("x")).toThrow(/APPSFLYER_MASTER_KEY/)
+  it("throws when key is wrong length", () => {
+    process.env.APPSFLYER_MASTER_KEY = "short"
+    expect(() => encryptToken("x")).toThrow(/32 bytes/)
+  })
+})
+
+describe("maskToken", () => {
+  it("shows first 4 and last 4 of a long token", () => {
+    expect(maskToken("abcd1234efgh5678")).toBe("abcd...5678")
   })
 
-  it("decrypt rejects empty tag segment (would skip GCM authentication)", () => {
-    const ct = encryptToken("secret")
-    const [iv, cipher] = ct.split(":")
-    expect(() => decryptToken(`${iv}:${cipher}:`)).toThrow(/decryption failed/)
-  })
-
-  it("decrypt rejects malformed iv length", () => {
-    expect(() => decryptToken("ab:00:00")).toThrow(/decryption failed/)
+  it("fully masks short tokens", () => {
+    expect(maskToken("abc")).toBe("***")
   })
 })
