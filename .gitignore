@@ -46,7 +46,9 @@ next-env.d.ts
 .claude-dev-helper/
 .omc/
 .superpowers/
-.claude/
+# .claude/ is tracked (settings.json + commands/) — only local overrides ignored
+.claude/settings.local.json
+.claude/logs/
 
 # macOS screenshots (accidental drops)
 스크린샷 *.png
