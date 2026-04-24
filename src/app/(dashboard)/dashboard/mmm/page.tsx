@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { DecisionStoryCard } from "@/widgets/dashboard"
@@ -39,6 +39,10 @@ function fmtK(v: number): string {
 export default function MmmPage() {
   const { locale, t } = useLocale()
   const [detailChannel, setDetailChannel] = useState<MmmChannel | null>(null)
+  // Gate time-dependent rendering (isMmmStale / mmmAgeDays use `new Date()`)
+  // to client-side only, preventing SSR/CSR hydration mismatch.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const totalSpend = mmmChannels.reduce((s, c) => s + c.currentSpend, 0)
   const weightedMROAS =
@@ -75,15 +79,17 @@ export default function MmmPage() {
       <FadeInUp className="mb-2">
         <div className="flex items-center gap-2 flex-wrap">
           <PageHeader titleKey="mmm.title" subtitleKey="mmm.subtitle" />
-          {isMmmStale() ? (
-            <span className="inline-flex items-center gap-1 rounded-sm border border-[var(--signal-caution)]/40 bg-[var(--signal-caution)]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--signal-caution)]">
-              {t("mmm.badge.stale").replace("{{days}}", String(mmmAgeDays()))}
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-[var(--bg-2)] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
-              {t("mmm.badge.mock")}
-            </span>
-          )}
+          {mounted ? (
+            isMmmStale() ? (
+              <span className="inline-flex items-center gap-1 rounded-sm border border-[var(--signal-caution)]/40 bg-[var(--signal-caution)]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--signal-caution)]">
+                {t("mmm.badge.stale").replace("{{days}}", String(mmmAgeDays()))}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-[var(--bg-2)] px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                {t("mmm.badge.mock")}
+              </span>
+            )
+          ) : null}
         </div>
       </FadeInUp>
 
