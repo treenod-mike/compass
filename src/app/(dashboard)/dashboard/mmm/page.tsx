@@ -1,44 +1,54 @@
 "use client"
 
+import { useState } from "react"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { DecisionStoryCard } from "@/widgets/dashboard"
-import { ResponseCurveGrid } from "@/widgets/charts/ui/response-curve-grid"
+import { SaturationMeter } from "@/widgets/charts/ui/saturation-meter"
+import { ContributionDonut } from "@/widgets/charts/ui/contribution-donut"
+import { ChannelStatusCard } from "@/widgets/charts/ui/channel-status-card"
+import { ChannelDetailModal } from "@/widgets/charts/ui/channel-detail-modal"
+import { CpiQuadrant } from "@/widgets/charts/ui/cpi-quadrant"
+import { CpiBenchmarkTable } from "@/widgets/charts/ui/cpi-benchmark-table"
+import { ReallocationSummary } from "@/widgets/charts/ui/reallocation-summary"
 import { useLocale } from "@/shared/i18n"
 import type { SignalStatus } from "@/shared/api/mock-data"
 import {
   mmmChannels,
   mmmVerdict,
+  mmmPortfolio,
+  mmmContribution,
+  mmmReallocation,
   isMmmStale,
   mmmAgeDays,
+  type MmmChannel,
 } from "@/shared/api/mmm-data"
 
-/** Channel-level verdict from its marginal ROAS — drives the DecisionStoryCard "regions" row. */
 function deriveChannelStatus(mROAS: number): SignalStatus {
   if (mROAS >= 1.4) return "invest"
   if (mROAS >= 1.0) return "hold"
   return "reduce"
 }
 
-function fmtMoney(usd: number): string {
-  if (usd >= 1_000_000) return `$${(usd / 1_000_000).toFixed(1)}M`
-  if (usd >= 1_000) return `$${(usd / 1_000).toFixed(0)}K`
-  return `$${usd.toFixed(0)}`
+function fmtK(v: number): string {
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `$${Math.round(v / 1_000)}K`
+  return `$${v.toFixed(0)}`
 }
 
 export default function MmmPage() {
   const { locale } = useLocale()
+  const [detailChannel, setDetailChannel] = useState<MmmChannel | null>(null)
 
-  const totalSpend = mmmChannels.reduce((sum, c) => sum + c.currentSpend, 0)
+  const totalSpend = mmmChannels.reduce((s, c) => s + c.currentSpend, 0)
   const weightedMROAS =
-    mmmChannels.reduce((sum, c) => sum + c.marginal.roas * c.currentSpend, 0) /
-    Math.max(1, totalSpend)
-  const saturatedCount = mmmChannels.filter((c) => c.marginal.roas < 1.0).length
+    mmmChannels.reduce((s, c) => s + c.marginal.roas * c.currentSpend, 0) / Math.max(1, totalSpend)
+  const saturatedCount = mmmChannels.filter((c) => c.marginal.roas < 1).length
 
   const impactText =
     locale === "ko"
-      ? `총 spend ${fmtMoney(totalSpend)} · 가중 mROAS ${weightedMROAS.toFixed(2)}× · 포화 ${saturatedCount}/${mmmChannels.length}채널`
-      : `Total spend ${fmtMoney(totalSpend)} · Weighted mROAS ${weightedMROAS.toFixed(2)}× · ${saturatedCount}/${mmmChannels.length} saturated`
+      ? `총 spend ${fmtK(totalSpend)} · 가중 mROAS ${weightedMROAS.toFixed(2)}× · 포화 ${saturatedCount}/${mmmChannels.length}채널`
+      : `Total spend ${fmtK(totalSpend)} · Weighted mROAS ${weightedMROAS.toFixed(2)}× · ${saturatedCount}/${mmmChannels.length} saturated`
 
   const regions = mmmChannels.map((c) => ({
     label: c.label,
@@ -48,16 +58,14 @@ export default function MmmPage() {
 
   return (
     <PageTransition>
-      <FadeInUp className="mb-10">
+      {/* ① Hero Verdict */}
+      <FadeInUp className="mb-8">
         <DecisionStoryCard
           status={mmmVerdict.status}
           headline={mmmVerdict.headline[locale]}
           impactText={impactText}
           confidence={Math.round(mmmVerdict.confidence * 100)}
-          metrics={mmmVerdict.metrics.map((m) => ({
-            label: m.label[locale],
-            value: m.value,
-          }))}
+          metrics={mmmVerdict.metrics.map((m) => ({ label: m.label[locale], value: m.value }))}
           regions={regions}
           regionsLabel={locale === "ko" ? "채널별 상태" : "Per-channel status"}
           ctaLabel={locale === "ko" ? "방법론 보기" : "View methodology"}
@@ -79,9 +87,43 @@ export default function MmmPage() {
         </div>
       </FadeInUp>
 
-      <FadeInUp>
-        <ResponseCurveGrid channels={mmmChannels} />
+      {/* ② Saturation Meter */}
+      <FadeInUp className="mb-6">
+        <SaturationMeter portfolio={mmmPortfolio} />
       </FadeInUp>
+
+      {/* ③ Base vs Incremental Donut */}
+      <FadeInUp className="mb-8">
+        <ContributionDonut contribution={mmmContribution} />
+      </FadeInUp>
+
+      {/* ④ Channel Status Cards (2×2) */}
+      <FadeInUp className="mb-10">
+        <div className="grid grid-cols-2 gap-4">
+          {mmmChannels.map((c) => (
+            <ChannelStatusCard
+              key={c.key}
+              channel={c}
+              onClick={() => setDetailChannel(c)}
+            />
+          ))}
+        </div>
+      </FadeInUp>
+
+      {/* ⑤ CPI Benchmark Analysis — Quadrant + Table */}
+      <FadeInUp className="mb-8">
+        <div className="grid grid-cols-[1fr_1fr] gap-4">
+          <CpiQuadrant channels={mmmChannels} />
+          <CpiBenchmarkTable channels={mmmChannels} />
+        </div>
+      </FadeInUp>
+
+      {/* ⑥ Reallocation Summary */}
+      <FadeInUp>
+        <ReallocationSummary channels={mmmChannels} reallocation={mmmReallocation} />
+      </FadeInUp>
+
+      <ChannelDetailModal channel={detailChannel} onClose={() => setDetailChannel(null)} />
     </PageTransition>
   )
 }
