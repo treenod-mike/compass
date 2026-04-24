@@ -219,7 +219,7 @@ Bayesian 사전/사후 확률 분석으로 시장 대비 포지셔닝 시각화.
 ### 상태 관리
 - `useSelectedGame` (Zustand) — 전역 게임 선택 상태
 - `useGameData` — 선택된 게임의 mock 데이터 반환
-- 게임: Portfolio, Match League, Weaving Fairy, Dig Infinity
+- 게임: Portfolio, Sample Match-3, Sample Puzzle, Sample Idle
 
 ### Page Transitions
 - `PageTransition` + `FadeInUp` 래퍼로 섹션별 stagger 애니메이션
