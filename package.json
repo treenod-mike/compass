@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test \"src/**/*.test.ts\"",
     "crawl:st": "cd crawler && npx tsx src/index.ts",
     "crawl:st:login": "cd crawler && npx tsx src/index.ts --login",
     "crawl:st:dry": "cd crawler && npx tsx src/index.ts --dry-run --limit 1",
