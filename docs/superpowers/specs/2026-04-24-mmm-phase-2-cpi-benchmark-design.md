@@ -28,7 +28,7 @@ MMM v2 대시보드(commit `768c09a`, PR #5)는 6-section 구조로 merge됐고,
 3. MMM 페이지 상단에 `CurrentMarketChip` ("Current Market: JP × Merge [편집]") 이 표시되며, 편집 버튼은 `GameSettingsModal` 을 동일 진입점으로 재사용한다.
 4. snapshot 의 `generatedAt` 이 35일을 초과하면 `CurrentMarketChip` 에 ⚠ stale 배지가 붙고 툴팁에 경과일이 표시된다.
 5. `npm run crawl:cpi` 명령으로 snapshot 이 갱신되고 git 커밋까지 안내된다.
-6. 기존 샘플 게임 2개가 `mock-data.ts`, `selected-game.ts`, i18n 사전, 관련 타입·테스트에서 완전히 제거된다. 남은 게임 union은 `"portfolio" | "poko-title"` 2개.
+6. 기존 샘플 게임 2개가 `mock-data.ts`, `selected-game.ts`, i18n 사전, 관련 타입·테스트에서 완전히 제거된다. 남은 게임 union은 `"portfolio" | "poco"` 2개.
 
 ### 비-기능
 - `npm run tsc` clean, `npm test` pass, `next build` success, `/dashboard/mmm` 이 Static prerendered 로 유지
@@ -136,7 +136,7 @@ src/widgets/dashboard/ui/current-market-chip.tsx
 src/shared/api/mock-data.ts
   - 샘플 게임 2개 엔트리 제거
   - 게임 union 타입 축소
-  - poko-title 기본 설정 추가 (country: "JP", genre: "merge")
+  - poco 기본 설정 추가 (country: "JP", genre: "merge")
 
 src/shared/api/mmm-data.ts
   - cpiBenchmark.items[].marketMedianCpi 필드 제거
@@ -144,7 +144,7 @@ src/shared/api/mmm-data.ts
   - source 필드 enum 추가: "mock-v2" | "levelplay-v1"
 
 src/shared/store/selected-game.ts
-  - 게임 ID union: "portfolio" | "poko-title"
+  - 게임 ID union: "portfolio" | "poco"
 
 src/shared/api/use-game-data.ts
   - 샘플 게임 분기 제거
@@ -170,7 +170,7 @@ package.json (root)
   - scripts 추가: "crawl:cpi", "crawl:cpi:verify"
 
 CLAUDE.md
-  - §3 의 게임 목록 업데이트: "Portfolio, Poko Title"
+  - §3 의 게임 목록 업데이트: "Portfolio, 포코머지(poco)"
   - §9 에 CPI benchmark 운영 문단 추가 (Sensor Tower 문단과 병렬)
 ```
 
@@ -190,7 +190,7 @@ CLAUDE.md
 ```
 /dashboard/mmm 열림
   ↓
-useSelectedGame() → gameId = "poko-title"
+useSelectedGame() → gameId = "poco"
   ↓
 useGameSettings(gameId) → { country: "JP", genre: "merge" }
   ↓
@@ -234,7 +234,7 @@ GameSettingsModal 열림 (동일 컴포넌트, 동일 state)
   ↓
 "저장" 클릭
   ↓
-useGameSettings().updateSettings("poko-title", { country, genre })
+useGameSettings().updateSettings("poco", { country, genre })
   ↓
 Zustand persist → localStorage 에 "compass:game-settings" 키로 저장
   ↓
@@ -353,7 +353,7 @@ interface GameSettingsStore {
 }
 
 const DEFAULTS: Record<string, GameSettings> = {
-  "poko-title": { country: "JP", genre: "merge" }
+  "poco": { country: "JP", genre: "merge" }
 }
 
 export const useGameSettings = create<GameSettingsStore>()(
@@ -416,11 +416,11 @@ export const useGameSettings = create<GameSettingsStore>()(
 | 파일 | 변경 |
 |------|------|
 | `src/shared/api/mock-data.ts` | 2개 게임 엔트리 + 관련 mock 데이터 블록 삭제 |
-| `src/shared/store/selected-game.ts` | union 축소 `"portfolio" \| "poko-title"` |
+| `src/shared/store/selected-game.ts` | union 축소 `"portfolio" \| "poco"` |
 | `src/shared/api/use-game-data.ts` | switch 분기 제거 |
 | `src/shared/i18n/dictionary.ts` | 샘플 게임 이름 i18n 키 제거 |
-| `src/shared/api/mmm-data.ts` | 게임별 mock MMM 데이터 정리 (poko-title 만 유지) |
-| `src/widgets/app-shell/ui/*` 게임 셀렉터 | 드롭다운에 Portfolio + Poko Title 2개만 표시 |
+| `src/shared/api/mmm-data.ts` | 게임별 mock MMM 데이터 정리 (poco 만 유지) |
+| `src/widgets/app-shell/ui/*` 게임 셀렉터 | 드롭다운에 Portfolio + 포코머지(poco) 2개만 표시 |
 | `src/widgets/dashboard/ui/title-heatmap.tsx` | Portfolio 뷰에서 1행만 표시되도록 데이터 흐름 확인 |
 | `src/widgets/dashboard/ui/portfolio-verdict.tsx` | 단일 게임 상태에서도 자연스럽게 렌더되도록 문구 검토 |
 | `CLAUDE.md` §3 | 게임 목록 업데이트 |
@@ -543,7 +543,7 @@ src/shared/store/__tests__/game-settings.test.ts
 
 2. **샘플 게임 제거** (선행, 후속 변경의 충돌 방지)
    - `mock-data.ts`, `selected-game.ts`, `use-game-data.ts`, i18n, 관련 테스트 정리
-   - 게임 ID union 을 `"portfolio" | "poko-title"` 로 확정
+   - 게임 ID union 을 `"portfolio" | "poco"` 로 확정
    - Portfolio 뷰가 단일 게임 상태에서 정상 렌더되는지 브라우저 확인
 
 3. **Crawler 모듈** (TDD)
@@ -675,4 +675,4 @@ Compass UI 상단 칩에 ⚠ 배지 자동 표시. 35일 기준 (월간 갱신 +
 - **Game settings**: 각 게임의 (country, genre) 유저 설정. localStorage 에 persist
 - **Stale**: snapshot `generatedAt` 이 35일 초과 경과
 - **Fallback genre**: Compass 장르가 LevelPlay 에 없을 때 사용하는 근접 장르 (예: merge → casual)
-- **Poko Title**: 실제 운영 중인 단일 게임의 내부 코드네임. UI 표시용 이름은 i18n 키로 노출.
+- **포코머지(poco)**: 실제 운영 중인 단일 게임의 내부 코드네임. UI 표시용 이름은 i18n 키로 노출.
