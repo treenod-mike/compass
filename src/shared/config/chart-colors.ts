@@ -237,3 +237,27 @@ export const COHORT_HEATMAP_COLORS = {
   level2:     "#edccf8",  // --purple-100
   level1:     "#f9f0fc",  // --purple-50
 } as const
+
+/**
+ * MMM Response Curve — 4 channels as colorblind-safe categorical.
+ * Reference lines use semantic tokens so viewers pre-read them:
+ *  - saturationPoint = caution  → "여기서부터 체감 감소"
+ *  - marketMedian    = benchmark → 중립 참고선
+ *  - currentPosition = brand     → 지금 우리의 위치
+ */
+export const MMM_COLORS = {
+  channels: {
+    meta:           { line: PALETTE.cohort2, band: "rgba(34, 114, 235, 0.18)" },
+    google:         { line: PALETTE.cohort1, band: "rgba(2, 162, 98, 0.18)" },
+    tiktok:         { line: PALETTE.cohort4, band: "rgba(251, 136, 0, 0.18)" },
+    "apple-search": { line: PALETTE.cohort3, band: "rgba(16, 149, 149, 0.18)" },
+  },
+  saturationPoint: PALETTE.caution,
+  marketMedian:    PALETTE.benchmark,
+  currentPosition: PALETTE.p50,
+  axis:            PALETTE.axis,
+  grid:            PALETTE.grid,
+  border:          PALETTE.border,
+  fg0:             PALETTE.fg0,
+  fg2:             PALETTE.fg2,
+} as const
