@@ -15,8 +15,6 @@ import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
 const GAMES: { id: string; label: string }[] = [
   { id: PORTFOLIO_ID, label: "전체 포트폴리오" },
   { id: "poco", label: "포코머지" },
-  { id: "game1", label: "게임 1" },
-  { id: "game2", label: "게임 2" },
 ]
 
 export function GameSelector() {
