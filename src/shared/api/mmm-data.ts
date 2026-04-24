@@ -31,6 +31,26 @@ const ChannelKeySchema = z.enum([
 ])
 export type ChannelKey = z.infer<typeof ChannelKeySchema>
 
+const LocalizedTextSchema = z.object({
+  ko: z.string(),
+  en: z.string(),
+})
+export type LocalizedText = z.infer<typeof LocalizedTextSchema>
+
+const RecommendationSchema = z.object({
+  action: z.enum(["increase", "decrease", "hold"]),
+  deltaSpend: z.number(),
+  rationale: LocalizedTextSchema,
+})
+export type MmmRecommendation = z.infer<typeof RecommendationSchema>
+
+const MmpComparisonSchema = z.object({
+  mmpInstalls: z.number().int().nonnegative(),
+  mmmInstalls: z.number().int().nonnegative(),
+  biasDeltaPct: z.number(),
+})
+export type MmpComparison = z.infer<typeof MmpComparisonSchema>
+
 const ChannelSchema = z.object({
   key: ChannelKeySchema,
   label: z.string(),
@@ -47,14 +67,10 @@ const ChannelSchema = z.object({
     marketMedianRoas: z.number().nonnegative(),
     source: z.string(),
   }),
+  recommendation: RecommendationSchema,
+  mmpComparison: MmpComparisonSchema,
 })
 export type MmmChannel = z.infer<typeof ChannelSchema>
-
-const LocalizedTextSchema = z.object({
-  ko: z.string(),
-  en: z.string(),
-})
-export type LocalizedText = z.infer<typeof LocalizedTextSchema>
 
 const VerdictSchema = z.object({
   status: z.enum(["invest", "hold", "reduce"]),
@@ -91,11 +107,43 @@ const MetadataSchema = z.object({
 })
 export type MmmMetadata = z.infer<typeof MetadataSchema>
 
+const PortfolioSchema = z.object({
+  saturationWeighted: z.number().min(0).max(1),
+  saturationInterpretation: LocalizedTextSchema,
+})
+export type MmmPortfolio = z.infer<typeof PortfolioSchema>
+
+const ContributionSchema = z.object({
+  totalInstalls: z.number().int().nonnegative(),
+  organic: z.number().int().nonnegative(),
+  paid: z.record(ChannelKeySchema, z.number().int().nonnegative()),
+  interpretation: LocalizedTextSchema,
+})
+export type MmmContribution = z.infer<typeof ContributionSchema>
+
+const ReallocationMoveSchema = z.object({
+  from: ChannelKeySchema,
+  to: ChannelKeySchema,
+  amount: z.number().positive(),
+})
+
+const ReallocationSchema = z.object({
+  totalMoved: z.number().nonnegative(),
+  expectedRevenueLift: z.number(),
+  expectedRevenueLiftPct: z.number(),
+  confidence: z.number().min(0).max(1),
+  moves: z.array(ReallocationMoveSchema).max(6),
+})
+export type MmmReallocation = z.infer<typeof ReallocationSchema>
+
 export const SnapshotSchema = z.object({
-  $schemaVersion: z.literal(1),
+  $schemaVersion: z.literal(2),
   metadata: MetadataSchema,
   verdict: VerdictSchema,
+  portfolio: PortfolioSchema,
+  contribution: ContributionSchema,
   channels: z.array(ChannelSchema).length(4),
+  reallocation: ReallocationSchema,
 })
 export type MmmSnapshot = z.infer<typeof SnapshotSchema>
 
@@ -105,7 +153,10 @@ const snapshot = SnapshotSchema.parse(snapshotJson)
 
 export const mmmMetadata: MmmMetadata = snapshot.metadata
 export const mmmVerdict: MmmVerdict = snapshot.verdict
+export const mmmPortfolio: MmmPortfolio = snapshot.portfolio
+export const mmmContribution: MmmContribution = snapshot.contribution
 export const mmmChannels: readonly MmmChannel[] = snapshot.channels
+export const mmmReallocation: MmmReallocation = snapshot.reallocation
 
 const MS_PER_DAY = 86_400_000
 const STALE_THRESHOLD_DAYS = 90

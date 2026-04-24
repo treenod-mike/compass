@@ -5,6 +5,9 @@ import {
   mmmChannels,
   mmmVerdict,
   mmmMetadata,
+  mmmPortfolio,
+  mmmContribution,
+  mmmReallocation,
   mmmAgeDays,
   isMmmStale,
   getMmmChannel,
@@ -72,9 +75,11 @@ test("mmm-data: mmmAgeDays computes correctly", () => {
 
 test("mmm-data: SnapshotSchema rejects wrong array lengths", () => {
   const invalid = {
-    $schemaVersion: 1,
+    $schemaVersion: 2,
     metadata: mmmMetadata,
     verdict: mmmVerdict,
+    portfolio: mmmPortfolio,
+    contribution: mmmContribution,
     channels: [
       {
         ...mmmChannels[0],
@@ -87,16 +92,52 @@ test("mmm-data: SnapshotSchema rejects wrong array lengths", () => {
       },
       ...mmmChannels.slice(1),
     ],
+    reallocation: mmmReallocation,
   }
   assert.throws(() => SnapshotSchema.parse(invalid))
 })
 
 test("mmm-data: SnapshotSchema rejects non-4-channel arrays", () => {
   const invalid = {
-    $schemaVersion: 1,
+    $schemaVersion: 2,
     metadata: mmmMetadata,
     verdict: mmmVerdict,
+    portfolio: mmmPortfolio,
+    contribution: mmmContribution,
     channels: mmmChannels.slice(0, 3),
+    reallocation: mmmReallocation,
   }
   assert.throws(() => SnapshotSchema.parse(invalid))
+})
+
+/* ─────────── v2 invariants ─────────── */
+
+test("mmm-data: portfolio.saturationWeighted is in [0, 1]", () => {
+  assert.ok(mmmPortfolio.saturationWeighted >= 0 && mmmPortfolio.saturationWeighted <= 1)
+  assert.ok(mmmPortfolio.saturationInterpretation.ko.length > 0)
+})
+
+test("mmm-data: contribution totals add up (organic + paid sum = total)", () => {
+  const paidSum = Object.values(mmmContribution.paid).reduce((a, b) => a + b, 0)
+  assert.equal(mmmContribution.organic + paidSum, mmmContribution.totalInstalls)
+})
+
+test("mmm-data: reallocation moves all source ≠ target", () => {
+  for (const m of mmmReallocation.moves) {
+    assert.notEqual(m.from, m.to, `move ${m.from}→${m.to}: same channel`)
+    assert.ok(m.amount > 0)
+  }
+})
+
+test("mmm-data: reallocation totalMoved matches sum of moves", () => {
+  const sum = mmmReallocation.moves.reduce((acc, m) => acc + m.amount, 0)
+  assert.equal(sum, mmmReallocation.totalMoved)
+})
+
+test("mmm-data: each channel has recommendation + mmpComparison", () => {
+  for (const c of mmmChannels) {
+    assert.ok(["increase", "decrease", "hold"].includes(c.recommendation.action))
+    assert.equal(typeof c.mmpComparison.mmpInstalls, "number")
+    assert.equal(typeof c.mmpComparison.mmmInstalls, "number")
+  }
 })

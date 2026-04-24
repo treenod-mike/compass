@@ -1,5 +1,5 @@
 {
-  "$schemaVersion": 1,
+  "$schemaVersion": 2,
   "metadata": {
     "generatedAt": "2026-04-24T04:00:00.000Z",
     "source": "mock-v1",
@@ -29,6 +29,27 @@
       }
     ]
   },
+  "portfolio": {
+    "saturationWeighted": 0.66,
+    "saturationInterpretation": {
+      "ko": "Meta/Apple이 한계에 근접 — 전체 포트폴리오도 주의 구간",
+      "en": "Meta/Apple near ceiling — portfolio enters cautious zone"
+    }
+  },
+  "contribution": {
+    "totalInstalls": 10000,
+    "organic": 3500,
+    "paid": {
+      "meta": 2500,
+      "google": 1800,
+      "tiktok": 1500,
+      "apple-search": 700
+    },
+    "interpretation": {
+      "ko": "광고 없어도 35%는 자연히 유입 — baseline이 탄탄한 증거",
+      "en": "35% arrives organically — signals strong baseline product strength"
+    }
+  },
   "channels": [
     {
       "key": "meta",
@@ -53,6 +74,19 @@
         "marketMedianCpi": 32.00,
         "marketMedianRoas": 1.2,
         "source": "mock"
+      },
+      "recommendation": {
+        "action": "decrease",
+        "deltaSpend": -30000,
+        "rationale": {
+          "ko": "포화 78% + 단가 시장 대비 +31% — 축소 권고",
+          "en": "78% saturated + 31% above market — recommend decrease"
+        }
+      },
+      "mmpComparison": {
+        "mmpInstalls": 2500,
+        "mmmInstalls": 1420,
+        "biasDeltaPct": -43.2
       }
     },
     {
@@ -78,6 +112,19 @@
         "marketMedianCpi": 22.00,
         "marketMedianRoas": 1.3,
         "source": "mock"
+      },
+      "recommendation": {
+        "action": "increase",
+        "deltaSpend": 45000,
+        "rationale": {
+          "ko": "포화 21%로 여유 + 단가 시장 대비 -18% — 증액 권고",
+          "en": "Low saturation + 18% below market — recommend increase"
+        }
+      },
+      "mmpComparison": {
+        "mmpInstalls": 1800,
+        "mmmInstalls": 2100,
+        "biasDeltaPct": 16.7
       }
     },
     {
@@ -103,6 +150,19 @@
         "marketMedianCpi": 25.00,
         "marketMedianRoas": 1.2,
         "source": "mock"
+      },
+      "recommendation": {
+        "action": "hold",
+        "deltaSpend": 0,
+        "rationale": {
+          "ko": "포화 52% + 단가 근접 — 현 수준 유지",
+          "en": "Mid saturation + close to market — hold current level"
+        }
+      },
+      "mmpComparison": {
+        "mmpInstalls": 1500,
+        "mmmInstalls": 1400,
+        "biasDeltaPct": -6.7
       }
     },
     {
@@ -128,7 +188,30 @@
         "marketMedianCpi": 29.00,
         "marketMedianRoas": 1.15,
         "source": "mock"
+      },
+      "recommendation": {
+        "action": "decrease",
+        "deltaSpend": -15000,
+        "rationale": {
+          "ko": "포화 98% + 단가 +31% — 축소 권고",
+          "en": "98% saturated + 31% above market — recommend decrease"
+        }
+      },
+      "mmpComparison": {
+        "mmpInstalls": 700,
+        "mmmInstalls": 580,
+        "biasDeltaPct": -17.1
       }
     }
-  ]
+  ],
+  "reallocation": {
+    "totalMoved": 45000,
+    "expectedRevenueLift": 28000,
+    "expectedRevenueLiftPct": 5.4,
+    "confidence": 0.78,
+    "moves": [
+      { "from": "meta",         "to": "google", "amount": 30000 },
+      { "from": "apple-search", "to": "google", "amount": 15000 }
+    ]
+  }
 }
