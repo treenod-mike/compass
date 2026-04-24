@@ -1,0 +1,134 @@
+{
+  "$schemaVersion": 1,
+  "metadata": {
+    "generatedAt": "2026-04-24T04:00:00.000Z",
+    "source": "mock-v1",
+    "gameKey": "match-league",
+    "fiscalWindow": { "from": "2026-01-01", "to": "2026-03-31" },
+    "currency": "USD"
+  },
+  "verdict": {
+    "status": "hold",
+    "confidence": 0.72,
+    "headline": {
+      "ko": "Google에 여력, Meta 포화 — 재배분 시점",
+      "en": "Room in Google, Meta saturated — time to reallocate"
+    },
+    "metrics": [
+      {
+        "label": { "ko": "총 Spend", "en": "Total Spend" },
+        "value": "$320K"
+      },
+      {
+        "label": { "ko": "평균 mROAS", "en": "Avg mROAS" },
+        "value": "1.2×"
+      },
+      {
+        "label": { "ko": "포화 채널", "en": "Saturated" },
+        "value": "2 / 4"
+      }
+    ]
+  },
+  "channels": [
+    {
+      "key": "meta",
+      "label": "Meta Ads",
+      "responseCurve": {
+        "spendGrid": [0, 20000, 40000, 60000, 90000, 120000, 150000, 180000, 220000, 270000, 320000, 380000],
+        "p10":       [0, 18000, 42000, 66000, 92000, 108000, 118000, 124000, 130000, 134000, 137000, 139000],
+        "p50":       [0, 22000, 52000, 82000, 115000, 135000, 148000, 156000, 163000, 168000, 172000, 174000],
+        "p90":       [0, 26000, 62000, 98000, 138000, 162000, 178000, 188000, 196000, 202000, 207000, 209000]
+      },
+      "currentSpend": 120000,
+      "currentInstalls": 14000,
+      "saturation": {
+        "halfSaturation": 75000,
+        "hillCoefficient": 1.7
+      },
+      "marginal": {
+        "cpi": 42.00,
+        "roas": 0.85
+      },
+      "benchmark": {
+        "marketMedianCpi": 32.00,
+        "marketMedianRoas": 1.2,
+        "source": "mock"
+      }
+    },
+    {
+      "key": "google",
+      "label": "Google Ads",
+      "responseCurve": {
+        "spendGrid": [0, 20000, 40000, 60000, 90000, 120000, 150000, 180000, 220000, 270000, 320000, 380000],
+        "p10":       [0, 12000, 28000, 48000, 76000, 100000, 125000, 148000, 176000, 202000, 220000, 232000],
+        "p50":       [0, 15000, 36000, 62000, 98000, 130000, 162000, 192000, 228000, 262000, 286000, 302000],
+        "p90":       [0, 18000, 44000, 76000, 120000, 160000, 199000, 236000, 280000, 322000, 352000, 372000]
+      },
+      "currentSpend": 60000,
+      "currentInstalls": 8500,
+      "saturation": {
+        "halfSaturation": 140000,
+        "hillCoefficient": 1.4
+      },
+      "marginal": {
+        "cpi": 18.00,
+        "roas": 1.85
+      },
+      "benchmark": {
+        "marketMedianCpi": 22.00,
+        "marketMedianRoas": 1.3,
+        "source": "mock"
+      }
+    },
+    {
+      "key": "tiktok",
+      "label": "TikTok",
+      "responseCurve": {
+        "spendGrid": [0, 20000, 40000, 60000, 90000, 120000, 150000, 180000, 220000, 270000, 320000, 380000],
+        "p10":       [0, 14000, 33000, 52000, 74000, 88000, 96000, 100000, 103000, 105000, 106000, 107000],
+        "p50":       [0, 18000, 42000, 66000, 94000, 112000, 123000, 129000, 134000, 137000, 139000, 140000],
+        "p90":       [0, 22000, 51000, 80000, 114000, 136000, 150000, 158000, 165000, 169000, 172000, 173000]
+      },
+      "currentSpend": 65000,
+      "currentInstalls": 7800,
+      "saturation": {
+        "halfSaturation": 62000,
+        "hillCoefficient": 1.5
+      },
+      "marginal": {
+        "cpi": 28.00,
+        "roas": 1.15
+      },
+      "benchmark": {
+        "marketMedianCpi": 25.00,
+        "marketMedianRoas": 1.2,
+        "source": "mock"
+      }
+    },
+    {
+      "key": "apple-search",
+      "label": "Apple Search Ads",
+      "responseCurve": {
+        "spendGrid": [0, 20000, 40000, 60000, 90000, 120000, 150000, 180000, 220000, 270000, 320000, 380000],
+        "p10":       [0, 20000, 40000, 55000, 68000, 75000, 79000, 82000, 84000, 85000, 86000, 86500],
+        "p50":       [0, 25000, 50000, 68000, 83000, 92000, 97000, 100000, 102000, 104000, 105000, 105500],
+        "p90":       [0, 30000, 60000, 82000, 100000, 110000, 116000, 120000, 122000, 124000, 125000, 125500]
+      },
+      "currentSpend": 75000,
+      "currentInstalls": 3500,
+      "saturation": {
+        "halfSaturation": 38000,
+        "hillCoefficient": 2.0
+      },
+      "marginal": {
+        "cpi": 38.00,
+        "roas": 0.72
+      },
+      "benchmark": {
+        "marketMedianCpi": 29.00,
+        "marketMedianRoas": 1.15,
+        "source": "mock"
+      }
+    }
+  ]
+}

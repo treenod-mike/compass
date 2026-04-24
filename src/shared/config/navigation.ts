@@ -2,9 +2,10 @@ import type { IconifyIcon } from '@iconify/types'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
+import widget5Bold from '@iconify-icons/solar/widget-5-bold'
 import { flaskBold } from './custom-icons'
 
-export type CategoryId = 'overview' | 'market' | 'experiments' | 'settings'
+export type CategoryId = 'overview' | 'market' | 'channel' | 'experiments' | 'settings'
 
 export interface CategoryMeta {
   id: CategoryId
@@ -24,6 +25,7 @@ export interface NavigationItem {
 export const CATEGORIES: CategoryMeta[] = [
   { id: 'overview', label: '투자 판정', position: 'primary', icon: chart2Bold },
   { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: graphUpBold },
+  { id: 'channel', label: '채널 포화도', position: 'primary', icon: widget5Bold },
   { id: 'experiments', label: '실험 영향 (PRISM)', position: 'primary', icon: flaskBold },
   { id: 'settings', label: '데이터 연결', position: 'utility', icon: plugCircleBold },
 ]
@@ -40,6 +42,12 @@ export const navigationItems: NavigationItem[] = [
     url: '/dashboard/market-gap',
     icon: graphUpBold,
     category: 'market',
+  },
+  {
+    title: '채널 포화도',
+    url: '/dashboard/mmm',
+    icon: widget5Bold,
+    category: 'channel',
   },
   {
     title: 'PRISM 연동',
