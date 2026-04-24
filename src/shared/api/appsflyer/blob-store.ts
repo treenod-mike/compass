@@ -1,4 +1,4 @@
-import { put, list, head } from "@vercel/blob"
+import { put, list, get } from "@vercel/blob"
 import {
   AccountSchema, AppSchema, StateSchema, CohortSummarySchema,
   type Account, type App, type AppState as State, type CohortSummary,
@@ -7,28 +7,24 @@ import {
 
 const PREFIX = "appsflyer"
 
+// Private store: SDK 의 get() 이 BLOB_READ_WRITE_TOKEN 으로 자동 인증 + stream 반환.
+// (fetch(meta.url) 는 private store 에서 401 — 반드시 get() 경유)
 async function fetchJson<T>(path: string, schema: { parse: (x: unknown) => T }): Promise<T | null> {
-  let meta
   try {
-    meta = await head(path)
+    const result = await get(path, { access: "private" })
+    if (!result || result.statusCode !== 200) return null
+    const text = await new Response(result.stream).text()
+    return schema.parse(JSON.parse(text))
   } catch {
-    return null  // blob doesn't exist
+    return null
   }
-  if (!meta) return null
-  const res = await fetch(meta.url)
-  if (!res.ok) return null
-  // Let schema.parse errors propagate — corrupt blob ≠ "not found".
-  // Caller can decide whether to re-initialize state vs alert.
-  return schema.parse(await res.json())
 }
 
 async function fetchJsonl(path: string): Promise<string[]> {
   try {
-    const meta = await head(path)
-    if (!meta) return []
-    const res = await fetch(meta.url)
-    if (!res.ok) return []
-    const text = await res.text()
+    const result = await get(path, { access: "private" })
+    if (!result || result.statusCode !== 200) return []
+    const text = await new Response(result.stream).text()
     return text.trim() === "" ? [] : text.trim().split("\n")
   } catch {
     return []
@@ -59,9 +55,12 @@ export async function listApps(): Promise<App[]> {
   const { blobs } = await list({ prefix: `${PREFIX}/apps/` })
   const apps = await Promise.all(
     blobs.map(async (b) => {
-      const res = await fetch(b.url)
-      if (!res.ok) return null
-      try { return AppSchema.parse(await res.json()) } catch { return null }
+      try {
+        const result = await get(b.pathname, { access: "private" })
+        if (!result || result.statusCode !== 200) return null
+        const text = await new Response(result.stream).text()
+        return AppSchema.parse(JSON.parse(text))
+      } catch { return null }
     }),
   )
   return apps.filter((a): a is App => a !== null)
