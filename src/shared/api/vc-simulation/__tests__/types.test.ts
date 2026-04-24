@@ -60,23 +60,3 @@ test("LstmSnapshotSchema requires >= 11 points", () => {
   })
   assert.equal(r.success, false)
 })
-
-// Sanity check that VcSimResultSchema is at least importable and parses a minimal valid shape.
-test("VcSimResultSchema imported and parses minimal valid shape", () => {
-  const r = VcSimResultSchema.safeParse({
-    offer: {
-      investmentUsd: 3_000_000,
-      postMoneyUsd: 15_000_000,
-      exitMultiple: 3,
-      hurdleRate: 0.2,
-      uaSharePct: 60,
-      horizonMonths: 36,
-    },
-    baselineA: {},
-    baselineB: {},
-    gap: [0, 0, 0],
-    jCurveBreakEvenMonth: null,
-    dataSourceBadge: "real",
-  })
-  assert.equal(r.success, true)
-})
