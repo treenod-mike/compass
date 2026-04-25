@@ -1,0 +1,6 @@
+export type { Offer, VcSimResult, LstmSnapshot, RunwayPoint, BaselineResult } from "./types"
+export { OfferSchema, LstmSnapshotSchema } from "./types"
+export { PRESETS, DEFAULT_OFFER, MONTE_CARLO_SAMPLES, LSTM_STALE_DAYS } from "./defaults"
+export { prefillOffer } from "./prefill"
+export { computeVcSimulation, makeSeededRng } from "./compute"
+export { useVcSimulation, isLstmStale } from "./use-vc-sim"
