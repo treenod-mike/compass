@@ -45,3 +45,50 @@ test("runway P10 <= P50 <= P90 at each month", () => {
     assert.ok(pt.p50 <= pt.p90, `month ${pt.month}: p50 ${pt.p50} > p90 ${pt.p90}`)
   }
 })
+
+test("higher UA share → shorter payback (typically)", () => {
+  const low = computeVcSimulation({ ...DEFAULT_OFFER, uaSharePct: 40 }, SOURCES)
+  const high = computeVcSimulation({ ...DEFAULT_OFFER, uaSharePct: 80 }, SOURCES)
+  if (low.baselineA.paybackMonths != null && high.baselineA.paybackMonths != null) {
+    assert.ok(
+      high.baselineA.paybackMonths <= low.baselineA.paybackMonths,
+      `high UA payback ${high.baselineA.paybackMonths} should be ≤ low UA ${low.baselineA.paybackMonths}`
+    )
+  }
+})
+
+test("positive experiment delta → baselineB p50 IRR >= baselineA (장기)", () => {
+  const withExp = {
+    ...SOURCES,
+    bayesianPosterior: { deltaLtv: 0.2 },
+  }
+  const r = computeVcSimulation(DEFAULT_OFFER, withExp)
+  if (Number.isFinite(r.baselineA.p50Irr) && Number.isFinite(r.baselineB.p50Irr)) {
+    assert.ok(r.baselineB.p50Irr >= r.baselineA.p50Irr, "experiment uplift should increase long-term IRR")
+  }
+})
+
+test("J-curve: experiment cost creates initial drag, break-even contract honored", () => {
+  const withExp = {
+    ...SOURCES,
+    bayesianPosterior: { deltaLtv: 0.2 },
+  }
+  const r = computeVcSimulation(DEFAULT_OFFER, withExp)
+  // 실험 비용은 즉시 발생 → 초기 gap 음수
+  assert.ok(r.gap[1] < 0 || r.gap[3] < 0, "early months should show experiment cost drag")
+  // 회복 없음 ↔ break-even null. 회복 있음 ↔ break-even 양수 정수
+  if (r.jCurveBreakEvenMonth === null) {
+    assert.ok(r.gap[r.gap.length - 1] <= 0, "no break-even must imply final gap non-positive")
+  } else {
+    assert.ok(r.jCurveBreakEvenMonth >= 0, "break-even month must be non-negative")
+    assert.ok(r.gap[r.jCurveBreakEvenMonth] >= 0, "gap at break-even month must be non-negative")
+  }
+})
+
+test("jCurveBreakEvenMonth is in [0, horizon] or null", () => {
+  const r = computeVcSimulation(DEFAULT_OFFER, { ...SOURCES, bayesianPosterior: { deltaLtv: 0.2 } })
+  if (r.jCurveBreakEvenMonth !== null) {
+    assert.ok(r.jCurveBreakEvenMonth >= 0)
+    assert.ok(r.jCurveBreakEvenMonth <= DEFAULT_OFFER.horizonMonths)
+  }
+})
