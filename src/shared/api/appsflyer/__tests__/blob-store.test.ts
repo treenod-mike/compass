@@ -20,7 +20,7 @@ describe("blob-store", () => {
     expect(putSpy).toHaveBeenCalledWith(
       "appsflyer/accounts/acc_a1b2c3d4.json",
       expect.any(String),
-      expect.objectContaining({ access: "public", contentType: "application/json" }),
+      expect.objectContaining({ access: "private", contentType: "application/json" }),
     )
   })
 
