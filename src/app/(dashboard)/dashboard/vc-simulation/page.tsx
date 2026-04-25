@@ -81,7 +81,10 @@ export default function VcSimulationPage() {
           <div className="mt-6 grid grid-cols-[360px_1fr] gap-6">
             <VcInputPanel onChange={setOffer} />
             <div className="space-y-3">
-              <DataSourceBadge badge={result.dataSourceBadge} />
+              {/* Both badges depend on isLstmStale() / new Date() — gate behind
+                  `mounted` to keep SSR-rendered HTML identical to first client render.
+                  Until mount, show a deterministic "real" placeholder. */}
+              <DataSourceBadge badge={mounted ? result.dataSourceBadge : "real"} />
               {mounted && stale && <StaleBadge />}
               <CalcBoundary>
                 <VcResultBoard result={result} />

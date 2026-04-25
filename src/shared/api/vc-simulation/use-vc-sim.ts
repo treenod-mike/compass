@@ -23,12 +23,14 @@ type UseVcSimInput = {
 export function useVcSimulation(input: UseVcSimInput): VcSimResult {
   return useMemo(() => {
     const snapshotHasGame = !!LSTM_SNAPSHOT.predictions[input.gameId]
-    const lstmForCompute: LstmSnapshot = snapshotHasGame
-      ? LSTM_SNAPSHOT
-      : LSTM_SNAPSHOT
+    // TODO: when snapshotHasGame === false, compute.ts returns retention=0 for
+    // all months → meaningless monotonic cash decay. Page should render an
+    // explicit empty-state instead of the chart. For now we feed the snapshot
+    // anyway and rely on dataSourceBadge="default" as a weak signal. Future:
+    // implement genre-benchmark fallback or no-data UI.
     const result = computeVcSimulation(input.offer, {
       gameId: input.gameId,
-      lstmSnapshot: lstmForCompute,
+      lstmSnapshot: LSTM_SNAPSHOT,
       bayesianPosterior: input.bayesianDeltaLtv != null ? { deltaLtv: input.bayesianDeltaLtv } : null,
       appsflyerInitialCash: input.appsflyerInitialCash,
     })
