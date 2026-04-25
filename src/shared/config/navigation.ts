@@ -1,4 +1,5 @@
 import type { IconifyIcon } from '@iconify/types'
+import calculatorBold from '@iconify-icons/solar/calculator-bold'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
@@ -42,6 +43,12 @@ export const navigationItems: NavigationItem[] = [
     url: '/dashboard/market-gap',
     icon: graphUpBold,
     category: 'market',
+  },
+  {
+    title: '투자 시뮬레이션',
+    url: '/dashboard/vc-simulation',
+    icon: calculatorBold,
+    category: 'overview',
   },
   {
     title: '채널 포화도',
