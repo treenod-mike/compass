@@ -1,13 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Component, type ReactNode } from "react"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { VcInputPanel, VcResultBoard } from "@/widgets/vc-simulation"
-import { DEFAULT_OFFER, useVcSimulation, type Offer } from "@/shared/api/vc-simulation"
+import { CalcErrorCard } from "@/widgets/vc-simulation/ui/calc-error-card"
+import { DEFAULT_OFFER, useVcSimulation, isLstmStale, type Offer } from "@/shared/api/vc-simulation"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useLocale } from "@/shared/i18n"
+
+class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
+  state = { err: null as Error | null }
+  static getDerivedStateFromError(err: Error) {
+    return { err }
+  }
+  componentDidCatch() {
+    /* swallow — fallback UI sufficient */
+  }
+  render() {
+    return this.state.err ? <CalcErrorCard /> : this.props.children
+  }
+}
 
 const FALLBACK_INITIAL_CASH = 500_000
 const FALLBACK_DELTA_LTV = 0
@@ -50,6 +64,8 @@ export default function VcSimulationPage() {
     bayesianDeltaLtv,
   })
 
+  const stale = isLstmStale()
+
   return (
     <PageTransition>
       <div className="px-10 pt-6 pb-24">
@@ -61,12 +77,24 @@ export default function VcSimulationPage() {
             <VcInputPanel onChange={setOffer} />
             <div className="space-y-3">
               <DataSourceBadge badge={result.dataSourceBadge} />
-              <VcResultBoard result={result} />
+              {stale && <StaleBadge />}
+              <CalcBoundary>
+                <VcResultBoard result={result} />
+              </CalcBoundary>
             </div>
           </div>
         </FadeInUp>
       </div>
     </PageTransition>
+  )
+}
+
+function StaleBadge() {
+  const { t } = useLocale()
+  return (
+    <div className="text-xs text-[var(--signal-caution)]">
+      ● {t("vc.badge.stale")}
+    </div>
   )
 }
 

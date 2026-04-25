@@ -14,7 +14,8 @@
     "crawl:st:discover": "cd crawler && npx tsx src/discover.ts",
     "fetch:af": "tsx scripts/fetch-appsflyer.ts",
     "fetch:af:dry": "tsx scripts/fetch-appsflyer.ts -- --dry-run",
-    "test:af": "tsx --test src/shared/api/appsflyer/__tests__/*.test.ts"
+    "test:af": "tsx --test src/shared/api/appsflyer/__tests__/*.test.ts",
+    "test:vc": "tsx --test src/shared/api/vc-simulation/__tests__/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

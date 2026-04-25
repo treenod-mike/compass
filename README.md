@@ -74,3 +74,12 @@ src/
 
 - 단일 브랜치 `main` · atomic 커밋 권장
 - 계정 분리 규칙: 이 repo는 **`treenod-mike`** SSH key로만 push (`git@github.com-treenod:treenod-mike/compass.git`)
+
+### VC Simulation (`/dashboard/vc-simulation`)
+
+선택된 게임에 대한 VC 오퍼 조건 기반 36개월 Monte Carlo 투자 시뮬레이터. Baseline ①(실험 없이)과 ②(실험 반영) 를 동시 렌더링하여 실험-이율 J-커브를 시각화.
+
+- 계산 로직: `src/shared/api/vc-simulation/compute.ts`
+- LSTM 리텐션 계약: `src/shared/api/data/lstm/retention-snapshot.json` + `src/shared/api/vc-simulation/types.ts` (Zod schema)
+- 설계 스펙: `docs/superpowers/specs/2026-04-24-vc-simulation-design.md`
+- 단위 테스트: `npm run test:vc`
