@@ -19,17 +19,24 @@ function aggregateCohorts(installs: ExtendedInstall[], events: EventRow[]): Coho
   const now = Date.now()
   const valid = installs.filter((i) => i.appsflyerId !== null && i.installTime !== null)
 
-  // Per-user install epoch (last-write-wins on duplicate appsflyerId)
-  const userEpoch = new Map<string, number>()
-  // Cohort membership: cohortDate → Set<appsflyerId>
-  const cohortMembers = new Map<string, Set<string>>()
-
+  // Each user belongs to exactly one cohort = their earliest install date.
+  // Repeated install rows for the same appsflyerId (re-installs, multi-device,
+  // duplicated CSV rows) collapse into a single membership.
+  const firstInstall = new Map<string, { epoch: number; date: string }>()
   for (const i of valid) {
     const epoch = parseEpoch(i.installTime!)
-    const date = toUtcDate(i.installTime!)
-    userEpoch.set(i.appsflyerId!, epoch)
+    const prior = firstInstall.get(i.appsflyerId!)
+    if (!prior || epoch < prior.epoch) {
+      firstInstall.set(i.appsflyerId!, { epoch, date: toUtcDate(i.installTime!) })
+    }
+  }
+
+  const userEpoch = new Map<string, number>()
+  const cohortMembers = new Map<string, Set<string>>()
+  for (const [userId, { epoch, date }] of firstInstall) {
+    userEpoch.set(userId, epoch)
     const members = cohortMembers.get(date) ?? new Set<string>()
-    members.add(i.appsflyerId!)
+    members.add(userId)
     cohortMembers.set(date, members)
   }
 

@@ -98,4 +98,20 @@ describe("aggregate", () => {
     expect(r.revenue.total.sumUsd).toBeCloseTo(30)
     expect(r.revenue.total.purchasers).toBe(1)  // u1 distinct across all days
   })
+
+  it("repeated install rows for same user collapse into earliest cohort only", () => {
+    // Same appsflyerId installed on two different dates (re-install / multi-row CSV).
+    // User must appear in exactly one cohort = earliest install date.
+    const installs = [
+      install("u1", "2026-04-10 12:00:00"),
+      install("u1", "2026-04-15 12:00:00"),  // later duplicate
+      install("u2", "2026-04-15 12:00:00"),
+    ]
+    const r = aggregate(installs, [])
+    const apr10 = r.cohorts.find((c) => c.cohortDate === "2026-04-10")
+    const apr15 = r.cohorts.find((c) => c.cohortDate === "2026-04-15")
+    expect(apr10?.installs).toBe(1)         // u1 only here
+    expect(apr15?.installs).toBe(1)         // u2 only — NOT u1
+    expect(r.cohorts.reduce((n, c) => n + c.installs, 0)).toBe(2)  // distinct user count
+  })
 })
