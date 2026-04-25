@@ -6,15 +6,48 @@ import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { VcInputPanel, VcResultBoard } from "@/widgets/vc-simulation"
 import { DEFAULT_OFFER, useVcSimulation, type Offer } from "@/shared/api/vc-simulation"
+import { useGameData } from "@/shared/api/use-game-data"
+import { useLocale } from "@/shared/i18n"
+
+const FALLBACK_INITIAL_CASH = 500_000
+const FALLBACK_DELTA_LTV = 0
+// Reference per-user LTV used to normalize deltaLtvPerUser ($/user) into a
+// fractional lift consumed by the VC simulation engine. ~$10/user is a
+// reasonable mid-market baseline; tunable when LSTM-derived posterior arrives.
+const REFERENCE_LTV_PER_USER = 10
 
 export default function VcSimulationPage() {
   const { gameId } = useSelectedGame()
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
+  const gameData = useGameData()
+
+  // AppsFlyer-equivalent cash position derive (best-effort).
+  // TODO: server-only readSnapshot() can't run in client components; mock
+  // cumulative cash position from revenueVsInvest (cumRevenue - cumUaSpend,
+  // in $K units) stands in until a /api/appsflyer/cash route exposes the
+  // real snapshot to the client.
+  const revenueVsInvest = gameData?.charts?.revenueVsInvest ?? []
+  const lastPoint = revenueVsInvest[revenueVsInvest.length - 1]
+  const initialCash = lastPoint
+    ? Math.max(0, (lastPoint.cumRevenue - lastPoint.cumUaSpend) * 1000)
+    : FALLBACK_INITIAL_CASH
+
+  // Bayesian average ΔLTV from current game's experiments.
+  // ExperimentForkScenario.deltaLtvPerUser is in $/user; divide by the
+  // reference LTV to convert to a fractional uplift (compute.ts uses
+  // `1 + deltaLtv` as a multiplicative cohort revenue lift factor).
+  const experiments = gameData?.charts?.revenueForecastMeta?.experiments ?? []
+  const bayesianDeltaLtv = experiments.length > 0
+    ? experiments.reduce((s, e) => s + (e.deltaLtvPerUser ?? 0), 0)
+        / experiments.length
+        / REFERENCE_LTV_PER_USER
+    : FALLBACK_DELTA_LTV
+
   const result = useVcSimulation({
     gameId,
     offer,
-    appsflyerInitialCash: 500_000,
-    bayesianDeltaLtv: 0.15,
+    appsflyerInitialCash: initialCash,
+    bayesianDeltaLtv,
   })
 
   return (
@@ -26,10 +59,27 @@ export default function VcSimulationPage() {
         <FadeInUp>
           <div className="mt-6 grid grid-cols-[360px_1fr] gap-6">
             <VcInputPanel onChange={setOffer} />
-            <VcResultBoard result={result} />
+            <div className="space-y-3">
+              <DataSourceBadge badge={result.dataSourceBadge} />
+              <VcResultBoard result={result} />
+            </div>
           </div>
         </FadeInUp>
       </div>
     </PageTransition>
+  )
+}
+
+function DataSourceBadge({ badge }: { badge: "real" | "benchmark" | "default" }) {
+  const { t } = useLocale()
+  const tone = {
+    real: "text-[var(--signal-positive)]",
+    benchmark: "text-[var(--signal-caution)]",
+    default: "text-[var(--fg-3)]",
+  }[badge]
+  return (
+    <div className={`text-xs ${tone}`}>
+      ● {t(`vc.badge.dataSource.${badge}` as const)}
+    </div>
   )
 }
