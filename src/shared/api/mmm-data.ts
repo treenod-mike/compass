@@ -88,12 +88,7 @@ const VerdictSchema = z.object({
 })
 export type MmmVerdict = z.infer<typeof VerdictSchema>
 
-const GameKeySchema = z.enum([
-  "portfolio",
-  "match-league",
-  "weaving-fairy",
-  "dig-infinity",
-])
+const GameKeySchema = z.enum(["portfolio", "poco"])
 
 const MetadataSchema = z.object({
   generatedAt: z.string().datetime(),
