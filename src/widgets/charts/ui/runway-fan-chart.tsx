@@ -38,6 +38,8 @@ type Props = {
   title?: string
   locale?: "en" | "ko"
   height?: number
+  overlay?: { data: RunwayFanData; dashed?: boolean }
+  hurdleLine?: number
 }
 
 function InnerChart({
@@ -45,11 +47,15 @@ function InnerChart({
   width,
   height,
   locale,
+  overlay,
+  hurdleLine,
 }: {
   data: RunwayFanData
   width: number
   height: number
   locale: "en" | "ko"
+  overlay?: { data: RunwayFanData; dashed?: boolean }
+  hurdleLine?: number
 }) {
   if (width < 50) return null
 
@@ -162,6 +168,45 @@ function InnerChart({
           curve={curveMonotoneX}
         />
 
+        {/* Optional overlay (e.g., baseline scenario for comparison) */}
+        {overlay && (
+          <>
+            <AreaClosed<RunwayPoint>
+              data={overlay.data.points}
+              x={(d) => xScale(d.month)}
+              y={(d) => yScale(d.p90)}
+              y0={(d) => yScale(d.p10)}
+              yScale={yScale}
+              fill="transparent"
+              stroke="var(--fg-2)"
+              strokeDasharray={overlay.dashed ? "4 4" : undefined}
+              strokeOpacity={0.4}
+              curve={curveMonotoneX}
+              defined={(d) => d.p10 != null && d.p90 != null}
+            />
+            <LinePath<RunwayPoint>
+              data={overlay.data.points}
+              x={(d) => xScale(d.month)}
+              y={(d) => yScale(d.p50)}
+              stroke="var(--fg-1)"
+              strokeWidth={1.5}
+              strokeDasharray={overlay.dashed ? "4 4" : undefined}
+              curve={curveMonotoneX}
+            />
+          </>
+        )}
+
+        {/* Optional hurdle line (e.g., minimum acceptable cash threshold) */}
+        {hurdleLine != null && (
+          <Line
+            from={{ x: xScale.range()[0], y: yScale(hurdleLine) }}
+            to={{ x: xScale.range()[1], y: yScale(hurdleLine) }}
+            stroke="var(--signal-caution)"
+            strokeWidth={1}
+            strokeDasharray="2 4"
+          />
+        )}
+
         {/* P50 data dots */}
         {data.points.map((p) => (
           <circle
@@ -247,7 +292,7 @@ function InnerChart({
   )
 }
 
-export function RunwayFanChart({ data, title, locale = "en", height }: Props) {
+export function RunwayFanChart({ data, title, locale = "en", height, overlay, hurdleLine }: Props) {
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 340 })
 
   const titleText =
@@ -274,7 +319,14 @@ export function RunwayFanChart({ data, title, locale = "en", height }: Props) {
       <div style={{ width: "100%", height: resolvedHeight }}>
         <ParentSize>
           {({ width, height: h }) => (
-            <InnerChart data={data} width={width} height={h} locale={locale} />
+            <InnerChart
+              data={data}
+              width={width}
+              height={h}
+              locale={locale}
+              overlay={overlay}
+              hurdleLine={hurdleLine}
+            />
           )}
         </ParentSize>
       </div>

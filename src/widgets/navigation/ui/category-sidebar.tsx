@@ -8,11 +8,13 @@ import { toast } from 'sonner'
 import { Icon as Iconify } from '@iconify/react'
 import { cn } from '@/shared/lib/utils'
 import {
+  CATEGORIES,
   getItemsByCategory,
   inferCategoryFromPath,
   navigationItems,
   type NavigationItem,
 } from '@/shared/config/navigation'
+import { useLocale } from '@/shared/i18n'
 import {
   Tooltip,
   TooltipContent,
@@ -41,6 +43,7 @@ export function CategorySidebar({
   isInitialized = true,
 }: AppSidebarProps) {
   const pathname = usePathname()
+  const { t } = useLocale()
 
   const [isFullyCollapsed, setIsFullyCollapsed] = React.useState(isCollapsed)
   const showExpandedContent = !isCollapsed && !isFullyCollapsed
@@ -78,6 +81,9 @@ export function CategorySidebar({
   }, [])
 
   const activeCategory = inferCategoryFromPath(pathname, navigationItems)
+  const activeCategoryMeta = activeCategory
+    ? CATEGORIES.find((c) => c.id === activeCategory) ?? null
+    : null
   const items = activeCategory
     ? getItemsByCategory(navigationItems, activeCategory)
     : []
@@ -121,6 +127,18 @@ export function CategorySidebar({
           paddingRight: isCollapsed ? PADDING_COLLAPSED : PADDING_EXPANDED,
         }}
       >
+        {activeCategoryMeta && !isCollapsed && (
+          <div
+            className="px-3 pb-2 text-[10px] uppercase tracking-wide font-semibold text-foreground/50 break-keep"
+            style={{
+              opacity: showExpandedContent ? 1 : 0,
+              transition: 'opacity 0.16s cubic-bezier(0.45, 0, 0.38, 1)',
+              pointerEvents: showExpandedContent ? 'auto' : 'none',
+            }}
+          >
+            {t(activeCategoryMeta.groupKey)}
+          </div>
+        )}
         <ul className={ITEM_SPACING}>
           {items.map((item, index) => {
             const isLastItem = index === items.length - 1
