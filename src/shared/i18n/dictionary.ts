@@ -646,6 +646,28 @@ const dictionary = {
   "mmm.badge.stale":                        { ko: "STALE · {{days}}일 경과", en: "STALE · {{days}}d old" },
   "mmm.badge.mock":                         { ko: "Mock (Phase 1)",  en: "Mock (Phase 1)" },
 
+  // Game Settings modal (T9)
+  "settings.modalTitle":    { ko: "게임 설정",                    en: "Game Settings" },
+  "settings.country":       { ko: "주력 국가",                    en: "Primary Country" },
+  "settings.genre":         { ko: "장르",                        en: "Genre" },
+  "settings.save":          { ko: "저장",                        en: "Save" },
+  "settings.cancel":        { ko: "취소",                        en: "Cancel" },
+  "settings.country.JP":    { ko: "일본",                        en: "Japan" },
+  "settings.country.US":    { ko: "미국",                        en: "United States" },
+  "settings.country.KR":    { ko: "한국",                        en: "South Korea" },
+  "settings.country.DE":    { ko: "독일",                        en: "Germany" },
+  "settings.country.GB":    { ko: "영국",                        en: "United Kingdom" },
+  "settings.genre.merge":   { ko: "머지",                        en: "Merge" },
+  "settings.genre.puzzle":  { ko: "퍼즐",                        en: "Puzzle" },
+  "settings.genre.rpg":     { ko: "RPG",                        en: "RPG" },
+  "settings.genre.casual":  { ko: "캐주얼",                      en: "Casual" },
+  "settings.genre.strategy":{ ko: "전략",                        en: "Strategy" },
+  "settings.genre.idle":    { ko: "아이들",                      en: "Idle" },
+  "mmm.currentMarket":      { ko: "시장 기준",                   en: "Current Market" },
+  "mmm.benchmarkStale":     { ko: "벤치마크 {days}일 경과",       en: "{days} days old" },
+  "mmm.benchmarkNoData":    { ko: "데이터 없음",                  en: "No benchmark data" },
+  "mmm.edit":               { ko: "편집",                        en: "Edit" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary
