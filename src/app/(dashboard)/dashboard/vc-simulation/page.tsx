@@ -1,11 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
+import { VcInputPanel } from "@/widgets/vc-simulation"
+import { DEFAULT_OFFER, type Offer } from "@/shared/api/vc-simulation"
 
 export default function VcSimulationPage() {
   const { gameId } = useSelectedGame()
+  const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
 
   return (
     <PageTransition>
@@ -15,12 +19,12 @@ export default function VcSimulationPage() {
         </FadeInUp>
         <FadeInUp>
           <div className="mt-6 grid grid-cols-[360px_1fr] gap-6">
-            <div className="sticky top-[80px] h-fit border border-[var(--bg-4)] rounded-[var(--radius-card)] p-5">
-              <p className="text-sm text-[var(--fg-2)]">Input panel placeholder</p>
-              <p className="text-xs text-[var(--fg-3)] mt-2">selected: {gameId}</p>
-            </div>
+            <VcInputPanel onChange={setOffer} />
             <div>
               <p className="text-sm text-[var(--fg-2)]">Result board placeholder</p>
+              <p className="text-xs text-[var(--fg-3)] mt-2">
+                selected: {gameId} · offer.investment: ${(offer.investmentUsd / 1e6).toFixed(1)}M
+              </p>
             </div>
           </div>
         </FadeInUp>
