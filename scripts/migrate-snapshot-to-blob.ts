@@ -21,7 +21,10 @@ import {
   encryptToken,
   hashToken,
   type ExtendedInstall,
+  type GameKey,
 } from "../src/shared/api/appsflyer"
+
+const VALID_GAME_KEYS = ["portfolio", "sample-match-3", "sample-puzzle", "sample-idle"] as const satisfies readonly GameKey[]
 
 config({ path: ".env.local" })
 
@@ -62,6 +65,16 @@ if (!appId) {
   process.exit(1)
 }
 
+const gameKeyInput = process.env.MIGRATE_GAME_KEY
+if (!gameKeyInput || !(VALID_GAME_KEYS as readonly string[]).includes(gameKeyInput)) {
+  console.error(
+    `MIGRATE_GAME_KEY missing or invalid (got "${gameKeyInput ?? ""}"). ` +
+      `Set one of: ${VALID_GAME_KEYS.join(", ")}.`,
+  )
+  process.exit(1)
+}
+const gameKey = gameKeyInput as GameKey
+
 const accountId = `acc_${randomUUID().replace(/-/g, "").slice(0, 8)}`
 const now = new Date().toISOString()
 
@@ -75,11 +88,11 @@ await putAccount({
   createdAt: now,
 })
 
-// 2. App (gameKey is best-effort — defaults to first non-portfolio enum)
+// 2. App
 await putApp({
   appId,
   accountId,
-  gameKey: "sample-match-3", // adjust manually after migration if needed
+  gameKey,
   label: "migrated",
   createdAt: now,
 })
