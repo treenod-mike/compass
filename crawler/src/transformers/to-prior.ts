@@ -43,3 +43,19 @@ export function computeGenrePrior(games: TopGame[]): Snapshot["genrePrior"] {
     monthlyDownloads: dist(monthlyDls),
   };
 }
+
+export function computeNonNullCount(games: TopGame[]): {
+  retention_d1: number;
+  retention_d7: number;
+  retention_d30: number;
+  monthlyRevenueUsd: number;
+  monthlyDownloads: number;
+} {
+  return {
+    retention_d1: games.filter((g) => typeof g.retention.d1 === "number").length,
+    retention_d7: games.filter((g) => typeof g.retention.d7 === "number").length,
+    retention_d30: games.filter((g) => typeof g.retention.d30 === "number").length,
+    monthlyRevenueUsd: games.filter((g) => typeof g.revenue.last90dTotalUsd === "number").length,
+    monthlyDownloads: games.filter((g) => typeof g.downloads.last90dTotal === "number").length,
+  };
+}

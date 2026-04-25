@@ -44,6 +44,15 @@ export const SnapshotSchema = z.object({
     tier: z.string(),
     crawlerVersion: z.string(),
     warnings: z.array(z.string()),
+    nonNullCount: z
+      .object({
+        retention_d1: z.number().int().nonnegative(),
+        retention_d7: z.number().int().nonnegative(),
+        retention_d30: z.number().int().nonnegative(),
+        monthlyRevenueUsd: z.number().int().nonnegative(),
+        monthlyDownloads: z.number().int().nonnegative(),
+      })
+      .optional(),
   }),
   topGames: z.array(TopGameSchema),
   genrePrior: z.object({
