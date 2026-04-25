@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "source": "unity-levelplay-cpi-index",
+  "generatedAt": "2026-04-24T00:00:00.000Z",
+  "sourceRange": {
+    "start": "2026-03-24",
+    "end": "2026-04-23"
+  },
+  "platforms": {
+    "ios": {
+      "JP": {
+        "merge": { "cpi": 3.8, "cpm": 18.5 },
+        "puzzle": { "cpi": 3.2, "cpm": 16.2 },
+        "casual": { "cpi": 2.9, "cpm": 15.0 },
+        "rpg": { "cpi": 5.8, "cpm": 22.1 },
+        "strategy": { "cpi": 6.4 }
+      },
+      "US": {
+        "merge": { "cpi": 4.9, "cpm": 21.8 },
+        "puzzle": { "cpi": 4.1 },
+        "casual": { "cpi": 3.7 },
+        "rpg": { "cpi": 7.2 },
+        "strategy": { "cpi": 8.1 }
+      },
+      "KR": {
+        "merge": { "cpi": 2.6 },
+        "puzzle": { "cpi": 2.2 },
+        "casual": { "cpi": 2.0 },
+        "rpg": { "cpi": 4.1 }
+      },
+      "DE": {
+        "merge": { "cpi": 3.1 },
+        "puzzle": { "cpi": 2.8 },
+        "casual": { "cpi": 2.5 }
+      },
+      "GB": {
+        "merge": { "cpi": 3.5 },
+        "puzzle": { "cpi": 3.0 },
+        "casual": { "cpi": 2.7 }
+      }
+    },
+    "android": {
+      "JP": {
+        "merge": { "cpi": 2.1, "cpm": 12.0 },
+        "puzzle": { "cpi": 1.8 },
+        "casual": { "cpi": 1.6 },
+        "rpg": { "cpi": 3.2 }
+      },
+      "US": {
+        "merge": { "cpi": 2.8 },
+        "puzzle": { "cpi": 2.3 },
+        "casual": { "cpi": 2.0 },
+        "rpg": { "cpi": 4.5 }
+      },
+      "KR": {
+        "merge": { "cpi": 1.5 },
+        "puzzle": { "cpi": 1.3 },
+        "casual": { "cpi": 1.1 }
+      },
+      "DE": {
+        "merge": { "cpi": 1.9 },
+        "puzzle": { "cpi": 1.6 },
+        "casual": { "cpi": 1.4 }
+      },
+      "GB": {
+        "merge": { "cpi": 2.2 },
+        "puzzle": { "cpi": 1.8 },
+        "casual": { "cpi": 1.6 }
+      }
+    }
+  }
+}

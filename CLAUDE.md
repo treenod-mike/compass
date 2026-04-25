@@ -219,7 +219,7 @@ Bayesian 사전/사후 확률 분석으로 시장 대비 포지셔닝 시각화.
 ### 상태 관리
 - `useSelectedGame` (Zustand) — 전역 게임 선택 상태
 - `useGameData` — 선택된 게임의 mock 데이터 반환
-- 게임: Portfolio, Sample Match-3, Sample Puzzle, Sample Idle
+- 게임: Portfolio, 포코머지(`poco`)
 
 ### Page Transitions
 - `PageTransition` + `FadeInUp` 래퍼로 섹션별 stagger 애니메이션
@@ -258,6 +258,28 @@ Compass의 Bayesian Prior(장르 기대치) 데이터는 `crawler/` 패키지가
 
 ### 트러블슈팅
 `crawler/README.md` 참조.
+
+---
+
+## 9-1. CPI 벤치마크 크롤러
+
+MMM §⑤ 두 차트(`CpiBenchmarkTable`, `CpiQuadrant`)의 시장 CPI 벤치마크는 `crawler/src/cpi-benchmarks/` 가 Unity LevelPlay CPI Index 에서 수집해 `src/shared/api/data/cpi-benchmarks/levelplay-snapshot.json` 에 저장.
+
+### 운영
+- 주 1회 수동 실행: `npm run crawl:cpi`
+- Endpoint alive 빠른 체크: `npm run crawl:cpi:verify`
+
+### 코드 진입점
+- Crawler: `crawler/src/cpi-benchmarks/ingest.ts`
+- Compass 측 import: `src/shared/api/cpi-benchmarks.ts` (`lookupCpi`, `isBenchmarkStale`, `getSourceMeta`)
+- 게임별 (country, genre) 설정: `src/shared/store/game-settings.ts` (Zustand + localStorage)
+- 설계 스펙: `docs/superpowers/specs/2026-04-24-mmm-phase-2-cpi-benchmark-design.md`
+
+### Staleness
+35일 경과 시 MMM 상단 `CurrentMarketChip` 에 ⚠ 배지 자동 표시 (월간 갱신 + 5일 버퍼).
+
+### Fallback
+LevelPlay endpoint 종료/유료화 시 AppsFlyer Performance Index PDF 수동 파싱으로 동일 snapshot shape 유지. 스펙 §13 참조.
 
 ---
 

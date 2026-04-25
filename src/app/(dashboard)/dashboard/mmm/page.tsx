@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { DecisionStoryCard } from "@/widgets/dashboard"
+import { CurrentMarketChip } from "@/widgets/dashboard/ui/current-market-chip"
 import { SaturationMeter } from "@/widgets/charts/ui/saturation-meter"
 import { ContributionDonut } from "@/widgets/charts/ui/contribution-donut"
 import { ChannelStatusCard } from "@/widgets/charts/ui/channel-status-card"
@@ -62,6 +63,10 @@ export default function MmmPage() {
 
   return (
     <PageTransition>
+      <FadeInUp className="mb-4">
+        <CurrentMarketChip gameLabel="포코머지" />
+      </FadeInUp>
+
       {/* ① Hero Verdict */}
       <FadeInUp className="mb-8">
         <DecisionStoryCard

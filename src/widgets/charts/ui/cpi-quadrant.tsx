@@ -17,6 +17,9 @@ import { ChartTooltip, TooltipDot } from "@/shared/ui/chart-tooltip"
 import { MMM_COLORS, PALETTE } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { useLocale } from "@/shared/i18n"
+import { useSelectedGame } from "@/shared/store/selected-game"
+import { useGameSettings } from "@/shared/store/game-settings"
+import { lookupCpi } from "@/shared/api/cpi-benchmarks"
 import type { MmmChannel } from "@/shared/api/mmm-data"
 
 type CpiQuadrantProps = {
@@ -30,9 +33,9 @@ const CHANNEL_LABEL_KEY = {
   "apple-search": "mmm.channel.appleSearch",
 } as const
 
-function toPoint(c: MmmChannel) {
+function toPoint(c: MmmChannel, marketCpi: number) {
   const satPct = Math.min(100, (c.currentSpend / (c.saturation.halfSaturation * 2)) * 100)
-  const devPct = ((c.marginal.cpi - c.benchmark.marketMedianCpi) / c.benchmark.marketMedianCpi) * 100
+  const devPct = ((c.marginal.cpi - marketCpi) / marketCpi) * 100
   // log10 of spend → bubble size range 200-800
   const spendSize = Math.log10(Math.max(c.currentSpend, 1)) * 120
   return {
@@ -47,8 +50,24 @@ function toPoint(c: MmmChannel) {
 
 export function CpiQuadrant({ channels }: CpiQuadrantProps) {
   const { t } = useLocale()
+  const gameId = useSelectedGame((s) => s.gameId)
+  const settings = useGameSettings((s) => s.settings[gameId])
+
+  // LevelPlay benchmark is genre × country (not per-channel). All channels
+  // compare against the same market median for this game's market.
+  // Platform fixed to "ios" for Phase 2 (channels carry no platform info).
+  const marketCpi = settings ? lookupCpi(settings.country, settings.genre, "ios") : null
+
+  if (marketCpi == null) {
+    return (
+      <div className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-4 h-full flex items-center justify-center text-[var(--fg-3)] text-sm">
+        {t("mmm.benchmarkNoData")}
+      </div>
+    )
+  }
+
   const points = channels.map((c) => ({
-    ...toPoint(c),
+    ...toPoint(c, marketCpi),
     name: t(CHANNEL_LABEL_KEY[c.key]),
     color: MMM_COLORS.channels[c.key].line,
   }))
