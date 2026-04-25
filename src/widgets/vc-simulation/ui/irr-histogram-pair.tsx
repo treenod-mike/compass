@@ -8,15 +8,23 @@ import { useLocale } from "@/shared/i18n"
 
 type Props = { result: VcSimResult }
 
-function histogram(vals: number[], bins: number): number[] {
+function histogram(
+  vals: number[],
+  bins: number,
+  sharedMin?: number,
+  sharedMax?: number,
+): number[] {
   const filtered = vals.filter(Number.isFinite)
   if (filtered.length === 0) return new Array(bins).fill(0)
-  const min = Math.min(...filtered)
-  const max = Math.max(...filtered)
+  const min = sharedMin ?? Math.min(...filtered)
+  const max = sharedMax ?? Math.max(...filtered)
   const width = (max - min) / bins || 1
   const counts = new Array(bins).fill(0)
   for (const v of filtered) {
-    const idx = Math.min(bins - 1, Math.floor((v - min) / width))
+    // Clamp to valid bin range so out-of-bound values (when sharedMin/Max
+    // are explicitly tighter) still land in the edge bins.
+    const raw = Math.floor((v - min) / width)
+    const idx = Math.min(bins - 1, Math.max(0, raw))
     counts[idx]++
   }
   return counts
@@ -25,8 +33,16 @@ function histogram(vals: number[], bins: number): number[] {
 export function IrrHistogramPair({ result }: Props) {
   const { t } = useLocale()
   const BINS = 20
-  const histA = histogram(result.baselineA.irrDistribution, BINS)
-  const histB = histogram(result.baselineB.irrDistribution, BINS)
+  // Align bin edges across both panels so bin i of histA and histB cover
+  // the SAME IRR range — required for honest side-by-side comparison.
+  const allFinite = [
+    ...result.baselineA.irrDistribution,
+    ...result.baselineB.irrDistribution,
+  ].filter(Number.isFinite)
+  const combinedMin = allFinite.length > 0 ? Math.min(...allFinite) : 0
+  const combinedMax = allFinite.length > 0 ? Math.max(...allFinite) : 1
+  const histA = histogram(result.baselineA.irrDistribution, BINS, combinedMin, combinedMax)
+  const histB = histogram(result.baselineB.irrDistribution, BINS, combinedMin, combinedMax)
   const maxCount = Math.max(...histA, ...histB, 1)
 
   return (
