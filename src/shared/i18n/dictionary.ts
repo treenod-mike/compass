@@ -689,6 +689,9 @@ const dictionary = {
   // === Nav groups ===
   "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },
   "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },
+  "nav.group.channel":         { ko: "채널 포화도", en: "Channel Saturation" },
+  "nav.group.experiments":     { ko: "실험 영향", en: "Experiment Impact" },
+  "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },
   "nav.vc-simulation":         { ko: "투자 시뮬레이션", en: "VC Simulation" },
 
 } as const

@@ -4,6 +4,7 @@ import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
 import widget5Bold from '@iconify-icons/solar/widget-5-bold'
+import type { TranslationKey } from '@/shared/i18n/dictionary'
 import { flaskBold } from './custom-icons'
 
 export type CategoryId = 'overview' | 'market' | 'channel' | 'experiments' | 'settings'
@@ -11,6 +12,8 @@ export type CategoryId = 'overview' | 'market' | 'channel' | 'experiments' | 'se
 export interface CategoryMeta {
   id: CategoryId
   label: string
+  /** i18n key rendered as the sidebar group label above items in this category */
+  groupKey: TranslationKey
   position: 'primary' | 'utility'
   icon: IconifyIcon
 }
@@ -24,11 +27,11 @@ export interface NavigationItem {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'overview', label: '투자 판정', position: 'primary', icon: chart2Bold },
-  { id: 'market', label: '시장 포지셔닝', position: 'primary', icon: graphUpBold },
-  { id: 'channel', label: '채널 포화도', position: 'primary', icon: widget5Bold },
-  { id: 'experiments', label: '실험 영향 (PRISM)', position: 'primary', icon: flaskBold },
-  { id: 'settings', label: '데이터 연결', position: 'utility', icon: plugCircleBold },
+  { id: 'overview', label: '투자 판정', groupKey: 'nav.group.investment', position: 'primary', icon: chart2Bold },
+  { id: 'market', label: '시장 포지셔닝', groupKey: 'nav.group.market', position: 'primary', icon: graphUpBold },
+  { id: 'channel', label: '채널 포화도', groupKey: 'nav.group.channel', position: 'primary', icon: widget5Bold },
+  { id: 'experiments', label: '실험 영향 (PRISM)', groupKey: 'nav.group.experiments', position: 'primary', icon: flaskBold },
+  { id: 'settings', label: '데이터 연결', groupKey: 'nav.group.settings', position: 'utility', icon: plugCircleBold },
 ]
 
 export const navigationItems: NavigationItem[] = [
