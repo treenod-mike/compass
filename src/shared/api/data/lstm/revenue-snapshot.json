@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-04-26T00:00:00Z",
+  "source_retention_at": "2026-04-24T00:00:00Z",
+  "arpdau": {
+    "perGame": {
+      "poko_merge": 0.55
+    },
+    "currency": "USD",
+    "windowDays": 14
+  },
+  "installsAssumption": {
+    "perGame": {
+      "poko_merge": 800
+    },
+    "method": "trailing-14d-mean"
+  },
+  "forecast": {
+    "poko_merge": {
+      "points": [
+        { "day": 1,   "dauP50": 1160, "revenueP10": 510,  "revenueP50": 638,  "revenueP90": 766  },
+        { "day": 3,   "dauP50": 2000, "revenueP10": 880,  "revenueP50": 1100, "revenueP90": 1320 },
+        { "day": 7,   "dauP50": 2630, "revenueP10": 1160, "revenueP50": 1450, "revenueP90": 1740 },
+        { "day": 14,  "dauP50": 3300, "revenueP10": 1450, "revenueP50": 1815, "revenueP90": 2180 },
+        { "day": 21,  "dauP50": 3850, "revenueP10": 1700, "revenueP50": 2120, "revenueP90": 2540 },
+        { "day": 30,  "dauP50": 4400, "revenueP10": 1940, "revenueP50": 2420, "revenueP90": 2900 },
+        { "day": 45,  "dauP50": 5000, "revenueP10": 2200, "revenueP50": 2750, "revenueP90": 3300 },
+        { "day": 60,  "dauP50": 5500, "revenueP10": 2420, "revenueP50": 3025, "revenueP90": 3630 },
+        { "day": 90,  "dauP50": 6400, "revenueP10": 2820, "revenueP50": 3520, "revenueP90": 4220 },
+        { "day": 120, "dauP50": 7100, "revenueP10": 3120, "revenueP50": 3905, "revenueP90": 4690 },
+        { "day": 180, "dauP50": 8000, "revenueP10": 3520, "revenueP50": 4400, "revenueP90": 5280 },
+        { "day": 270, "dauP50": 8800, "revenueP10": 3870, "revenueP50": 4840, "revenueP90": 5810 },
+        { "day": 365, "dauP50": 9300, "revenueP10": 4090, "revenueP50": 5115, "revenueP90": 6140 }
+      ]
+    }
+  }
+}
