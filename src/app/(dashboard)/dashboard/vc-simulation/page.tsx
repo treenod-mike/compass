@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Component, type ReactNode } from "react"
+import { useEffect, useState, Component, type ReactNode } from "react"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
@@ -34,6 +34,11 @@ export default function VcSimulationPage() {
   const { gameId } = useSelectedGame()
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
   const gameData = useGameData()
+  // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
+  // client-side only, preventing SSR/CSR hydration mismatch (and the
+  // associated flicker on first paint).
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   // AppsFlyer-equivalent cash position derive (best-effort).
   // TODO: server-only readSnapshot() can't run in client components; mock
@@ -77,7 +82,7 @@ export default function VcSimulationPage() {
             <VcInputPanel onChange={setOffer} />
             <div className="space-y-3">
               <DataSourceBadge badge={result.dataSourceBadge} />
-              {stale && <StaleBadge />}
+              {mounted && stale && <StaleBadge />}
               <CalcBoundary>
                 <VcResultBoard result={result} />
               </CalcBoundary>
