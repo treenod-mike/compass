@@ -121,3 +121,182 @@ export const EMPTY_CARD: AppsFlyerCardData = {
   metrics: [],
   retentionDepth: null,
 }
+
+// === v3 schemas: Account / App / State / CohortSummary / Register ===
+
+export const AccountSchema = z.object({
+  id: z.string().regex(/^acc_[a-f0-9]{8}$/),
+  tokenHash: z.string().length(64),
+  encryptedToken: z.string().min(1),
+  currency: z.enum(["KRW", "USD", "JPY", "EUR"]),
+  label: z.string().max(80),
+  createdAt: z.string().datetime(),
+})
+export type Account = z.infer<typeof AccountSchema>
+
+const GameKeySchema = z.enum([
+  "portfolio",
+  "sample-match-3",
+  "sample-puzzle",
+  "sample-idle",
+])
+export type GameKey = z.infer<typeof GameKeySchema>
+
+export const AppSchema = z.object({
+  appId: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
+  accountId: z.string().regex(/^acc_[a-f0-9]{8}$/),
+  gameKey: GameKeySchema,
+  label: z.string().max(80),
+  createdAt: z.string().datetime(),
+})
+export type App = z.infer<typeof AppSchema>
+
+export const AppStatusSchema = z.enum([
+  "backfilling",
+  "active",
+  "stale",
+  "failed",
+  "credential_invalid",
+  "app_missing",
+])
+export type AppStatus = z.infer<typeof AppStatusSchema>
+
+export const FailureTypeSchema = z.enum([
+  "retryable",
+  "throttled",
+  "auth_invalid",
+  "not_found",
+  "partial",
+  "full_failure",
+])
+
+export const StateSchema = z.object({
+  appId: z.string(),
+  status: AppStatusSchema,
+  progress: z.object({
+    step: z.number().int().min(0).max(5),
+    total: z.literal(5),
+    currentReport: z.string().optional(),
+    rowsFetched: z.number().int().nonnegative(),
+  }),
+  lastSyncAt: z.string().datetime().optional(),
+  lastWindow: z
+    .object({ from: z.string(), to: z.string() })
+    .optional(),
+  callsUsedToday: z.number().int().min(0).max(20),
+  callsResetAt: z.string().datetime(),
+  syncLock: z
+    .object({
+      heldBy: z.string(),
+      heldAt: z.string().datetime(),
+      ttlMs: z.literal(300_000),
+    })
+    .nullable(),
+  failureHistory: z
+    .array(
+      z.object({
+        at: z.string().datetime(),
+        type: FailureTypeSchema,
+        message: z.string(),
+        report: z.string().optional(),
+      })
+    )
+    .max(10),
+})
+export type AppState = z.infer<typeof StateSchema>
+
+export const CohortObservationSchema = z.object({
+  cohortDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  installs: z.number().int().nonnegative(),
+  retainedByDay: z.object({
+    d1: z.number().int().nonnegative().nullable(),
+    d7: z.number().int().nonnegative().nullable(),
+    d30: z.number().int().nonnegative().nullable(),
+  }),
+})
+export type CohortObservation = z.infer<typeof CohortObservationSchema>
+
+export const CohortSummarySchema = z.object({
+  updatedAt: z.string().datetime(),
+  cohorts: z.array(CohortObservationSchema),
+  revenue: z.object({
+    daily: z.array(
+      z.object({
+        date: z.string(),
+        sumUsd: z.number().nonnegative(),
+        purchasers: z.number().int().nonnegative(),
+      })
+    ),
+    total: z.object({
+      sumUsd: z.number().nonnegative(),
+      purchasers: z.number().int().nonnegative(),
+    }),
+  }),
+})
+export type CohortSummary = z.infer<typeof CohortSummarySchema>
+
+export const RegisterRequestSchema = z.object({
+  dev_token: z.string().min(20),
+  app_id: z.string().regex(/^[a-zA-Z0-9._-]{3,64}$/),
+  app_label: z.string().max(80),
+  game_key: GameKeySchema,
+  home_currency: z.enum(["KRW", "USD", "JPY", "EUR"]).default("KRW"),
+})
+export type RegisterRequest = z.infer<typeof RegisterRequestSchema>
+
+// === Row-level types for sync pipeline (used by blob-store + aggregation) ===
+
+export const ExtendedInstallSchema = z.object({
+  installTime: z.string().nullable(),
+  partner: z.string().nullable(),
+  mediaSource: z.string().nullable(),
+  costValue: z.number().nullable(),
+  eventRevenueUsd: z.number().nullable(),
+  eventName: z.string().nullable(),
+  countryCode: z.string().nullable(),
+  platform: z.string().nullable(),
+  appsflyerId: z.string().nullable(),
+  eventTime: z.string().nullable(),
+})
+export type ExtendedInstall = z.infer<typeof ExtendedInstallSchema>
+
+export const EventRowSchema = z.object({
+  appsflyerId: z.string().nullable(),
+  eventTime: z.string().nullable(),
+  eventName: z.string().nullable(),
+  eventRevenueUsd: z.number().nullable(),
+})
+export type EventRow = z.infer<typeof EventRowSchema>
+
+const str = (v: unknown): string | null =>
+  typeof v === "string" && v !== "" ? v : null
+const num = (v: unknown): number | null =>
+  typeof v === "number" ? v : null
+
+/**
+ * Map an 81-column AppsFlyer Pull API CSV row → ExtendedInstall.
+ * Caller filters out rows with null `appsflyerId` before joining.
+ */
+export function toExtendedInstall(row: CsvRow): ExtendedInstall {
+  return {
+    installTime: str(row["Install Time"]),
+    partner: str(row["Partner"]),
+    mediaSource: str(row["Media Source"]),
+    costValue: num(row["Cost Value"]),
+    eventRevenueUsd: num(row["Event Revenue USD"]),
+    eventName: str(row["Event Name"]),
+    countryCode: str(row["Country Code"]),
+    platform: str(row["Platform"]),
+    appsflyerId: str(row["AppsFlyer ID"]),
+    eventTime: str(row["Event Time"]),
+  }
+}
+
+export function toEventRow(row: CsvRow): EventRow {
+  return {
+    appsflyerId: str(row["AppsFlyer ID"]),
+    eventTime: str(row["Event Time"]),
+    eventName: str(row["Event Name"]),
+    eventRevenueUsd: num(row["Event Revenue USD"]),
+  }
+}

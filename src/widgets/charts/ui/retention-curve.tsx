@@ -15,7 +15,7 @@
   - ChartHeader, ChartTooltip, ExpandButton, useChartExpand
 */
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { RetentionDataPoint } from "@/shared/api/mock-data"
@@ -25,15 +25,12 @@ import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
 import { RETENTION_CURVE_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
-import { priorByGenre } from "@/shared/api/prior-data"
+import { getPrior } from "@/shared/api/prior-data"
+import { betaBinomialModel } from "@/shared/lib/bayesian-stats/beta-binomial"
+import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
 
-// Real ST genre prior (fractions 0-1 → percentages)
-const ST_RET = priorByGenre.Merge.JP.retention
-const stBand: Record<number, { p10: number; p50: number; p90: number }> = {
-  1:  { p10: ST_RET.d1.p10 * 100,  p50: ST_RET.d1.p50 * 100,  p90: ST_RET.d1.p90 * 100 },
-  7:  { p10: ST_RET.d7.p10 * 100,  p50: ST_RET.d7.p50 * 100,  p90: ST_RET.d7.p90 * 100 },
-  30: { p10: ST_RET.d30.p10 * 100, p50: ST_RET.d30.p50 * 100, p90: ST_RET.d30.p90 * 100 },
-}
+// Validity thresholds per spec §6
+const RETENTION_N_THRESHOLD = { 1: 25, 7: 80, 30: 200 } as const
 import {
   AreaChart,
   Area,
@@ -131,17 +128,76 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
   const { t, locale } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 384, expanded: externalExpanded, onToggle: externalToggle })
 
+  const { summary } = useLiveAfData()
+
+  // Compute Bayesian prior + posterior bands per retention day
+  const bayesianBands = useMemo(() => {
+    const prior = getPrior({ genre: "Merge", region: "JP" })
+    if (!prior) return null
+
+    const cohorts = summary?.cohorts ?? []
+
+    function computeDay(
+      dayKey: "d1" | "d7" | "d30",
+      priorDist: { p10: number; p50: number; p90: number },
+      threshold: number,
+    ) {
+      const priorParams = betaBinomialModel.priorFromEmpirical(priorDist, prior!.effectiveN)
+      const priorInterval = betaBinomialModel.priorAsInterval(priorParams)
+
+      const measurable = cohorts.filter((c) => c.retainedByDay[dayKey] !== null)
+      const trials = measurable.reduce((s, c) => s + c.installs, 0)
+      const successes = measurable.reduce((s, c) => s + (c.retainedByDay[dayKey] ?? 0), 0)
+      const ml3 = trials < threshold
+
+      let posteriorInterval = null
+      if (!ml3 && trials > 0) {
+        try {
+          posteriorInterval = betaBinomialModel.posterior(priorParams, { n: trials, k: successes })
+        } catch {
+          posteriorInterval = null
+        }
+      }
+
+      // Convert fractions → percentages for the chart
+      const pct = (x: number) => x * 100
+      return {
+        prior: { p10: pct(priorInterval.ci_low), p50: pct(priorInterval.mean), p90: pct(priorInterval.ci_high) },
+        posterior: posteriorInterval
+          ? { p10: pct(posteriorInterval.ci_low), p50: pct(posteriorInterval.mean), p90: pct(posteriorInterval.ci_high) }
+          : null,
+        ml3,
+      }
+    }
+
+    return {
+      1:  computeDay("d1",  prior.retention.d1,  RETENTION_N_THRESHOLD[1]),
+      7:  computeDay("d7",  prior.retention.d7,  RETENTION_N_THRESHOLD[7]),
+      30: computeDay("d30", prior.retention.d30, RETENTION_N_THRESHOLD[30]),
+    }
+  }, [summary])
+
+  // ML3 flag: true if D1 (smallest threshold) has insufficient installs
+  const ml3 = bayesianBands?.[1]?.ml3 ?? false
+
   const chartData = data.map((d) => {
-    const st = stBand[d.day]
+    const band = bayesianBands?.[d.day as 1 | 7 | 30]
+    // Prefer Bayesian prior band; fall back to mock data
+    const priorBand = band?.prior
+    // If we have a Bayesian posterior, overlay as posteriorP50/P10/P90
+    const postBand = band?.posterior
     return {
       day: `D${d.day}`,
-      // Use real ST P10/P50/P90 band when available for this day; fall back to mock
-      p90: st?.p90 ?? d.p90,
+      p90: priorBand?.p90 ?? d.p90,
       p75: d.p75,
-      p50: st?.p50 ?? d.p50,
+      p50: priorBand?.p50 ?? d.p50,
       p25: d.p25,
-      p10: st?.p10 ?? d.p10,
+      p10: priorBand?.p10 ?? d.p10,
       genre: d.genre,
+      // Posterior overlay (null when ML3 or no data)
+      postP90: postBand?.p90 ?? null,
+      postP50: postBand?.p50 ?? null,
+      postP10: postBand?.p10 ?? null,
     }
   })
 
@@ -153,10 +209,23 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
     >
       <ChartHeader
         title={`${t("chart.retention")} — D1 to D60`}
-        subtitle="포코머지 · 2026-03 코호트 · P10 / P50 / P90"
+        subtitle={
+          ml3
+            ? (locale === "ko" ? "포코머지 · 장르 사전 확률만 표시 (샘플 부족)" : "Poco Merge · Genre prior only (sample too small)")
+            : "포코머지 · 2026-03 코호트 · P10 / P50 / P90"
+        }
         info={t("info.retention")}
         insight={locale === "ko" ? "D14 코호트 안정화 이후 예측 구간이 좁아졌습니다." : "Prediction band tightened after D14 cohort stabilization."}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
+        actions={
+          <div className="flex items-center gap-2">
+            {ml3 && (
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
+                ML3 · Sample too small
+              </span>
+            )}
+            <ExpandButton expanded={expanded} onToggle={toggle} />
+          </div>
+        }
       />
       <div className="flex-1" style={{ minHeight: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -251,6 +320,44 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
             animationDuration={1000}
             animationEasing="ease-out"
           />
+
+          {/* Posterior overlay: Bayesian updated bands (only when sample ≥ threshold) */}
+          {!ml3 && (
+            <>
+              <Area
+                type="monotone"
+                dataKey="postP90"
+                stroke="none"
+                fill={C.p50}
+                fillOpacity={0.12}
+                connectNulls={false}
+                legendType="none"
+                isAnimationActive={false}
+              />
+              <Area
+                type="monotone"
+                dataKey="postP10"
+                stroke="none"
+                fill="#FFFFFF"
+                connectNulls={false}
+                legendType="none"
+                isAnimationActive={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="postP50"
+                stroke={C.p50}
+                strokeWidth={2.5}
+                strokeDasharray="6 3"
+                dot={false}
+                connectNulls={false}
+                name="Posterior P50"
+                animationBegin={600}
+                animationDuration={900}
+                animationEasing="ease-out"
+              />
+            </>
+          )}
 
           {/* Asymptotic arrival marker — custom interactive label */}
           <ReferenceLine

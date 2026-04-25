@@ -120,3 +120,17 @@ export async function fetchOrganicInstalls(
 ): Promise<CsvRow[]> {
   return fetchPullReport(devToken, params, "organic_installs_report")
 }
+
+export async function fetchInAppEvents(
+  devToken: string,
+  params: InstallsParams,
+): Promise<CsvRow[]> {
+  return fetchPullReport(devToken, params, "in_app_events_report")
+}
+
+export async function fetchOrganicInAppEvents(
+  devToken: string,
+  params: InstallsParams,
+): Promise<CsvRow[]> {
+  return fetchPullReport(devToken, params, "organic_in_app_events_report")
+}
