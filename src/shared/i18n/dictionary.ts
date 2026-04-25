@@ -646,6 +646,51 @@ const dictionary = {
   "mmm.badge.stale":                        { ko: "STALE · {{days}}일 경과", en: "STALE · {{days}}d old" },
   "mmm.badge.mock":                         { ko: "Mock (Phase 1)",  en: "Mock (Phase 1)" },
 
+  // === VC Simulation ===
+  "vc.page.title":             { ko: "투자 시뮬레이션", en: "VC Simulation" },
+  "vc.page.subtitle":          { ko: "VC 오퍼 조건을 입력해 36개월 수익률 분포 시뮬레이션", en: "Enter VC offer terms to simulate 36-month return distribution" },
+
+  "vc.preset.conservative":    { ko: "보수적", en: "Conservative" },
+  "vc.preset.standard":        { ko: "표준", en: "Standard" },
+  "vc.preset.aggressive":      { ko: "적극적", en: "Aggressive" },
+
+  "vc.field.investment":       { ko: "투자금", en: "Investment" },
+  "vc.field.postMoney":        { ko: "투자 후 기업가치", en: "Post-money valuation" },
+  "vc.field.exitMultiple":     { ko: "목표 회수 배수", en: "Target exit multiple" },
+  "vc.field.hurdleRate":       { ko: "최소 기대수익률", en: "Hurdle rate" },
+  "vc.field.uaShare":          { ko: "UA 비중", en: "UA share" },
+  "vc.field.opsShare":         { ko: "개발·운영 비중", en: "Dev & ops share" },
+  "vc.field.horizon":          { ko: "평가 기간", en: "Evaluation horizon" },
+  "vc.field.derived.equity":   { ko: "VC 지분율 (자동)", en: "VC equity % (auto)" },
+  "vc.field.derived.preMoney": { ko: "투자 전 기업가치 (자동)", en: "Pre-money (auto)" },
+
+  "vc.kpi.irr":                { ko: "연환산 수익률", en: "Annualized return (IRR)" },
+  "vc.kpi.moic":               { ko: "투자 배수", en: "Return multiple (MOIC)" },
+  "vc.kpi.payback":            { ko: "원금 회수 기간", en: "Payback period" },
+  "vc.kpi.jcurveBreakEven":    { ko: "J-커브 회복 시점", en: "J-curve break-even" },
+
+  "vc.baseline.withoutExperiment": { ko: "실험 없이", en: "Without experiments" },
+  "vc.baseline.withExperiment":    { ko: "실험 반영", en: "With experiments" },
+  "vc.baseline.gap":               { ko: "실험 기여분", en: "Experiment contribution" },
+
+  "vc.badge.dataSource.real":      { ko: "실데이터", en: "Real data" },
+  "vc.badge.dataSource.benchmark": { ko: "장르 벤치마크", en: "Genre benchmark" },
+  "vc.badge.dataSource.default":   { ko: "기본 추정", en: "Default estimate" },
+  "vc.badge.stale":                { ko: "모델 업데이트 필요", en: "Model needs refresh" },
+
+  "vc.error.convergence":      { ko: "IRR 수렴 불가 — 현금흐름 전부 음수 가능성", en: "IRR did not converge — likely all-negative cashflows" },
+  "vc.error.jcurveNoRecovery": { ko: "J-커브 회복 없음 — 실험 기여분 전 기간 음수", en: "No J-curve recovery — experiment contribution negative throughout" },
+  "vc.error.jcurveNoDrop":     { ko: "해당 없음 — 실험 비용이 초기부터 상쇄됨", en: "N/A — experiment cost offset from start" },
+  "vc.error.calcFailed":       { ko: "계산 실패", en: "Calculation failed" },
+
+  "vc.unit.months":            { ko: "개월", en: "months" },
+  "vc.unit.usd":               { ko: "USD", en: "USD" },
+
+  // === Nav groups ===
+  "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },
+  "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },
+  "nav.vc-simulation":         { ko: "투자 시뮬레이션", en: "VC Simulation" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary
