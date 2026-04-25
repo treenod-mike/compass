@@ -34,6 +34,14 @@ export async function resetIfDue(appId: string): Promise<void> {
   })
 }
 
+// Vercel Blob does not expose conditional / compare-and-set writes, so this
+// uses a claim-then-verify pattern: write our lease, jitter, re-read, and
+// only succeed if our execId is still the persisted holder. With daily cron
+// (~1 invocation/app/day) the residual race window is bounded by Blob's
+// read-after-write consistency (~tens of ms), well below the 300s TTL.
+const VERIFY_DELAY_MIN_MS = 80
+const VERIFY_DELAY_JITTER_MS = 80
+
 export async function acquireLock(appId: string, execId: string): Promise<boolean> {
   const state = await getState(appId)
   if (!state) return false
@@ -50,7 +58,11 @@ export async function acquireLock(appId: string, execId: string): Promise<boolea
       ttlMs: LOCK_TTL_MS as 300000,
     },
   })
-  return true
+  await new Promise((resolve) =>
+    setTimeout(resolve, VERIFY_DELAY_MIN_MS + Math.random() * VERIFY_DELAY_JITTER_MS),
+  )
+  const verified = await getState(appId)
+  return verified?.syncLock?.heldBy === execId
 }
 
 export async function releaseLock(appId: string, execId: string): Promise<void> {

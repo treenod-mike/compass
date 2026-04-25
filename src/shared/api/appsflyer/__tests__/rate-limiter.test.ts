@@ -16,7 +16,8 @@ const baseState = (overrides: Partial<AppState> = {}): AppState => ({
 
 describe("rate-limiter", () => {
   beforeEach(() => {
-    vi.useFakeTimers()
+    // Only fake Date — leave setTimeout real so acquireLock's verify-jitter resolves.
+    vi.useFakeTimers({ toFake: ["Date"] })
     vi.setSystemTime(new Date("2026-04-23T12:00:00Z"))
   })
   afterEach(() => {
