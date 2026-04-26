@@ -1,0 +1,6 @@
+export { MarketingSimControls } from "./ui/marketing-sim-controls"
+export { MarketingSimKpiTiles } from "./ui/marketing-sim-kpi-tiles"
+export { MarketingSimRoasChart } from "./ui/marketing-sim-roas-chart"
+export { MarketingSimRevenueCompare } from "./ui/marketing-sim-revenue-compare"
+export { useMarketingSim, DEFAULT_STATE } from "./lib/use-marketing-sim"
+export type { MarketingSimState, MarketingSimDerived } from "./lib/use-marketing-sim"
