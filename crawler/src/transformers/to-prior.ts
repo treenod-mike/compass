@@ -26,14 +26,19 @@ function avgMonthly(monthly: Array<{ month: string; value: number }>): number | 
   return monthly.reduce((s, m) => s + m.value, 0) / monthly.length;
 }
 
+// Same fallback rule used by both prior estimation and nonNullCount, so they
+// agree on which games actually contribute a per-month value.
+function periodRev(g: TopGame): number | null {
+  return g.revenue.monthly.length > 0 ? avgMonthly(g.revenue.monthly) : g.revenue.last90dTotalUsd;
+}
+function periodDl(g: TopGame): number | null {
+  return g.downloads.monthly.length > 0 ? avgMonthly(g.downloads.monthly) : g.downloads.last90dTotal;
+}
+
 export function computeGenrePrior(games: TopGame[]): Snapshot["genrePrior"] {
   const d1 = games.map((g) => g.retention.d1);
   const d7 = games.map((g) => g.retention.d7);
   const d30 = games.map((g) => g.retention.d30);
-  const periodRev = (g: TopGame) =>
-    g.revenue.monthly.length > 0 ? avgMonthly(g.revenue.monthly) : g.revenue.last90dTotalUsd;
-  const periodDl = (g: TopGame) =>
-    g.downloads.monthly.length > 0 ? avgMonthly(g.downloads.monthly) : g.downloads.last90dTotal;
   const monthlyRevs = games.map(periodRev);
   const monthlyDls = games.map(periodDl);
 
@@ -55,7 +60,7 @@ export function computeNonNullCount(games: TopGame[]): {
     retention_d1: games.filter((g) => typeof g.retention.d1 === "number").length,
     retention_d7: games.filter((g) => typeof g.retention.d7 === "number").length,
     retention_d30: games.filter((g) => typeof g.retention.d30 === "number").length,
-    monthlyRevenueUsd: games.filter((g) => typeof g.revenue.last90dTotalUsd === "number").length,
-    monthlyDownloads: games.filter((g) => typeof g.downloads.last90dTotal === "number").length,
+    monthlyRevenueUsd: games.filter((g) => typeof periodRev(g) === "number").length,
+    monthlyDownloads: games.filter((g) => typeof periodDl(g) === "number").length,
   };
 }

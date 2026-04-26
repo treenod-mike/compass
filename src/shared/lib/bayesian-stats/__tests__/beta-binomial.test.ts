@@ -32,9 +32,10 @@ describe("Beta-Binomial model", () => {
     })
 
     it("throws DegenerateDistributionError when variance too large (mu*(1-mu) <= variance)", () => {
-      // very wide distribution: p10=0.01, p90=0.99, p50=0.5 → variance would exceed max
+      // p50=0.9 → mu*(1-mu)=0.09; (p90-p10)/Z_RANGE → variance~0.146, which exceeds 0.09.
+      // (p50=0.5 wouldn't trip this gate — variance~0.146 < 0.25 — and would fall through to the rawTotal<1 branch.)
       expect(() =>
-        betaBinomialModel.priorFromEmpirical({ p10: 0.01, p50: 0.5, p90: 0.99 }, 20),
+        betaBinomialModel.priorFromEmpirical({ p10: 0.01, p50: 0.9, p90: 0.99 }, 20),
       ).toThrow(DegenerateDistributionError)
     })
   })
