@@ -77,6 +77,7 @@ function ApiConnectionForm({
   })
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<null | "ok" | "fail">(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const hasApiFields = Boolean(connection.apiFields && connection.apiFields.length > 0)
 
@@ -113,12 +114,16 @@ function ApiConnectionForm({
   }
 
   const handleSave = async () => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
     try {
       const { ok } = await postSync(false)
       if (ok) onDone()
       else setTestResult("fail")
     } catch {
       setTestResult("fail")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -205,16 +210,16 @@ function ApiConnectionForm({
         </button>
         <button
           type="button"
-          disabled={!allRequiredFilled || testResult !== "ok"}
+          disabled={!allRequiredFilled || testResult !== "ok" || isSubmitting}
           onClick={handleSave}
           className={cn(
             "rounded-full px-5 py-2 text-sm font-bold",
-            allRequiredFilled && testResult === "ok"
+            allRequiredFilled && testResult === "ok" && !isSubmitting
               ? "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.97] transition-transform"
               : "bg-muted text-muted-foreground cursor-not-allowed",
           )}
         >
-          저장 · 연동 시작
+          {isSubmitting ? "저장 중..." : "저장 · 연동 시작"}
         </button>
       </div>
     </div>
