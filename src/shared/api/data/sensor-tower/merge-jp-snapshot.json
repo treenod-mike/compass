@@ -14,7 +14,14 @@
       "retention missing for 69121c1e547ced419350f6e3",
       "retention missing for 68dc22021052067ace99108b",
       "포코머지가 Top 목록에 없음 — prior 전용 스냅샷"
-    ]
+    ],
+    "nonNullCount": {
+      "retention_d1": 16,
+      "retention_d7": 16,
+      "retention_d30": 16,
+      "monthlyRevenueUsd": 20,
+      "monthlyDownloads": 20
+    }
   },
   "topGames": [
     {

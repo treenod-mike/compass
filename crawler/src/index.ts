@@ -7,7 +7,7 @@ import { acquireLock, releaseLock } from "./lib/lockfile.js";
 import { fetchMarketSnapshot } from "./fetchers/market-snapshot.js";
 import { fetchRetentionSnapshot } from "./fetchers/retention-snapshot.js";
 import { extractGameIdSet, joinSnapshot, detectPocomerge } from "./transformers/join-snapshot.js";
-import { computeGenrePrior } from "./transformers/to-prior.js";
+import { computeGenrePrior, computeNonNullCount } from "./transformers/to-prior.js";
 import { writeSnapshotAtomic, writeLastUpdated } from "./storage/snapshot-writer.js";
 import { SnapshotSchema } from "./schemas/snapshot.js";
 import { env } from "./config/env.js";
@@ -76,6 +76,7 @@ async function runCrawl(opts: { dryRun?: boolean; limit?: number }): Promise<voi
         tier: targets.chart,
         crawlerVersion: CRAWLER_VERSION,
         warnings,
+        nonNullCount: computeNonNullCount(topGames),
       },
       topGames,
       genrePrior,
