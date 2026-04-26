@@ -191,7 +191,7 @@ Staleness 표시:
 
 ### Phase 2~3 (UI)
 - [ ] next build 성공, `/dashboard/marketing-sim` Static prerender
-- [ ] 슬라이더 입력 변경 시 200ms 이내 차트 갱신 (60fps 기준)
+- [ ] 슬라이더 입력 변경 시 p95 ≤ 200ms 이내로 차트 갱신 (interaction latency 기준)
 - [ ] CPI fallback genre 발생 시 ⚠ 배지 노출
 - [ ] retention 7일 stale 시 차트 상단 chip 노출
 - [ ] i18n ko/en 모두 노출 라벨 존재
