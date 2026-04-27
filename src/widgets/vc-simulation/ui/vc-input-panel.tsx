@@ -28,7 +28,7 @@ export function VcInputPanel({ initial = DEFAULT_OFFER, onChange }: Props) {
   }
 
   return (
-    <div className="sticky top-[80px] h-fit border border-[var(--bg-4)] rounded-[var(--radius-card)] p-5 bg-[var(--bg-1)]">
+    <div className="sticky top-[80px] h-fit rounded-2xl border border-border bg-card p-5">
       <PresetTabs
         active={activePreset}
         onSelect={(preset) => {

@@ -46,14 +46,14 @@ export function IrrHistogramPair({ result }: Props) {
   const maxCount = Math.max(...histA, ...histB, 1)
 
   return (
-    <div className="grid grid-cols-2 gap-4 border border-[var(--bg-4)] rounded-[var(--radius-card)] p-4 bg-[var(--bg-1)]">
+    <div className="grid grid-cols-2 gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary">
       <div>
-        <div className="text-xs text-[var(--fg-2)] mb-2">{t("vc.baseline.withoutExperiment")}</div>
-        <ParentSize>{({ width }) => <Histogram data={histA} maxCount={maxCount} width={width} height={140} color="var(--fg-1)" />}</ParentSize>
+        <div className="text-xs text-muted-foreground mb-2">{t("vc.baseline.withoutExperiment")}</div>
+        <ParentSize>{({ width }) => <Histogram data={histA} maxCount={maxCount} width={width} height={140} color="var(--muted-foreground)" />}</ParentSize>
       </div>
       <div>
-        <div className="text-xs text-[var(--fg-2)] mb-2">{t("vc.baseline.withExperiment")}</div>
-        <ParentSize>{({ width }) => <Histogram data={histB} maxCount={maxCount} width={width} height={140} color="var(--brand)" />}</ParentSize>
+        <div className="text-xs text-muted-foreground mb-2">{t("vc.baseline.withExperiment")}</div>
+        <ParentSize>{({ width }) => <Histogram data={histB} maxCount={maxCount} width={width} height={140} color="var(--primary)" />}</ParentSize>
       </div>
     </div>
   )
