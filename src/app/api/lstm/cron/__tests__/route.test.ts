@@ -28,6 +28,8 @@ const SECRET = "test-secret"
 beforeEach(() => {
   vi.clearAllMocks()
   process.env.CRON_SECRET = SECRET
+  vi.spyOn(console, "error").mockImplementation(() => {})
+  vi.spyOn(console, "warn").mockImplementation(() => {})
 })
 
 const cohortSummary = (cohortDays: number, revenueDays: number) => ({
@@ -91,5 +93,41 @@ describe("GET /api/lstm/cron", () => {
     expect(body.processed).toEqual([])
     expect(body.skipped).toEqual([{ gameId: "x", reason: "missing_genre_meta" }])
     expect(writeLstmSnapshots).not.toHaveBeenCalled()
+  })
+
+  it("processes sufficient apps and skips bad ones in mixed batch", async () => {
+    mockReadAllApps.mockResolvedValueOnce([
+      { appId: "poko_merge", gameKey: "portfolio", label: "P", genre: "Merge", region: "JP" },
+      { appId: "x", gameKey: "portfolio", label: "X" },
+    ])
+    mockReadCohortSummary
+      .mockResolvedValueOnce(cohortSummary(32, 14))
+      .mockResolvedValueOnce(cohortSummary(32, 14))
+    const res = await GET(buildRequest(SECRET))
+    const body = await res.json()
+    expect(body.processed).toEqual(["poko_merge"])
+    expect(body.skipped).toEqual([{ gameId: "x", reason: "missing_genre_meta" }])
+    expect(writeLstmSnapshots).toHaveBeenCalledTimes(1)
+  })
+
+  it("returns 502 when writeLstmSnapshots throws", async () => {
+    mockReadAllApps.mockResolvedValueOnce([
+      { appId: "poko_merge", gameKey: "portfolio", label: "P", genre: "Merge", region: "JP" },
+    ])
+    mockReadCohortSummary.mockResolvedValueOnce(cohortSummary(32, 14))
+    vi.mocked(writeLstmSnapshots).mockRejectedValueOnce(new Error("blob 503"))
+    const res = await GET(buildRequest(SECRET))
+    expect(res.status).toBe(502)
+    const body = await res.json()
+    expect(body.error).toBe("blob_put_failed")
+    expect(body.message).toContain("blob 503")
+  })
+
+  it("returns 502 when readAllApps throws", async () => {
+    mockReadAllApps.mockRejectedValueOnce(new Error("list 500"))
+    const res = await GET(buildRequest(SECRET))
+    expect(res.status).toBe(502)
+    const body = await res.json()
+    expect(body.error).toBe("blob_fetch_failed")
   })
 })

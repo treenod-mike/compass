@@ -18,7 +18,14 @@ export async function readAllApps(): Promise<App[]> {
     if (!res.ok) continue
     const json = await res.json()
     const parsed = AppSchema.safeParse(json)
-    if (parsed.success) out.push(parsed.data)
+    if (parsed.success) {
+      out.push(parsed.data)
+    } else {
+      console.warn(
+        `[lstm-cron-io] AppSchema parse failed for ${b.pathname}:`,
+        parsed.error.message,
+      )
+    }
   }
   return out
 }
@@ -30,5 +37,10 @@ export async function readCohortSummary(appId: string): Promise<CohortSummary | 
   if (!res.ok) return null
   const json = await res.json()
   const parsed = CohortSummarySchema.safeParse(json)
-  return parsed.success ? parsed.data : null
+  if (parsed.success) return parsed.data
+  console.warn(
+    `[lstm-cron-io] CohortSummarySchema parse failed for ${appId}:`,
+    parsed.error.message,
+  )
+  return null
 }

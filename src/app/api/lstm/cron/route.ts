@@ -13,18 +13,21 @@ type Skipped = {
 }
 
 export const dynamic = "force-dynamic"
+export const maxDuration = 300
 
 export async function GET(req: Request): Promise<Response> {
   const startedAt = Date.now()
+  const expected = process.env.CRON_SECRET
   const auth = req.headers.get("authorization") ?? ""
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response("unauthorized", { status: 401 })
+  if (!expected || auth !== `Bearer ${expected}`) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 })
   }
 
   let apps: Awaited<ReturnType<typeof readAllApps>>
   try {
     apps = await readAllApps()
-  } catch {
+  } catch (err) {
+    console.error("[lstm-cron] readAllApps failed:", err)
     return NextResponse.json({ ok: false, error: "blob_fetch_failed" }, { status: 502 })
   }
 
@@ -49,7 +52,8 @@ export async function GET(req: Request): Promise<Response> {
     let summary: Awaited<ReturnType<typeof readCohortSummary>>
     try {
       summary = await readCohortSummary(app.appId)
-    } catch {
+    } catch (err) {
+      console.error(`[lstm-cron] readCohortSummary failed for ${app.appId}:`, err)
       skipped.push({ gameId: app.appId, reason: "input_schema_invalid" })
       continue
     }
@@ -82,7 +86,8 @@ export async function GET(req: Request): Promise<Response> {
         prior: bundle.retention,
         priorEffectiveN: bundle.effectiveN,
       })
-    } catch {
+    } catch (err) {
+      console.error(`[lstm-cron] buildGameForecast failed for ${app.appId}:`, err)
       skipped.push({ gameId: app.appId, reason: "forecast_failed" })
       continue
     }
@@ -149,6 +154,7 @@ export async function GET(req: Request): Promise<Response> {
   try {
     urls = await writeLstmSnapshots({ retentionSnapshot, revenueSnapshot })
   } catch (err) {
+    console.error("[lstm-cron] writeLstmSnapshots failed:", err)
     return NextResponse.json(
       { ok: false, error: "blob_put_failed", message: String(err) },
       { status: 502 },
