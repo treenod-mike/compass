@@ -4,6 +4,7 @@
   "buildCommand": "next build",
   "installCommand": "npm install --legacy-peer-deps",
   "crons": [
-    { "path": "/api/appsflyer/cron", "schedule": "0 18 * * *" }
+    { "path": "/api/appsflyer/cron", "schedule": "0 18 * * *" },
+    { "path": "/api/lstm/cron",      "schedule": "30 18 * * *" }
   ]
 }
