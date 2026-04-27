@@ -216,6 +216,11 @@ export const CohortObservationSchema = z.object({
     d7: z.number().int().nonnegative().nullable(),
     d30: z.number().int().nonnegative().nullable(),
   }),
+  // null = home_currency unsupported by FX layer (e.g. JPY/EUR) OR no costed
+  // installs in this cohort. Distinguished from 0 (organic-only cohort with
+  // a supported currency). Defaulted on parse so older blob entries written
+  // before this field existed continue to deserialize.
+  uaSpendUsd: z.number().nullable().default(null),
 })
 export type CohortObservation = z.infer<typeof CohortObservationSchema>
 
@@ -235,6 +240,15 @@ export const CohortSummarySchema = z.object({
       purchasers: z.number().int().nonnegative(),
     }),
   }),
+  // Aggregate UA spend in USD across all cohorts, plus the home_currency the
+  // app was registered with. null totalUsd means the home_currency was not
+  // FX-supported (currently anything other than USD/KRW).
+  spend: z
+    .object({
+      totalUsd: z.number().nullable(),
+      homeCurrency: z.string(),
+    })
+    .default({ totalUsd: null, homeCurrency: "USD" }),
 })
 export type CohortSummary = z.infer<typeof CohortSummarySchema>
 

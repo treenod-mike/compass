@@ -5,6 +5,7 @@ const cohort = (date: string, installs: number, d1: number | null, d7: number | 
   cohortDate: date,
   installs,
   retainedByDay: { d1, d7, d30 },
+  uaSpendUsd: null,
 })
 
 describe("estimateArpdau", () => {

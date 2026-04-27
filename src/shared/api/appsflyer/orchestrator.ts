@@ -181,7 +181,7 @@ export async function runAppsFlyerSync(
     }))
     const allInstalls = await readAllInstalls(appId)
     const allEvents = await readAllEvents(appId)
-    const summary = aggregate(allInstalls, allEvents)
+    const summary = aggregate(allInstalls, allEvents, account.currency)
     await putCohortSummary(appId, summary)
 
     return await mutateState(appId, () => ({
