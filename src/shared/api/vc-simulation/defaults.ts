@@ -7,7 +7,7 @@ export const PRESETS: Record<"conservative" | "standard" | "aggressive", Offer> 
     exitMultiple: 2,
     hurdleRate: 0.25,
     uaSharePct: 60,
-    horizonMonths: 36,
+    horizonMonths: 12,
   },
   standard: {
     investmentUsd: 3_000_000,
@@ -15,7 +15,7 @@ export const PRESETS: Record<"conservative" | "standard" | "aggressive", Offer> 
     exitMultiple: 3,
     hurdleRate: 0.2,
     uaSharePct: 60,
-    horizonMonths: 36,
+    horizonMonths: 12,
   },
   aggressive: {
     investmentUsd: 5_000_000,
@@ -23,7 +23,7 @@ export const PRESETS: Record<"conservative" | "standard" | "aggressive", Offer> 
     exitMultiple: 5,
     hurdleRate: 0.15,
     uaSharePct: 70,
-    horizonMonths: 36,
+    horizonMonths: 12,
   },
 }
 

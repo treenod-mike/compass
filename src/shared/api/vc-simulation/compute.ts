@@ -44,14 +44,23 @@ type Sources = {
   appsflyerInitialCash: number
 }
 
+type SimulationPath = {
+  /** Net cash position per month (initial cash + cumulative net cash flow). */
+  cash: number[]
+  /** Cumulative gross revenue per month (monotonic non-decreasing). */
+  cumRevenue: number[]
+}
+
 function simulateOnePath(
   offer: Offer,
   sources: Sources,
   rng: () => number,
   withExperiment: boolean
-): number[] {
-  const cashflow: number[] = []
+): SimulationPath {
+  const cash: number[] = []
+  const cumRevenue: number[] = []
   let cumulative = sources.appsflyerInitialCash + offer.investmentUsd
+  let cumRev = 0
 
   const uaBudgetTotal = offer.investmentUsd * (offer.uaSharePct / 100)
   const opsBudgetTotal = offer.investmentUsd * ((100 - offer.uaSharePct) / 100)
@@ -66,7 +75,8 @@ function simulateOnePath(
   const expCostMonthly = withExperiment ? monthlyUa * 0.1 : 0
   const expEffectStartMonth = 6
 
-  cashflow.push(cumulative)
+  cash.push(cumulative)
+  cumRevenue.push(0)
   for (let t = 1; t <= offer.horizonMonths; t++) {
     const installs = monthlyUa / CPI
     const liftFactor = t >= expEffectStartMonth ? 1 + expDeltaLtv : 1
@@ -77,24 +87,32 @@ function simulateOnePath(
     }
     const cost = monthlyUa + monthlyOps + expCostMonthly
     cumulative += cohortRev - cost
-    cashflow.push(cumulative)
+    cumRev += cohortRev
+    cash.push(cumulative)
+    cumRevenue.push(cumRev)
   }
-  return cashflow
+  return { cash, cumRevenue }
 }
 
 export function computeVcSimulation(offer: Offer, sources: Sources): VcSimResult {
   const seed = JSON.stringify({ offer, gameId: sources.gameId })
   const rng = makeSeededRng(seed)
 
-  const samplesA: number[][] = []
-  const samplesB: number[][] = []
+  const cashSamplesA: number[][] = []
+  const revSamplesA: number[][] = []
+  const cashSamplesB: number[][] = []
+  const revSamplesB: number[][] = []
   for (let i = 0; i < MONTE_CARLO_SAMPLES; i++) {
-    samplesA.push(simulateOnePath(offer, sources, rng, false))
-    samplesB.push(simulateOnePath(offer, sources, rng, true))
+    const a = simulateOnePath(offer, sources, rng, false)
+    cashSamplesA.push(a.cash)
+    revSamplesA.push(a.cumRevenue)
+    const b = simulateOnePath(offer, sources, rng, true)
+    cashSamplesB.push(b.cash)
+    revSamplesB.push(b.cumRevenue)
   }
 
-  const baselineA = buildBaseline(samplesA, offer)
-  const baselineB = buildBaseline(samplesB, offer)
+  const baselineA = buildBaseline(cashSamplesA, revSamplesA, offer)
+  const baselineB = buildBaseline(cashSamplesB, revSamplesB, offer)
   const gap = baselineB.runway.map((pt, i) => pt.p50 - baselineA.runway[i].p50)
   const jCurveBreakEven = findBreakEvenMonth(gap)
 
@@ -114,20 +132,32 @@ function percentile(arr: number[], p: number): number {
   return sorted[Math.min(sorted.length - 1, idx)]
 }
 
-function buildBaseline(samples: number[][], offer: Offer): BaselineResult {
-  const months = samples[0].length
+function buildBaseline(
+  cashSamples: number[][],
+  revSamples: number[][],
+  offer: Offer
+): BaselineResult {
+  const months = cashSamples[0].length
   const runway: RunwayPoint[] = []
+  const cumulativeRevenue: RunwayPoint[] = []
   for (let m = 0; m < months; m++) {
-    const slice = samples.map((s) => s[m])
+    const cashSlice = cashSamples.map((s) => s[m])
     runway.push({
       month: m,
-      p10: percentile(slice, 0.1),
-      p50: percentile(slice, 0.5),
-      p90: percentile(slice, 0.9),
+      p10: percentile(cashSlice, 0.1),
+      p50: percentile(cashSlice, 0.5),
+      p90: percentile(cashSlice, 0.9),
+    })
+    const revSlice = revSamples.map((s) => s[m])
+    cumulativeRevenue.push({
+      month: m,
+      p10: percentile(revSlice, 0.1),
+      p50: percentile(revSlice, 0.5),
+      p90: percentile(revSlice, 0.9),
     })
   }
   const irrs: number[] = []
-  for (const path of samples) {
+  for (const path of cashSamples) {
     const monthlyNet = path.slice(1).map((v, i) => v - path[i])
     const flows = [-offer.investmentUsd, ...monthlyNet]
     const irr = computeIrr(flows)
@@ -135,13 +165,13 @@ function buildBaseline(samples: number[][], offer: Offer): BaselineResult {
   }
   const p50Irr = irrs.length > 0 ? percentile(irrs, 0.5) : NaN
   const finalCash = percentile(
-    samples.map((s) => s[months - 1]),
+    cashSamples.map((s) => s[months - 1]),
     0.5
   )
   const p50Moic = finalCash / offer.investmentUsd
-  const paybackMonths = findPaybackMonth(samples, offer.investmentUsd)
+  const paybackMonths = findPaybackMonth(cashSamples, offer.investmentUsd)
 
-  return { runway, irrDistribution: irrs, p50Irr, p50Moic, paybackMonths }
+  return { runway, cumulativeRevenue, irrDistribution: irrs, p50Irr, p50Moic, paybackMonths }
 }
 
 function computeIrr(flows: number[]): number {

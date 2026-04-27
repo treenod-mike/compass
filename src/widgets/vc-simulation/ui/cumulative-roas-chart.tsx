@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -12,39 +13,58 @@ import {
   YAxis,
   Tooltip,
 } from "recharts"
+import { clsx } from "clsx"
 import type { VcSimResult } from "@/shared/api/vc-simulation"
 import { useLocale } from "@/shared/i18n"
 
 type Props = { result: VcSimResult }
+type Granularity = "monthly" | "quarterly"
 
 /**
  * CumulativeRoasChart — VC 시뮬레이터 핵심 시각화.
  *
- * "내가 입력한 조건으로 누적 ROAS가 언제 BEP(100%)를 뚫는가" 단일 질문에
- * 답하는 차트. 실험 비교(A vs B)는 본질이 아니므로 baselineB(실험 반영)
- * 단일 곡선만 표시한다.
+ * 결정권자 친화 ROAS 정의: 누적 매출 / 투자금 × 100 (단조 증가).
+ * 100% 도달 = 매출만으로 투자금을 회수한 시점 (BEP).
+ * baselineB(실험 반영) 단일 곡선만 표시. A/B 비교는 시뮬레이터 본질이 아님.
  *
- * - p50 = derived `runway[m].p50 / investment * 100`
- * - 100% 가로선 = BEP(본전선)
- * - paybackMonths = ROAS가 100%를 처음 넘는 월 → vertical 마커
- * - 100% 미만 영역 → destructive 톤(적자), 이상 → success 톤(흑자)
+ * X축 단위: monthly / quarterly 토글. compute가 month 단위라 daily는
+ * false precision이라 옵션에서 제외.
  */
 export function CumulativeRoasChart({ result }: Props) {
   const { t } = useLocale()
+  const [granularity, setGranularity] = useState<Granularity>("monthly")
+
   const investment = result.offer.investmentUsd
-  const data = result.baselineB.runway.map((p) => ({
+  const horizon = result.offer.horizonMonths
+
+  const monthlyPoints = result.baselineB.cumulativeRevenue.map((p) => ({
     month: p.month,
     p10: (p.p10 / investment) * 100,
     p50: (p.p50 / investment) * 100,
     p90: (p.p90 / investment) * 100,
   }))
-  const breakEven = result.baselineB.paybackMonths
-  const breakEvenP50 =
-    breakEven != null && data[breakEven] ? data[breakEven].p50 : null
 
-  // y-axis: 0 → ceil(max p90 / 50) * 50, 최소 BEP 100%는 항상 보이게.
-  const maxP90 = Math.max(...data.map((d) => d.p90), 100)
+  // Quarterly mode: 데이터 자체를 분기 끝 시점으로 압축. M0, M3, M6, M9, M12.
+  const data =
+    granularity === "monthly"
+      ? monthlyPoints
+      : monthlyPoints.filter(
+          (p) => p.month === 0 || p.month % 3 === 0 || p.month === horizon
+        )
+
+  // BEP는 항상 monthly 정확도로 검출 (quarterly mode에서도 정직한 시점).
+  const bepIdx = monthlyPoints.findIndex((p) => p.p50 >= 100)
+  const bepMonth = bepIdx > 0 ? monthlyPoints[bepIdx].month : null
+  const bepP50 = bepMonth != null ? monthlyPoints[bepMonth].p50 : null
+
+  const maxP90 = Math.max(...monthlyPoints.map((d) => d.p90), 100)
   const yMax = Math.max(100, Math.ceil(maxP90 / 50) * 50)
+
+  const tickFormatter = (m: number) => {
+    if (granularity === "monthly") return `M${m}`
+    if (m === 0) return "M0"
+    return `${m / 3}${t("vc.unit.quarter")}`
+  }
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary">
@@ -57,17 +77,38 @@ export function CumulativeRoasChart({ result }: Props) {
             {t("vc.chart.cumulativeRoas.subtitle")}
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
-            {t("vc.chart.cumulativeRoas.headerLabel")}
+        <div className="flex items-start gap-3 shrink-0">
+          {/* Granularity toggle */}
+          <div className="flex items-center rounded-md bg-muted p-0.5">
+            {(["monthly", "quarterly"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => setGranularity(g)}
+                className={clsx(
+                  "text-[11px] font-medium px-2.5 py-1 rounded-[5px] transition-colors",
+                  granularity === g
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {t(`vc.chart.cumulativeRoas.granularity.${g}` as const)}
+              </button>
+            ))}
           </div>
-          <div
-            className="mt-1.5 text-[28px] md:text-[32px] font-extrabold leading-none tabular-nums text-foreground"
-            style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
-          >
-            {breakEven != null
-              ? `${breakEven}${t("vc.unit.months")}`
-              : t("vc.chart.cumulativeRoas.noRecovery")}
+
+          {/* BEP conclusion */}
+          <div className="text-right">
+            <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+              {t("vc.chart.cumulativeRoas.headerLabel")}
+            </div>
+            <div
+              className="mt-1.5 text-[28px] md:text-[32px] font-extrabold leading-none tabular-nums text-foreground"
+              style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
+            >
+              {bepMonth != null
+                ? `${bepMonth}${t("vc.unit.months")}`
+                : t("vc.chart.cumulativeRoas.noRecovery")}
+            </div>
           </div>
         </div>
       </div>
@@ -93,7 +134,7 @@ export function CumulativeRoasChart({ result }: Props) {
             dataKey="month"
             fontSize={10}
             stroke="var(--muted-foreground)"
-            tickFormatter={(m) => `M${m}`}
+            tickFormatter={tickFormatter}
           />
           <YAxis
             fontSize={10}
@@ -119,7 +160,7 @@ export function CumulativeRoasChart({ result }: Props) {
               const key = String(name)
               return [`${num.toFixed(0)}%`, labelMap[key] ?? key]
             }}
-            labelFormatter={(m) => `M${m}`}
+            labelFormatter={(m) => tickFormatter(Number(m))}
           />
 
           {/* Uncertainty band: paint p90 (top), then mask up to p10 with card bg.
@@ -163,25 +204,25 @@ export function CumulativeRoasChart({ result }: Props) {
           />
 
           {/* Break-even vertical marker + dot at intersection */}
-          {breakEven != null && breakEven > 0 && (
+          {bepMonth != null && bepMonth > 0 && (
             <>
               <ReferenceLine
-                x={breakEven}
+                x={bepMonth}
                 stroke="var(--success)"
                 strokeWidth={2}
                 strokeDasharray="4 3"
                 label={{
-                  value: `M${breakEven} ${t("vc.chart.cumulativeRoas.crossover")}`,
+                  value: `${tickFormatter(bepMonth)} ${t("vc.chart.cumulativeRoas.crossover")}`,
                   position: "top",
                   fontSize: 11,
                   fill: "var(--success)",
                   offset: 6,
                 }}
               />
-              {breakEvenP50 != null && (
+              {bepP50 != null && (
                 <ReferenceDot
-                  x={breakEven}
-                  y={breakEvenP50}
+                  x={bepMonth}
+                  y={bepP50}
                   r={5}
                   fill="var(--success)"
                   stroke="var(--card)"
