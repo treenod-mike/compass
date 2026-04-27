@@ -381,6 +381,26 @@
   /* ── TDS Font ── */
   --font-sans: 'Pretendard Variable', 'Pretendard', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+  /* ── Z-Index Utilities (sync with src/shared/config/z-index.ts) ── */
+  --z-base: 0;
+  --z-content-raised: 1;
+  --z-chart-bar: 10;
+  --z-chart-bar-active: 20;
+  --z-sticky-header: 30;
+  --z-chart-axis: 40;
+  --z-chart-overlay: 50;
+  --z-app-top-bar: 60;
+  --z-sidebar: 70;
+  --z-page-header: 80;
+  --z-mega-menu: 90;
+  --z-dropdown: 100;
+  --z-overlay-backdrop: 200;
+  --z-modal: 210;
+  --z-popover: 220;
+  --z-tooltip: 300;
+  --z-notification: 400;
+  --z-dev-overlay: 9999;
 }
 
 body {
@@ -408,6 +428,27 @@ body {
     border-radius: calc(var(--radius) * 3);
   }
 }
+
+/* ── Z-Index Utilities (Tailwind v4 @utility — sync with src/shared/config/z-index.ts) ──
+   Tailwind v4는 --z-* 네임스페이스를 자동 유틸리티로 만들지 않으므로 @utility로 명시 선언. */
+@utility z-base { z-index: var(--z-base); }
+@utility z-content-raised { z-index: var(--z-content-raised); }
+@utility z-chart-bar { z-index: var(--z-chart-bar); }
+@utility z-chart-bar-active { z-index: var(--z-chart-bar-active); }
+@utility z-sticky-header { z-index: var(--z-sticky-header); }
+@utility z-chart-axis { z-index: var(--z-chart-axis); }
+@utility z-chart-overlay { z-index: var(--z-chart-overlay); }
+@utility z-app-top-bar { z-index: var(--z-app-top-bar); }
+@utility z-sidebar { z-index: var(--z-sidebar); }
+@utility z-page-header { z-index: var(--z-page-header); }
+@utility z-mega-menu { z-index: var(--z-mega-menu); }
+@utility z-dropdown { z-index: var(--z-dropdown); }
+@utility z-overlay-backdrop { z-index: var(--z-overlay-backdrop); }
+@utility z-modal { z-index: var(--z-modal); }
+@utility z-popover { z-index: var(--z-popover); }
+@utility z-tooltip { z-index: var(--z-tooltip); }
+@utility z-notification { z-index: var(--z-notification); }
+@utility z-dev-overlay { z-index: var(--z-dev-overlay); }
 
 @theme inline {
   --color-sidebar: var(--sidebar);
