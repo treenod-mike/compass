@@ -1,6 +1,5 @@
 export { VcInputPanel } from "./ui/vc-input-panel"
 export { VcKpiStrip } from "./ui/vc-kpi-strip"
 export { VcResultBoard } from "./ui/vc-result-board"
+export { CumulativeRoasChart } from "./ui/cumulative-roas-chart"
 export { DualBaselineRunwayChart } from "./ui/dual-baseline-runway-chart"
-export { IrrHistogramPair } from "./ui/irr-histogram-pair"
-export { JCurveStrip } from "./ui/j-curve-strip"

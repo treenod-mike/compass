@@ -686,6 +686,18 @@ const dictionary = {
   "vc.unit.months":            { ko: "개월", en: "months" },
   "vc.unit.usd":               { ko: "USD", en: "USD" },
 
+  "vc.runway.title":                       { ko: "현금잔고 추이 ($K)", en: "Cash balance over time ($K)" },
+
+  "vc.chart.cumulativeRoas.title":         { ko: "누적 ROAS", en: "Cumulative ROAS" },
+  "vc.chart.cumulativeRoas.subtitle":      { ko: "투자금 대비 회수율 — BEP 100% 도달 시점이 본전 회수", en: "Cumulative return vs investment — 100% = break-even" },
+  "vc.chart.cumulativeRoas.headerLabel":   { ko: "본전 회수까지", en: "Time to break-even" },
+  "vc.chart.cumulativeRoas.noRecovery":    { ko: "회수 불가", en: "No payback" },
+  "vc.chart.cumulativeRoas.bep":           { ko: "BEP 100% (본전선)", en: "BEP 100% (break-even)" },
+  "vc.chart.cumulativeRoas.crossover":     { ko: "본전 회수", en: "break-even" },
+  "vc.chart.cumulativeRoas.p50":           { ko: "기준 추정 (P50)", en: "Median (P50)" },
+  "vc.chart.cumulativeRoas.p10":           { ko: "비관 시나리오 (P10)", en: "Pessimistic (P10)" },
+  "vc.chart.cumulativeRoas.p90":           { ko: "낙관 시나리오 (P90)", en: "Optimistic (P90)" },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },
   "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },
