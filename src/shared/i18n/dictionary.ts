@@ -717,6 +717,12 @@ const dictionary = {
   "vc.gap.tone.strongUp":          { ko: "시뮬이 너무 보수적", en: "Simulation is overly conservative" },
   "vc.gap.tone.modestDown":        { ko: "실측 미달 — 시뮬이 낙관적", en: "Actual underperforms — simulation is optimistic" },
   "vc.gap.tone.strongDown":        { ko: "시뮬이 너무 낙관적", en: "Simulation is overly optimistic" },
+  "vc.gap.ltvCpi.label":           { ko: "LTV/CPI", en: "LTV/CPI" },
+  "vc.gap.ltvCpi.actual":          { ko: "실측", en: "Actual" },
+  "vc.gap.ltvCpi.sim":             { ko: "시뮬", en: "Sim" },
+  "vc.gap.fxNote":                 { ko: "환율은 분기 평균 환산표 적용", en: "FX uses quarterly-average rates" },
+  "vc.gap.fxUnsupported":          { ko: "{currency}은 환산 미지원 — LTV/CPI 비교 생략", en: "{currency} not FX-supported — LTV/CPI gap unavailable" },
+  "vc.gap.noPaidInstalls":         { ko: "유료 설치 없음 — LTV/CPI 비교 생략", en: "No paid installs — LTV/CPI gap unavailable" },
 
   // === Insights panel ===
   "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },

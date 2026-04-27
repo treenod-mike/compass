@@ -20,6 +20,7 @@ import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
 import {
   computeBenchmarkGap,
   formatGapPct,
+  formatLtvPerCpi,
   toneClass,
 } from "../lib/benchmark-gap"
 
@@ -245,26 +246,105 @@ export function CumulativeRoasChart({ result }: Props) {
 
       {/* Benchmark vs actual gap chip — sits as a footer companion to the
           chart so the decision-maker sees at a glance whether the simulator's
-          puzzle/casual benchmark assumptions align with their game's actuals. */}
-      <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between gap-3 text-[11px] flex-wrap">
-        <span className="text-muted-foreground/80">
-          {t("vc.gap.label")}
-        </span>
-        {benchmark.status === "active" && benchmark.gap !== null && benchmark.tone ? (
-          <span className="flex items-baseline gap-2 font-mono tabular-nums">
-            <span className="text-muted-foreground/70">
-              {benchmark.selected === "d30"
-                ? t("vc.gap.window.d30")
-                : t("vc.gap.window.cumulative")}
-            </span>
-            <span className={toneClass(benchmark.tone)}>
-              {formatGapPct(benchmark.gap)} ·{" "}
-              {t(`vc.gap.tone.${benchmark.tone}` as TranslationKey)}
-            </span>
-          </span>
-        ) : (
-          <span className="text-muted-foreground/60">{t("vc.gap.disconnected")}</span>
-        )}
+          puzzle/casual benchmark assumptions align with their game's actuals.
+          Phase 2: shows actual + simulated LTV/CPI for both windows
+          (D30 + cumulative) per spec §2.3, with the auto-selected window in
+          tone-colored type. */}
+      <div className="mt-3 pt-3 border-t border-border/60 text-[11px]">
+        {(() => {
+          if (benchmark.status !== "active") {
+            return (
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-muted-foreground/80">{t("vc.gap.label")}</span>
+                <span className="text-muted-foreground/60">{t("vc.gap.disconnected")}</span>
+              </div>
+            )
+          }
+
+          if (benchmark.spendStatus === "fxUnsupported") {
+            const homeCurrency = summary?.spend?.homeCurrency ?? "—"
+            return (
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-muted-foreground/80">{t("vc.gap.label")}</span>
+                <span className="text-muted-foreground/70">
+                  {t("vc.gap.fxUnsupported").replace("{currency}", homeCurrency)}
+                </span>
+              </div>
+            )
+          }
+
+          if (benchmark.spendStatus === "noPaidInstalls") {
+            return (
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-muted-foreground/80">{t("vc.gap.label")}</span>
+                <span className="text-muted-foreground/70">{t("vc.gap.noPaidInstalls")}</span>
+              </div>
+            )
+          }
+
+          if (benchmark.gap === null || benchmark.tone === null) {
+            return (
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-muted-foreground/80">{t("vc.gap.label")}</span>
+                <span className="text-muted-foreground/60">{t("vc.gap.disconnected")}</span>
+              </div>
+            )
+          }
+
+          const tone = toneClass(benchmark.tone)
+          const showFxNote = summary?.spend?.homeCurrency && summary.spend.homeCurrency !== "USD"
+          return (
+            <div className="space-y-1.5">
+              {/* Row 1: label · gap %+tone */}
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-muted-foreground/80">
+                  {t("vc.gap.label")}
+                  <span className="text-muted-foreground/60 ml-2">
+                    {benchmark.selected === "d30"
+                      ? t("vc.gap.window.d30")
+                      : t("vc.gap.window.cumulative")}
+                  </span>
+                </span>
+                <span className={clsx("font-mono tabular-nums", tone)}>
+                  {formatGapPct(benchmark.gap)} ·{" "}
+                  {t(`vc.gap.tone.${benchmark.tone}` as TranslationKey)}
+                </span>
+              </div>
+
+              {/* Row 2: actual + simulated LTV/CPI breakdown (both windows) */}
+              <div className="flex items-baseline justify-between gap-3 flex-wrap text-[10px] text-muted-foreground/80">
+                <span>
+                  {t("vc.gap.ltvCpi.actual")}{" "}
+                  <span className="font-mono tabular-nums">
+                    D30{" "}
+                    <span className={benchmark.selected === "d30" ? tone : ""}>
+                      {benchmark.d30LtvPerCpi !== null
+                        ? formatLtvPerCpi(benchmark.d30LtvPerCpi)
+                        : "—"}
+                    </span>{" "}
+                    /{" "}
+                    {t("vc.gap.window.cumulative").includes("누적") ? "누적" : "Cum"}{" "}
+                    <span className={benchmark.selected === "cumulative" ? tone : ""}>
+                      {benchmark.cumLtvPerCpi !== null
+                        ? formatLtvPerCpi(benchmark.cumLtvPerCpi)
+                        : "—"}
+                    </span>
+                  </span>
+                </span>
+                <span className="font-mono tabular-nums">
+                  {t("vc.gap.ltvCpi.sim")} D30 {formatLtvPerCpi(benchmark.simD30LtvPerCpi)} /{" "}
+                  {formatLtvPerCpi(benchmark.simCumLtvPerCpi)}
+                </span>
+              </div>
+
+              {showFxNote && (
+                <div className="text-[9px] text-muted-foreground/50 text-right">
+                  {t("vc.gap.fxNote")}
+                </div>
+              )}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
