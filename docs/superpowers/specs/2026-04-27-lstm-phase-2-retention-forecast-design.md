@@ -58,6 +58,7 @@ W9 디자인 스펙(2026-04-26)이 정의한 LSTM 파이프라인의 **compute l
 
 ### 신규 의존성
 - AppsFlyer apps Blob에 `genre`(예: `"Merge"`)와 `region`(예: `"JP"`) 필드 추가. connections 등록 dialog의 form에 select 두 개 추가하는 단순 변경. `appsflyer/types.ts`의 `AppMetaSchema` 확장.
+- 기존 등록 게임 1개(poko_merge)는 backward-compat: `AppMetaSchema`의 genre/region을 `optional`로 두되 sufficiency check에서 누락 시 `missing_genre_meta`로 skip. Mike가 1회성 manual patch(connections dialog의 edit mode 또는 직접 Blob put)로 채워 넣음. Phase 2 첫 cron 직전 1회.
 
 ---
 
@@ -119,6 +120,9 @@ export function buildGameForecast(args: {
 4. `installsAssumption` = trailing 14d cohort install mean
 5. revenue convolution: `DAU(t) = Σ_{a=0..t} installsAssumption × P50_retention(a)`, `revenueP50(t) = DAU(t) × arpdauUsd`. P10/P90 동일 방식.
 6. 모든 point에서 `P10 ≤ P50 ≤ P90` monotonic clamp (수치오차 보호)
+7. arpdau=0인 경우에도 throw 안 함 — revenueForecast 전부 0인 채로 정상 반환. cron route가 결과를 보고 revenue snapshot에서 게임을 제외.
+
+`prior` 입력은 cron route가 `priorByGenre[genreKey]`에서 가져와 주입(`genreKey`는 sufficiency가 산출). `priorEffectiveN`은 cron route가 `prior-data.ts`의 `computeEffectiveN(priorTopGames)` 로 계산해 주입.
 
 ### 3.4 `src/shared/api/lstm/blob-writer.ts`
 ```ts
@@ -136,10 +140,11 @@ export async function GET(req: Request): Promise<Response>
 **책임 (thin orchestrator)**:
 - `Authorization: Bearer ${CRON_SECRET}` 검증, 미일치 시 401
 - 등록된 모든 app meta + cohort summary 병렬 fetch (Blob list + 각 fetch)
-- 게임별로 `checkSufficiency` → 충족 게임만 `buildGameForecast`
-- 게임당 ARPDAU=0이면 revenue snapshot에서 해당 게임만 skip (skipped[]에도 기록)
+- 게임별로 `checkSufficiency` → 충족 게임은 `priorByGenre[genreKey]` lookup 후 `buildGameForecast` 호출
+- 빌더 결과의 `arpdauUsd === 0`이면 revenue snapshot의 forecast/arpdau/installsAssumption 3-맵에서 해당 게임 제외 + skipped[] reason: `"zero_arpdau"` 기록 (retention snapshot에는 그대로 포함)
 - 두 snapshot 조립 → `writeLstmSnapshots`
-- response: `{ ok, processed: string[], skipped: { gameId, reason }[], snapshots: { retentionUrl, revenueUrl } | null, elapsedMs }`
+- 충족 게임 0개면 retentionSnapshot은 빈 forecast[], revenueSnapshot은 null (publish skip)
+- response: `{ ok, processed: string[], skipped: { gameId, reason }[], snapshots: { retentionUrl: string | null, revenueUrl: string | null } | null, elapsedMs }`
 
 **스케줄**: `vercel.json` `crons`에 `{ path: "/api/lstm/cron", schedule: "30 18 * * *" }` 추가 (UTC 18:30 = KST 03:30).
 
@@ -252,8 +257,8 @@ writeLstmSnapshots({ retentionSnapshot, revenueSnapshot })
 
 ### 핵심 원칙
 1. **One game's failure ≠ entire cron failure** — 게임 단위 격리
-2. **이전 snapshot 보존** — 새 publish가 atomic하게 성공한 경우에만 갱신. 부분 실패면 이전 데이터 유지 (Phase 1의 7일 stale 게이트가 fallback)
-3. **Cron-level retry는 Vercel에 위임** — handler 안에서 무한 재시도 안 함. 일시 오류는 다음 cron tick(24h 후)에 자연 회복
+2. **Best-effort atomic publish** — Vercel Blob에 트랜잭션 없음. retention put과 revenue put이 순차로 호출되며, retention 성공 후 revenue 실패 시 cron은 502 반환하고 다음 tick(24h 후)에 두 파일 다시 publish. 잠시 retention만 신규/revenue는 구버전인 inconsistency window 허용 (>24h stale 게이트가 자연 보호).
+3. **Cron-level retry는 Vercel에 위임** — handler 안에서 무한 재시도 안 함. Blob put만 짧은 backoff 3회. 일시 오류는 다음 cron tick에 자연 회복
 4. **Logging** — 모든 skipped reason은 console.log (Vercel observability에 자동 수집). Sentry/PagerDuty 미연동
 5. **Ordering 보호** — output zod 통과 전 monotonic clamp으로 P10/P50/P90 순서 보장 (수치오차 1e-9 수준)
 
@@ -297,7 +302,7 @@ Unit tests (vitest) + CLI dry-run 2층. Golden snapshot regression 없음 (Mike 
 - realistic poko_merge fixture → output schema valid
 - output retentionCurve.length === 1095, revenueForecast.length === 366
 - 모든 point에서 P10 ≤ P50 ≤ P90 (속성 테스트)
-- arpdau=0 → revenueForecast[*].revenueP50 = 0
+- arpdau=0 → throw 안 함, revenueForecast[*].revenueP50 = 0, arpdauUsd 필드 0으로 반환 (cron route가 publish 단계에서 제외)
 
 **`cron/route.test.ts`** (Blob client mocked)
 - CRON_SECRET 미일치 → 401
@@ -344,6 +349,6 @@ Phase 2를 단일 PR로. 예상 diff:
 
 리뷰 부담 ~15 파일, ~700 lines. CodeRabbit + Vercel preview 자동 발동(harness).
 
-배포 후 즉시 다음 cron tick에서 동작 확인. 실패 시 이전 mock JSON으로 자연 fallback (Phase 1 schema가 mock 파일을 static import하므로, blob fetch 실패 → mock fallback 자동).
+배포 후 다음 cron tick(UTC 18:30)에 Vercel Blob에 두 snapshot이 publish되는지 확인. **Phase 2 종료 시점에는 dashboard에 즉각적인 시각 변화가 없다** — Phase 1 accessor가 여전히 static mock JSON을 import하므로 widget은 mock 데이터를 그대로 본다. Phase 2의 가시 효과는 (a) Vercel Blob bucket에 새 파일이 생기는 것, (b) Mike가 `npm run lstm:dry`로 실측과 비교 가능해진 것뿐. Phase 3에서 accessor를 Blob fetch로 전환하는 순간 dashboard가 실데이터로 갱신된다.
 
-**Phase 3** (별도 PR): VC simulation / RevenueForecast chart / KPI 카드를 mock JSON에서 Blob fetch로 wiring + UI stale 배지.
+**Phase 3** (별도 PR): `loadRevenueSnapshot` 등을 mock import에서 Blob fetch로 전환 + VC simulation / RevenueForecast chart / KPI 카드 wiring + UI stale 배지(>7일).
