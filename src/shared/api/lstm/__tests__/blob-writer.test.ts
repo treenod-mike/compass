@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 
 vi.mock("@vercel/blob", () => {
   const put = vi.fn(async (path: string) => ({ url: `https://blob.test/${path}` }))
@@ -58,8 +58,15 @@ const validRevenue: RevenueSnapshot = {
 }
 
 describe("writeLstmSnapshots", () => {
+  beforeEach(() => {
+    vi.mocked(mockPut).mockReset()
+    // Default behavior: succeed with the standard URL shape.
+    vi.mocked(mockPut).mockImplementation(
+      async (path: string) => ({ url: `https://blob.test/${path}` }) as never,
+    )
+  })
+
   it("publishes both snapshots to expected paths", async () => {
-    vi.mocked(mockPut).mockClear()
     const r = await writeLstmSnapshots({
       retentionSnapshot: validRetention,
       revenueSnapshot: validRevenue,
@@ -70,7 +77,6 @@ describe("writeLstmSnapshots", () => {
   })
 
   it("skips revenue put when revenueSnapshot is null", async () => {
-    vi.mocked(mockPut).mockClear()
     const r = await writeLstmSnapshots({
       retentionSnapshot: validRetention,
       revenueSnapshot: null,
@@ -91,5 +97,49 @@ describe("writeLstmSnapshots", () => {
         revenueSnapshot: null,
       }),
     ).rejects.toThrow()
+  })
+
+  it("retries on transient failure and eventually succeeds", async () => {
+    // Two rejections, then a success — total 3 calls (1 initial + 2 retries).
+    vi.mocked(mockPut)
+      .mockRejectedValueOnce(new Error("transient 1"))
+      .mockRejectedValueOnce(new Error("transient 2"))
+      .mockResolvedValueOnce({
+        url: "https://blob.test/lstm/retention-snapshot.json",
+      } as never)
+
+    vi.useFakeTimers()
+    const promise = writeLstmSnapshots({
+      retentionSnapshot: validRetention,
+      revenueSnapshot: null,
+    })
+    // Drain backoff timers (500ms, 1000ms) so the retry loop progresses.
+    await vi.runAllTimersAsync()
+    const r = await promise
+    vi.useRealTimers()
+
+    expect(r.retentionUrl).toContain("lstm/retention-snapshot.json")
+    expect(r.revenueUrl).toBeNull()
+    expect(mockPut).toHaveBeenCalledTimes(3)
+  })
+
+  it("throws after exhausting all retries", async () => {
+    // Every attempt fails — guards against off-by-one in the retry loop
+    // (RETRY_BACKOFFS.length = 3 → 1 initial + 3 retries = 4 total calls).
+    vi.mocked(mockPut).mockRejectedValue(new Error("permanent failure"))
+
+    vi.useFakeTimers()
+    const promise = writeLstmSnapshots({
+      retentionSnapshot: validRetention,
+      revenueSnapshot: null,
+    })
+    // Attach catch synchronously so unhandled rejection doesn't fire while
+    // we drain timers.
+    const assertion = expect(promise).rejects.toThrow("permanent failure")
+    await vi.runAllTimersAsync()
+    await assertion
+    vi.useRealTimers()
+
+    expect(mockPut).toHaveBeenCalledTimes(4)
   })
 })
