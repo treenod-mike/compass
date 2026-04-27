@@ -53,12 +53,15 @@ W9 spec §4의 4개 알고리즘 중 **§4.1 + §4.2만** 본 PR에 포함:
 1. **Prior 입력 형태**: 상위 spec §3.2가 `{mean, sd}`로 적었으나 실제 `prior-data.ts`는 `EmpiricalDist({p10, p50, p90})` + `effectiveN` 형태로 노출. 본 PR은 실제 데이터 구조 그대로 사용하고 변환은 기존 `betaBinomialModel.priorFromEmpirical`를 재사용 — 신규 변환 함수 불필요.
 2. **p50 정의**: 상위 spec §4.1은 `p50 = (α₀ + k) / (α₀ + β₀ + n)`(posterior **mean**)으로 단축 표기. 본 PR은 mean이 아닌 **CDF의 50% quantile(median)** 을 일관되게 사용 — 비대칭 Beta(α 또는 β가 작을 때)에서도 p10 ≤ p50 ≤ p90 정의역이 무너지지 않게. α, β > 1 영역에서 mean과 median 차이는 1% 이하라 W9 spec의 의도와 충돌하지 않음.
 
-### 3.2 Power-law fit (W9 spec §4.2 인용)
-`r(t) = a × t^(-b)`, log-log 선형 회귀:
-- `log r = log a − b × log t`
-- 3 점(D1, D7, D30) least-squares fit → `(a, b)`
-- P10/P50/P90 각각 별도 fit → 3개의 `(a, b)` 쌍
+### 3.2 Power-law fit (W9 spec §4.2 + 2-segment piecewise 정정)
+`r(t) = a × t^(-b)` 형태를 유지하되 **단일 3-점 fit이 아닌 2-segment piecewise**로 적용:
+- **seg1** (D1↔D7): `fitPowerLaw([{1, posterior_D1}, {7, posterior_D7}])` → days 1–7
+- **seg2** (D7↔D30): `fitPowerLaw([{7, posterior_D7}, {30, posterior_D30}])` → days 8–1095 (D30 이후는 동일 fit으로 extrapolate)
+- 각 segment는 2점만 받으므로 exact pass-through (least-squares residual = 0)
+- P10/P50/P90 각각 별도 fit → 총 6개 PowerLawFit
 - `b ≤ 0` 산출 시 throw `NonDecreasingCurveError`
+
+**왜 piecewise인가**: 3-점 least-squares는 anchor에 정확히 통과하지 않아 day 1/7/30의 KPI 카드가 실제 Bayesian posterior와 어긋남(±~4%p). 2-segment는 두 anchor 정확 통과 + segment 경계(day 7)에서 연속성 보장 → monotone non-increasing 자동 충족. floor 산출(§3.3)은 prior 3-점 fit 그대로 유지 — prior는 데이터가 아니라 보간 기준점이라 anchor 정확성 의미 적음.
 
 ### 3.3 Floor 산출 (W9 spec 보강 — Mike 결정)
 

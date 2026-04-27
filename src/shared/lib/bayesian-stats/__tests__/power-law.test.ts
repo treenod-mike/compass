@@ -52,6 +52,27 @@ describe("fitPowerLaw", () => {
       ]),
     ).toThrow()
   })
+
+  it("rejects Infinity / NaN day or value", () => {
+    expect(() =>
+      fitPowerLaw([
+        { day: Infinity, value: 0.5 },
+        { day: 7, value: 0.3 },
+      ]),
+    ).toThrow()
+    expect(() =>
+      fitPowerLaw([
+        { day: 1, value: Infinity },
+        { day: 7, value: 0.3 },
+      ]),
+    ).toThrow()
+    expect(() =>
+      fitPowerLaw([
+        { day: 1, value: NaN },
+        { day: 7, value: 0.3 },
+      ]),
+    ).toThrow()
+  })
 })
 
 describe("extrapolatePowerLawCurve", () => {
@@ -92,5 +113,17 @@ describe("extrapolatePowerLawCurve", () => {
 
   it("negative floor throws", () => {
     expect(() => extrapolatePowerLawCurve({ fit, maxDay: 100, floor: -0.1 })).toThrow()
+  })
+
+  it("non-finite fit or floor throws", () => {
+    expect(() =>
+      extrapolatePowerLawCurve({ fit: { a: Infinity, b: 0.36 }, maxDay: 100, floor: 0 }),
+    ).toThrow()
+    expect(() =>
+      extrapolatePowerLawCurve({ fit: { a: 0.5, b: NaN }, maxDay: 100, floor: 0 }),
+    ).toThrow()
+    expect(() =>
+      extrapolatePowerLawCurve({ fit, maxDay: 100, floor: Infinity }),
+    ).toThrow()
   })
 })

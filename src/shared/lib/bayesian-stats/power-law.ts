@@ -16,8 +16,12 @@ export function fitPowerLaw(points: Array<{ day: number; value: number }>): Powe
     throw new Error(`fitPowerLaw requires at least 2 points, got ${points.length}`)
   }
   for (const p of points) {
-    if (!(p.day > 0)) throw new Error(`fitPowerLaw: day must be > 0, got ${p.day}`)
-    if (!(p.value > 0)) throw new Error(`fitPowerLaw: value must be > 0, got ${p.value}`)
+    if (!Number.isFinite(p.day) || !(p.day > 0)) {
+      throw new Error(`fitPowerLaw: day must be a positive finite number, got ${p.day}`)
+    }
+    if (!Number.isFinite(p.value) || !(p.value > 0)) {
+      throw new Error(`fitPowerLaw: value must be a positive finite number, got ${p.value}`)
+    }
   }
   const n = points.length
   const xs = points.map((p) => Math.log(p.day))
@@ -57,7 +61,12 @@ export function extrapolatePowerLawCurve(args: {
   if (!Number.isInteger(maxDay) || !(maxDay > 0) || maxDay > MAX_FORECAST_DAYS) {
     throw new MaxDayOutOfRangeError(maxDay)
   }
-  if (!(floor >= 0)) throw new Error(`floor must be ≥ 0, got ${floor}`)
+  if (!Number.isFinite(fit.a) || !Number.isFinite(fit.b)) {
+    throw new Error(`extrapolatePowerLawCurve: fit must be finite, got a=${fit.a} b=${fit.b}`)
+  }
+  if (!Number.isFinite(floor) || !(floor >= 0)) {
+    throw new Error(`floor must be a finite number ≥ 0, got ${floor}`)
+  }
   const out = new Array<number>(maxDay)
   for (let i = 0; i < maxDay; i++) {
     const day = i + 1

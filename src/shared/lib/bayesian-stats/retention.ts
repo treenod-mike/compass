@@ -1,6 +1,6 @@
 import { betaQuantile } from "./beta-quantile"
 import { betaBinomialModel, type BetaParams, type BinomialObs } from "./beta-binomial"
-import { fitPowerLaw, extrapolatePowerLawCurve } from "./power-law"
+import { fitPowerLaw, type PowerLawFit } from "./power-law"
 import type { EmpiricalDist } from "./types"
 
 export class InvalidObservationError extends Error {
@@ -83,42 +83,42 @@ export function retentionForecast(args: {
   ])
   const floor = (priorFitForFloor.a * Math.pow(365, -priorFitForFloor.b)) / 3
 
-  // 4. Fit power-law for each band quantile.
-  const fits = {
-    p10: fitPowerLaw([
-      { day: 1, value: post.d1.p10 },
-      { day: 7, value: post.d7.p10 },
-      { day: 30, value: post.d30.p10 },
+  // 4. Per-band 2-segment piecewise fit.
+  //    Each fitPowerLaw call has exactly 2 points → exact pass-through both
+  //    endpoints. This guarantees the final curve hits the actual posterior
+  //    values at days 1/7/30 (no re-fit drift) AND remains monotone
+  //    non-increasing across the segment boundary at day 7.
+  //    Days 1-7  → seg1 (D1 → D7 anchors)
+  //    Days 8+   → seg2 (D7 → D30 anchors), extrapolated continuously
+  type BandKey = "p10" | "p50" | "p90"
+  const fitBand = (band: BandKey) => ({
+    early: fitPowerLaw([
+      { day: 1, value: post.d1[band] },
+      { day: 7, value: post.d7[band] },
     ]),
-    p50: fitPowerLaw([
-      { day: 1, value: post.d1.p50 },
-      { day: 7, value: post.d7.p50 },
-      { day: 30, value: post.d30.p50 },
+    late: fitPowerLaw([
+      { day: 7, value: post.d7[band] },
+      { day: 30, value: post.d30[band] },
     ]),
-    p90: fitPowerLaw([
-      { day: 1, value: post.d1.p90 },
-      { day: 7, value: post.d7.p90 },
-      { day: 30, value: post.d30.p90 },
-    ]),
+  })
+  const bands = { p10: fitBand("p10"), p50: fitBand("p50"), p90: fitBand("p90") }
+
+  // 5. Generate curve. Apply floor + clamp p10 ≤ p50 ≤ p90 invariant.
+  const evalAt = (band: { early: PowerLawFit; late: PowerLawFit }, day: number): number => {
+    const fit = day <= 7 ? band.early : band.late
+    return Math.max(fit.a * Math.pow(day, -fit.b), floor)
   }
-
-  // 5. Extrapolate each band, with shared floor.
-  const curveP10 = extrapolatePowerLawCurve({ fit: fits.p10, maxDay, floor })
-  const curveP50 = extrapolatePowerLawCurve({ fit: fits.p50, maxDay, floor })
-  const curveP90 = extrapolatePowerLawCurve({ fit: fits.p90, maxDay, floor })
-
-  // 6. Zip into RetentionForecastPoint[]. Defensive clamp: a shared floor on
-  // each band can compress them to the same value, and tiny floating-point
-  // jitter at the floor boundary could otherwise produce p10 > p50 or p50 >
-  // p90. Clamp here so the invariant p10 ≤ p50 ≤ p90 is airtight.
   const out: RetentionForecastPoint[] = new Array(maxDay)
   for (let i = 0; i < maxDay; i++) {
-    const p50 = curveP50[i]!
+    const day = i + 1
+    const p50 = evalAt(bands.p50, day)
+    const p10raw = evalAt(bands.p10, day)
+    const p90raw = evalAt(bands.p90, day)
     out[i] = {
-      day: i + 1,
-      p10: Math.min(curveP10[i]!, p50),
+      day,
+      p10: Math.min(p10raw, p50),
       p50,
-      p90: Math.max(curveP90[i]!, p50),
+      p90: Math.max(p90raw, p50),
     }
   }
   return out

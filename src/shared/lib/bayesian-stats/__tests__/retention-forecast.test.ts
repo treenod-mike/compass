@@ -94,4 +94,34 @@ describe("retentionForecast (integration)", () => {
     expect(curve).toHaveLength(365)
     expect(curve[curve.length - 1]!.day).toBe(365)
   })
+
+  it("D1/D7/D30 anchors equal the bayesianRetentionPosterior outputs exactly (no power-law re-fit drift)", async () => {
+    const { betaBinomialModel } = await import("../beta-binomial")
+    const { bayesianRetentionPosterior } = await import("../retention")
+
+    const priorBeta = {
+      d1: betaBinomialModel.priorFromEmpirical(bundle.retention.d1, bundle.effectiveN),
+      d7: betaBinomialModel.priorFromEmpirical(bundle.retention.d7, bundle.effectiveN),
+      d30: betaBinomialModel.priorFromEmpirical(bundle.retention.d30, bundle.effectiveN),
+    }
+    const expected = {
+      d1: bayesianRetentionPosterior({ prior: priorBeta.d1, observation: observations.d1 }),
+      d7: bayesianRetentionPosterior({ prior: priorBeta.d7, observation: observations.d7 }),
+      d30: bayesianRetentionPosterior({ prior: priorBeta.d30, observation: observations.d30 }),
+    }
+
+    const curve = retentionForecast({
+      observations,
+      priors: bundle.retention,
+      priorEffectiveN: bundle.effectiveN,
+    })
+    const get = (day: number) => curve.find((p) => p.day === day)!
+
+    for (const day of [1, 7, 30] as const) {
+      const key = `d${day}` as const
+      expect(get(day).p10).toBeCloseTo(expected[key].p10, 10)
+      expect(get(day).p50).toBeCloseTo(expected[key].p50, 10)
+      expect(get(day).p90).toBeCloseTo(expected[key].p90, 10)
+    }
+  })
 })
