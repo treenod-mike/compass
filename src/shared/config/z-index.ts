@@ -51,7 +51,7 @@ export const Z_INDEX = {
   MODAL: 210,            // 다이얼로그·시트 콘텐츠
   POPOVER: 220,          // popover (모달 위에서도 사용)
   TOOLTIP: 300,          // 툴팁 (거의 최상단)
-  NOTIFICATION: 400,     // 토스트·알림
+  NOTIFICATION: 400,     // 토스트·알림 (new token — no legacy mapping)
   DEV_OVERLAY: 9999,     // 개발자 도구 — 유일하게 9999 허용
 } as const
 

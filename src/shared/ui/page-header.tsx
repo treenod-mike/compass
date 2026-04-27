@@ -22,7 +22,7 @@ export function PageHeader({ titleKey, subtitleKey, icon, description }: PageHea
         className="text-foreground font-bold flex items-center gap-3"
         style={{ fontSize: "var(--tds-t2-size)", lineHeight: "var(--tds-t2-line)" }}
       >
-        {icon}
+        {icon && <span className="shrink-0">{icon}</span>}
         {t(titleKey)}
       </h1>
       <p
