@@ -99,8 +99,10 @@ function buildRevenueForecast(args: {
   horizonDays: number
 }): RevenueForecastPoint[] {
   const { retentionCurve, arpdauUsd, installsAssumption, horizonDays } = args
+  // day starts at 1 to satisfy RevenueSnapshotSchema's `day: positive int` and
+  // `points.max(365)`. Total points = horizonDays (default 365).
   const out: RevenueForecastPoint[] = []
-  for (let t = 0; t <= horizonDays; t++) {
+  for (let t = 1; t <= horizonDays; t++) {
     let dauP10 = 0, dauP50 = 0, dauP90 = 0
     const maxAge = Math.min(t, retentionCurve.length)
     for (let age = 0; age <= maxAge; age++) {

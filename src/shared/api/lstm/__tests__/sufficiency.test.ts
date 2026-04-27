@@ -70,4 +70,46 @@ describe("checkSufficiency", () => {
     })
     expect(r).toEqual({ ok: false, gameId: "x", reason: "unknown_genre_prior" })
   })
+
+  it("ok when latest cohort d30 is null but earlier cohort has d30 > 0", () => {
+    const summary: CohortSummary = {
+      updatedAt: new Date().toISOString(),
+      cohorts: Array.from({ length: 30 }, (_, i) => ({
+        cohortDate: `2026-03-${String(i + 1).padStart(2, "0")}`,
+        installs: 100,
+        retainedByDay: { d1: 50, d7: 25, d30: i < 25 ? 10 : null },
+      })),
+      revenue: {
+        daily: Array.from({ length: 14 }, (_, i) => ({
+          date: `2026-03-${String(i + 1).padStart(2, "0")}`,
+          sumUsd: 30,
+          purchasers: 5,
+        })),
+        total: { sumUsd: 14 * 30, purchasers: 14 * 5 },
+      },
+    }
+    const r = checkSufficiency(summary, { appId: "x", genre: "Merge", region: "JP" })
+    expect(r.ok).toBe(true)
+  })
+
+  it("rejects dead_d30 when latest non-null d30 is 0 even if recent cohorts are null", () => {
+    const summary: CohortSummary = {
+      updatedAt: new Date().toISOString(),
+      cohorts: Array.from({ length: 30 }, (_, i) => ({
+        cohortDate: `2026-03-${String(i + 1).padStart(2, "0")}`,
+        installs: 100,
+        retainedByDay: { d1: 50, d7: 25, d30: i < 24 ? 10 : i === 24 ? 0 : null },
+      })),
+      revenue: {
+        daily: Array.from({ length: 14 }, (_, i) => ({
+          date: `2026-03-${String(i + 1).padStart(2, "0")}`,
+          sumUsd: 30,
+          purchasers: 5,
+        })),
+        total: { sumUsd: 14 * 30, purchasers: 14 * 5 },
+      },
+    }
+    const r = checkSufficiency(summary, { appId: "x", genre: "Merge", region: "JP" })
+    expect(r).toEqual({ ok: false, gameId: "x", reason: "dead_d30_retention" })
+  })
 })

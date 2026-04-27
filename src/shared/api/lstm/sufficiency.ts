@@ -26,9 +26,16 @@ export function checkSufficiency(
   if (cohortSummary.revenue.daily.length < MIN_REVENUE_DAYS) {
     return { ok: false, gameId: appId, reason: "insufficient_revenue_history" }
   }
-  const last = cohortSummary.cohorts[cohortSummary.cohorts.length - 1]!
-  if ((last.retainedByDay.d30 ?? 0) === 0) {
-    return { ok: false, gameId: appId, reason: "dead_d30_retention" }
+  // Use the most recent cohort with a NON-NULL d30. The freshest cohort's d30
+  // is usually still null because day-30 retention isn't observable yet.
+  const cohortsWithD30 = cohortSummary.cohorts.filter(
+    (c) => c.retainedByDay.d30 !== null,
+  )
+  if (cohortsWithD30.length > 0) {
+    const latestWithD30 = cohortsWithD30[cohortsWithD30.length - 1]!
+    if (latestWithD30.retainedByDay.d30 === 0) {
+      return { ok: false, gameId: appId, reason: "dead_d30_retention" }
+    }
   }
   if (!genre || !region) {
     return { ok: false, gameId: appId, reason: "missing_genre_meta" }

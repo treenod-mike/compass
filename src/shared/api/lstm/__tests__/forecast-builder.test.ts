@@ -27,7 +27,7 @@ const realisticSummary: CohortSummary = {
 }
 
 describe("buildGameForecast", () => {
-  it("produces 1095-day retention curve and 366-point revenue forecast", () => {
+  it("produces 1095-day retention curve and 365-point revenue forecast (day 1..365)", () => {
     const r = buildGameForecast({
       cohortSummary: realisticSummary,
       appsMeta: { appId: "x", genre: "Merge", region: "JP" },
@@ -35,7 +35,9 @@ describe("buildGameForecast", () => {
       priorEffectiveN: 30,
     })
     expect(r.retentionCurve.length).toBe(1095)
-    expect(r.revenueForecast.length).toBe(366)
+    expect(r.revenueForecast.length).toBe(365)
+    expect(r.revenueForecast[0]!.day).toBe(1)
+    expect(r.revenueForecast[364]!.day).toBe(365)
     expect(r.arpdauUsd).toBeGreaterThan(0)
     expect(r.installsAssumption).toBe(800)
   })
