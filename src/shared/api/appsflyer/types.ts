@@ -244,6 +244,9 @@ export const RegisterRequestSchema = z.object({
   app_label: z.string().max(80),
   game_key: GameKeySchema,
   home_currency: z.enum(["KRW", "USD", "JPY", "EUR"]).default("KRW"),
+  // LSTM Phase 2: 장르/지역 prior lookup용. 미입력 시 cron sufficiency check에서 skip
+  genre: z.string().min(1).max(40).optional(),
+  region: z.string().min(2).max(8).optional(),
 })
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>
 

@@ -14,6 +14,8 @@ type FormState = {
   app_label: string
   game_key: "sample-match-3" | "sample-puzzle" | "sample-idle" | "portfolio"
   home_currency: "KRW" | "USD" | "JPY" | "EUR"
+  genre: string
+  region: string
 }
 
 const INITIAL: FormState = {
@@ -22,6 +24,8 @@ const INITIAL: FormState = {
   app_label: "",
   game_key: "sample-match-3",
   home_currency: "KRW",
+  genre: "",
+  region: "",
 }
 
 export function RegisterModal({ open, onClose, onSuccess }: RegisterModalProps) {
@@ -37,7 +41,14 @@ export function RegisterModal({ open, onClose, onSuccess }: RegisterModalProps) 
     setError(null)
     setFieldErrors({})
 
-    const parsed = RegisterRequestSchema.safeParse(form)
+    // Empty strings → undefined so optional fields stay clean (Zod's .min(1)/.min(2)
+    // would otherwise reject "" as too short).
+    const candidate = {
+      ...form,
+      genre: form.genre.trim() === "" ? undefined : form.genre,
+      region: form.region.trim() === "" ? undefined : form.region,
+    }
+    const parsed = RegisterRequestSchema.safeParse(candidate)
     if (!parsed.success) {
       const errs: Record<string, string> = {}
       for (const issue of parsed.error.issues) {
@@ -161,6 +172,44 @@ export function RegisterModal({ open, onClose, onSuccess }: RegisterModalProps) 
               <option value="sample-puzzle">Sample Puzzle Game</option>
               <option value="sample-idle">Sample Idle Game</option>
               <option value="portfolio">Portfolio (aggregate)</option>
+            </select>
+          </Field>
+
+          <Field
+            htmlFor="rf-genre"
+            label="장르 (Genre)"
+            error={fieldErrors.genre}
+          >
+            <select
+              id="rf-genre"
+              value={form.genre}
+              onChange={(e) => update("genre", e.target.value)}
+              className="w-full rounded-[var(--radius-inline)] border border-[var(--bg-3)] bg-[var(--bg-0)] px-2 py-1 text-sm text-[var(--fg-0)]"
+            >
+              <option value="">선택</option>
+              <option value="Merge">Merge</option>
+              <option value="Match-3">Match-3</option>
+              <option value="Puzzle">Puzzle</option>
+              <option value="Idle">Idle</option>
+            </select>
+          </Field>
+
+          <Field
+            htmlFor="rf-region"
+            label="지역 (Region)"
+            error={fieldErrors.region}
+          >
+            <select
+              id="rf-region"
+              value={form.region}
+              onChange={(e) => update("region", e.target.value)}
+              className="w-full rounded-[var(--radius-inline)] border border-[var(--bg-3)] bg-[var(--bg-0)] px-2 py-1 text-sm text-[var(--fg-0)]"
+            >
+              <option value="">선택</option>
+              <option value="JP">JP</option>
+              <option value="KR">KR</option>
+              <option value="US">US</option>
+              <option value="GLOBAL">GLOBAL</option>
             </select>
           </Field>
 
