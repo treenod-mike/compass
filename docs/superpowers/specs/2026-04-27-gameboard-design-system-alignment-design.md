@@ -126,7 +126,7 @@ Compass와 gameboard는 같은 회사의 분석 대시보드로, 둘 다 Toss De
 
 ### 추가될 파일
 
-```
+```text
 src/shared/ui/chart-container/index.tsx         (신규)
 src/shared/ui/custom-chart-tooltip/index.tsx    (신규, Compass에 같은 이름 디렉토리 있음 — 통합 검토)
 src/shared/ui/metric-card/index.tsx             (신규)
@@ -134,7 +134,7 @@ src/shared/ui/metric-card/index.tsx             (신규)
 
 ### 수정될 파일
 
-```
+```text
 src/styles/globals.css                          (drift sync, 토큰 정렬)
 src/shared/config/chart-colors.ts               (PALETTE.cohort5 → #b44bd7)
 src/widgets/navigation/ui/layout-wrapper.tsx    (drift sync)

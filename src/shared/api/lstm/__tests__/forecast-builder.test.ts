@@ -15,6 +15,7 @@ const realisticSummary: CohortSummary = {
     cohortDate: `2026-03-${String((i % 30) + 1).padStart(2, "0")}`,
     installs: 800,
     retainedByDay: { d1: 480, d7: 240, d30: 96 },
+    uaSpendUsd: null,
   })),
   revenue: {
     daily: Array.from({ length: 14 }, (_, i) => ({
@@ -24,6 +25,7 @@ const realisticSummary: CohortSummary = {
     })),
     total: { sumUsd: 14 * 4500, purchasers: 14 * 120 },
   },
+  spend: { totalUsd: null, homeCurrency: "USD" },
 }
 
 describe("buildGameForecast", () => {

@@ -8,6 +8,7 @@ const buildSummary = (cohortDays: number, revenueDays: number, lastD30: number |
     cohortDate: `2026-03-${String(i + 1).padStart(2, "0")}`,
     installs: 100,
     retainedByDay: { d1: 50, d7: 25, d30: i === cohortDays - 1 ? lastD30 : 10 },
+    uaSpendUsd: null,
   })),
   revenue: {
     daily: Array.from({ length: revenueDays }, (_, i) => ({
@@ -17,6 +18,7 @@ const buildSummary = (cohortDays: number, revenueDays: number, lastD30: number |
     })),
     total: { sumUsd: revenueDays * 30, purchasers: revenueDays * 5 },
   },
+  spend: { totalUsd: null, homeCurrency: "USD" },
 })
 
 describe("checkSufficiency", () => {
@@ -78,6 +80,7 @@ describe("checkSufficiency", () => {
         cohortDate: `2026-03-${String(i + 1).padStart(2, "0")}`,
         installs: 100,
         retainedByDay: { d1: 50, d7: 25, d30: i < 25 ? 10 : null },
+        uaSpendUsd: null,
       })),
       revenue: {
         daily: Array.from({ length: 14 }, (_, i) => ({
@@ -87,6 +90,7 @@ describe("checkSufficiency", () => {
         })),
         total: { sumUsd: 14 * 30, purchasers: 14 * 5 },
       },
+      spend: { totalUsd: null, homeCurrency: "USD" },
     }
     const r = checkSufficiency(summary, { appId: "x", genre: "Merge", region: "JP" })
     expect(r.ok).toBe(true)
@@ -99,6 +103,7 @@ describe("checkSufficiency", () => {
         cohortDate: `2026-03-${String(i + 1).padStart(2, "0")}`,
         installs: 100,
         retainedByDay: { d1: 50, d7: 25, d30: i < 24 ? 10 : i === 24 ? 0 : null },
+        uaSpendUsd: null,
       })),
       revenue: {
         daily: Array.from({ length: 14 }, (_, i) => ({
@@ -108,6 +113,7 @@ describe("checkSufficiency", () => {
         })),
         total: { sumUsd: 14 * 30, purchasers: 14 * 5 },
       },
+      spend: { totalUsd: null, homeCurrency: "USD" },
     }
     const r = checkSufficiency(summary, { appId: "x", genre: "Merge", region: "JP" })
     expect(r).toEqual({ ok: false, gameId: "x", reason: "dead_d30_retention" })

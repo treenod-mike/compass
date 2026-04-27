@@ -101,7 +101,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   return (
     <div className="relative min-h-screen bg-page-background">
-      <div data-new-nav-top-bar className="sticky top-0 z-[30]">
+      <div data-new-nav-top-bar className="sticky top-0 z-app-top-bar">
         <AppTopBar
           onToggleSidebar={
             isDesktop ? () => setIsSidebarCollapsed((prev) => !prev) : undefined
@@ -113,7 +113,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
       {!isDesktop && !isMobileSidebarOpen && (
         <button
           onClick={() => setIsMobileSidebarOpen(true)}
-          className="fixed top-3 left-3 z-[60] flex items-center justify-center w-10 h-10 rounded-xl bg-brand-line text-white shadow-md opacity-40 hover:opacity-100 active:scale-95 transition-all duration-200"
+          className="fixed top-3 left-3 z-app-top-bar flex items-center justify-center w-10 h-10 rounded-xl bg-brand-line text-white shadow-md opacity-40 hover:opacity-100 active:scale-95 transition-all duration-200"
           aria-label="메뉴 열기"
         >
           <Menu className="h-5 w-5" />

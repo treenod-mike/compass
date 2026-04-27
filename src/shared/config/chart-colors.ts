@@ -25,7 +25,7 @@ export const PALETTE = {
   cohort2:       "#2272eb",  // --chart-2 blue
   cohort3:       "#109595",  // --chart-3 teal
   cohort4:       "#fb8800",  // --chart-4 orange
-  cohort5:       "#9128b4",  // --chart-5 purple (brand)
+  cohort5:       "#b44bd7",  // --purple-400 (톤 분리: brand=600, cohort=400)
   cohort6:       "#e42939",  // --chart-6 red
 
   // Neutral
