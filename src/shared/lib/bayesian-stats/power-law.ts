@@ -1,8 +1,8 @@
 export type PowerLawFit = { a: number; b: number }
 
 export class NonDecreasingCurveError extends Error {
-  constructor(public readonly slope: number) {
-    super(`Power-law fit produced non-decreasing curve: b=${slope.toFixed(4)} (expected b > 0)`)
+  constructor(public readonly b: number) {
+    super(`Power-law fit produced non-decreasing curve: b=${b.toFixed(4)} (expected b > 0)`)
     this.name = "NonDecreasingCurveError"
   }
 }
@@ -54,7 +54,9 @@ export function extrapolatePowerLawCurve(args: {
   floor: number
 }): number[] {
   const { fit, maxDay, floor } = args
-  if (!(maxDay > 0) || maxDay > MAX_FORECAST_DAYS) throw new MaxDayOutOfRangeError(maxDay)
+  if (!Number.isInteger(maxDay) || !(maxDay > 0) || maxDay > MAX_FORECAST_DAYS) {
+    throw new MaxDayOutOfRangeError(maxDay)
+  }
   if (!(floor >= 0)) throw new Error(`floor must be ≥ 0, got ${floor}`)
   const out = new Array<number>(maxDay)
   for (let i = 0; i < maxDay; i++) {

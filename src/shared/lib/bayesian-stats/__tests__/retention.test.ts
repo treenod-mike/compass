@@ -62,6 +62,18 @@ describe("bayesianRetentionPosterior", () => {
     ).toThrow(InvalidObservationError)
   })
 
+  it("negative k throws InvalidObservationError", () => {
+    expect(() =>
+      bayesianRetentionPosterior({ prior, observation: { k: -1, n: 100 } }),
+    ).toThrow(InvalidObservationError)
+  })
+
+  it("negative n throws InvalidObservationError", () => {
+    expect(() =>
+      bayesianRetentionPosterior({ prior, observation: { k: 0, n: -10 } }),
+    ).toThrow(InvalidObservationError)
+  })
+
   it("priorWeight ≤ 0 throws InvalidPriorWeightError", () => {
     expect(() =>
       bayesianRetentionPosterior({ prior, observation: { k: 50, n: 100 }, priorWeight: 0 }),

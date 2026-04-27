@@ -5,7 +5,7 @@ import type { EmpiricalDist } from "./types"
 
 export class InvalidObservationError extends Error {
   constructor(public readonly observation: BinomialObs) {
-    super(`Invalid observation: k=${observation.k} > n=${observation.n}`)
+    super(`Invalid observation: k=${observation.k}, n=${observation.n} (require 0 ≤ k ≤ n)`)
     this.name = "InvalidObservationError"
   }
 }
@@ -29,7 +29,9 @@ export function bayesianRetentionPosterior(args: {
 } {
   const { prior, observation, priorWeight = 1 } = args
   if (!(priorWeight > 0)) throw new InvalidPriorWeightError(priorWeight)
-  if (observation.k > observation.n) throw new InvalidObservationError(observation)
+  if (observation.k < 0 || observation.n < 0 || observation.k > observation.n) {
+    throw new InvalidObservationError(observation)
+  }
 
   const posterior: BetaParams = {
     alpha: prior.alpha * priorWeight + observation.k,
@@ -105,14 +107,18 @@ export function retentionForecast(args: {
   const curveP50 = extrapolatePowerLawCurve({ fit: fits.p50, maxDay, floor })
   const curveP90 = extrapolatePowerLawCurve({ fit: fits.p90, maxDay, floor })
 
-  // 6. Zip into RetentionForecastPoint[].
+  // 6. Zip into RetentionForecastPoint[]. Defensive clamp: a shared floor on
+  // each band can compress them to the same value, and tiny floating-point
+  // jitter at the floor boundary could otherwise produce p10 > p50 or p50 >
+  // p90. Clamp here so the invariant p10 ≤ p50 ≤ p90 is airtight.
   const out: RetentionForecastPoint[] = new Array(maxDay)
   for (let i = 0; i < maxDay; i++) {
+    const p50 = curveP50[i]!
     out[i] = {
       day: i + 1,
-      p10: curveP10[i]!,
-      p50: curveP50[i]!,
-      p90: curveP90[i]!,
+      p10: Math.min(curveP10[i]!, p50),
+      p50,
+      p90: Math.max(curveP90[i]!, p50),
     }
   }
   return out

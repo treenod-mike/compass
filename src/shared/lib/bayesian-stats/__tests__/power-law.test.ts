@@ -85,6 +85,11 @@ describe("extrapolatePowerLawCurve", () => {
     expect(() => extrapolatePowerLawCurve({ fit, maxDay: -5, floor: 0 })).toThrow(MaxDayOutOfRangeError)
   })
 
+  it("non-integer maxDay throws MaxDayOutOfRangeError", () => {
+    expect(() => extrapolatePowerLawCurve({ fit, maxDay: 3.7, floor: 0 })).toThrow(MaxDayOutOfRangeError)
+    expect(() => extrapolatePowerLawCurve({ fit, maxDay: NaN, floor: 0 })).toThrow(MaxDayOutOfRangeError)
+  })
+
   it("negative floor throws", () => {
     expect(() => extrapolatePowerLawCurve({ fit, maxDay: 100, floor: -0.1 })).toThrow()
   })

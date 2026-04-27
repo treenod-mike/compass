@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { retentionForecast, type RetentionForecastPoint } from "../retention"
+import { retentionForecast } from "../retention"
 import { getPrior } from "@/shared/api/prior-data"
 
 describe("retentionForecast (integration)", () => {
