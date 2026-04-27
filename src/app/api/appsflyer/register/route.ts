@@ -30,7 +30,7 @@ export async function POST(req: Request): Promise<Response> {
       { status: 400 },
     )
   }
-  const { dev_token, app_id, app_label, game_key, home_currency } = parsed.data
+  const { dev_token, app_id, app_label, game_key, home_currency, genre, region } = parsed.data
 
   // Conflict check
   const existing = await getApp(app_id)
@@ -76,6 +76,7 @@ export async function POST(req: Request): Promise<Response> {
   })
   const app = AppSchema.parse({
     appId: app_id, accountId, gameKey: game_key, label: app_label, createdAt: now,
+    genre, region,
   })
   const initialState = StateSchema.parse({
     appId: app_id,
