@@ -13,6 +13,7 @@
     "crawl:st:discover": "cd crawler && npx tsx src/discover.ts",
     "crawl:cpi": "cd crawler && npx tsx src/cpi-benchmarks/ingest.ts",
     "crawl:cpi:verify": "cd crawler && npx tsx src/cpi-benchmarks/verify.ts",
+    "lstm:dry": "tsx scripts/lstm-dry-run.ts",
     "migrate:snapshot": "tsx scripts/migrate-snapshot-to-blob.ts",
     "test": "vitest run",
     "test:af": "vitest run src/shared/api/appsflyer/__tests__/",
