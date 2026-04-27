@@ -101,7 +101,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
 
   return (
     <div className="relative min-h-screen bg-page-background">
-      <div data-new-nav-top-bar className="sticky top-0 z-[30]">
+      <div data-new-nav-top-bar className="sticky top-0 z-app-top-bar">
         <AppTopBar
           onToggleSidebar={
             isDesktop ? () => setIsSidebarCollapsed((prev) => !prev) : undefined
