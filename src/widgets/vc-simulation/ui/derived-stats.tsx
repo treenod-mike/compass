@@ -10,7 +10,7 @@ export function DerivedStats({ offer }: Props) {
   const equityPct = (offer.investmentUsd / offer.postMoneyUsd) * 100
   const preMoneyUsd = offer.postMoneyUsd - offer.investmentUsd
   return (
-    <div className="mt-4 pt-4 border-t border-[var(--bg-4)] space-y-2">
+    <div className="mt-4 pt-4 border-t border-border space-y-2">
       <Row label={t("vc.field.derived.equity")} value={`${equityPct.toFixed(1)}%`} />
       <Row label={t("vc.field.derived.preMoney")} value={`$${(preMoneyUsd / 1_000_000).toFixed(1)}M`} />
     </div>
@@ -20,8 +20,8 @@ export function DerivedStats({ offer }: Props) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-xs">
-      <span className="text-[var(--fg-2)]">{label}</span>
-      <span className="font-mono text-[var(--fg-0)]">{value}</span>
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-mono tabular-nums text-foreground">{value}</span>
     </div>
   )
 }

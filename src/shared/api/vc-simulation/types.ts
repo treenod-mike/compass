@@ -52,6 +52,12 @@ export type RunwayPoint = {
 
 export type BaselineResult = {
   runway: RunwayPoint[]
+  /**
+   * Cumulative gross revenue (월별 누적 매출, 단조 증가).
+   * `runway`는 비용 차감된 net cash라 음수도 될 수 있는 반면, 이 시계열은
+   * 결정권자 친화 ROAS 곡선("매출 / 투자금")을 그리기 위한 단조 증가 데이터다.
+   */
+  cumulativeRevenue: RunwayPoint[]
   irrDistribution: number[]
   p50Irr: number
   p50Moic: number

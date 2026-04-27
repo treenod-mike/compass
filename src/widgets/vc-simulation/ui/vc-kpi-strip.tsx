@@ -26,7 +26,7 @@ export function VcKpiStrip({ result }: Props) {
       : `${result.jCurveBreakEvenMonth}${t("vc.unit.months")}`
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-4 gap-4">
       <KpiCard label={t("vc.kpi.irr")} value={irrDisplay} tone={irrBelow ? "risk" : "positive"} />
       <KpiCard label={t("vc.kpi.moic")} value={moicDisplay} />
       <KpiCard label={t("vc.kpi.payback")} value={paybackDisplay} />
@@ -37,13 +37,17 @@ export function VcKpiStrip({ result }: Props) {
 
 function KpiCard({ label, value, tone }: { label: string; value: string; tone?: "positive" | "risk" }) {
   return (
-    <div className="border border-[var(--bg-4)] rounded-[var(--radius-card)] p-4 bg-[var(--bg-1)]">
-      <div className="text-xs text-[var(--fg-2)]">{label}</div>
-      <div className={clsx(
-        "mt-2 text-2xl font-mono tabular-nums",
-        tone === "risk" && "text-[var(--signal-risk)]",
-        tone === "positive" && "text-[var(--fg-0)]",
-      )}>
+    <div className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary">
+      <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+        {label}
+      </div>
+      <div
+        className={clsx(
+          "mt-2.5 text-[22px] md:text-[24px] font-extrabold leading-none tabular-nums",
+          tone === "risk" ? "text-destructive" : "text-foreground",
+        )}
+        style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
+      >
         {value}
       </div>
     </div>

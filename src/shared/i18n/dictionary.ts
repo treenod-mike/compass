@@ -673,9 +673,9 @@ const dictionary = {
   "vc.baseline.withExperiment":    { ko: "실험 반영", en: "With experiments" },
   "vc.baseline.gap":               { ko: "실험 기여분", en: "Experiment contribution" },
 
-  "vc.badge.dataSource.real":      { ko: "실데이터", en: "Real data" },
-  "vc.badge.dataSource.benchmark": { ko: "장르 벤치마크", en: "Genre benchmark" },
-  "vc.badge.dataSource.default":   { ko: "기본 추정", en: "Default estimate" },
+  "vc.badge.dataSource.real":      { ko: "실측 LSTM 데이터", en: "Live LSTM data" },
+  "vc.badge.dataSource.benchmark": { ko: "장르 벤치마크 (실측 stale)", en: "Genre benchmark (LSTM stale)" },
+  "vc.badge.dataSource.default":   { ko: "데모 데이터 (실측 미연결)", en: "Demo data (no live LSTM)" },
   "vc.badge.stale":                { ko: "모델 업데이트 필요", en: "Model needs refresh" },
 
   "vc.error.convergence":      { ko: "IRR 수렴 불가 — 현금흐름 전부 음수 가능성", en: "IRR did not converge — likely all-negative cashflows" },
@@ -685,6 +685,64 @@ const dictionary = {
 
   "vc.unit.months":            { ko: "개월", en: "months" },
   "vc.unit.usd":               { ko: "USD", en: "USD" },
+
+  "vc.runway.title":                       { ko: "현금잔고 추이 ($K)", en: "Cash balance over time ($K)" },
+
+  "vc.chart.cumulativeRoas.title":                  { ko: "누적 ROAS", en: "Cumulative ROAS" },
+  "vc.chart.cumulativeRoas.subtitle":               { ko: "누적 매출 / 투자금 — BEP 100% 도달 시점이 본전 회수", en: "Cumulative revenue / investment — 100% = break-even" },
+  "vc.chart.cumulativeRoas.headerLabel":            { ko: "본전 회수까지", en: "Time to break-even" },
+  "vc.chart.cumulativeRoas.noRecovery":             { ko: "회수 불가", en: "No payback" },
+  "vc.chart.cumulativeRoas.bep":                    { ko: "BEP 100% (본전선)", en: "BEP 100% (break-even)" },
+  "vc.chart.cumulativeRoas.crossover":              { ko: "본전 회수", en: "break-even" },
+  "vc.chart.cumulativeRoas.p50":                    { ko: "기준 추정 (P50)", en: "Median (P50)" },
+  "vc.chart.cumulativeRoas.p10":                    { ko: "비관 시나리오 (P10)", en: "Pessimistic (P10)" },
+  "vc.chart.cumulativeRoas.p90":                    { ko: "낙관 시나리오 (P90)", en: "Optimistic (P90)" },
+  "vc.chart.cumulativeRoas.granularity.monthly":    { ko: "월별", en: "Monthly" },
+  "vc.chart.cumulativeRoas.granularity.quarterly":  { ko: "분기별", en: "Quarterly" },
+
+  "vc.unit.quarter":           { ko: "분기차", en: "Q" },
+
+  // === Result tabs ===
+  "vc.tabs.insights":          { ko: "인사이트", en: "Insights" },
+  "vc.tabs.kpi":               { ko: "주요 지표", en: "Key metrics" },
+  "vc.tabs.runway":            { ko: "현금흐름", en: "Cash flow" },
+
+  // === Benchmark vs actual gap disclosure ===
+  "vc.gap.label":                  { ko: "실측 vs 시뮬", en: "Actual vs simulated" },
+  "vc.gap.disconnected":           { ko: "실측 미연결 — 시뮬 가정만 사용", en: "Actuals not connected — simulation assumptions only" },
+  "vc.gap.window.d30":             { ko: "D30 코호트 기준", en: "Based on D30 cohort" },
+  "vc.gap.window.cumulative":      { ko: "출시 이후 누적 기준", en: "Based on cumulative since launch" },
+  "vc.gap.tone.match":             { ko: "거의 일치", en: "Closely matched" },
+  "vc.gap.tone.modestUp":          { ko: "실측 양호 — 시뮬은 보수적", en: "Actual outperforms — simulation is conservative" },
+  "vc.gap.tone.strongUp":          { ko: "시뮬이 너무 보수적", en: "Simulation is overly conservative" },
+  "vc.gap.tone.modestDown":        { ko: "실측 미달 — 시뮬이 낙관적", en: "Actual underperforms — simulation is optimistic" },
+  "vc.gap.tone.strongDown":        { ko: "시뮬이 너무 낙관적", en: "Simulation is overly optimistic" },
+
+  // === Insights panel ===
+  "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
+  "vc.insights.headline.hit":           { ko: "이 조건은 평가 기간 안에 본전 회수가 가능합니다.", en: "These inputs reach payback within the evaluation horizon." },
+  "vc.insights.headline.miss":          { ko: "이 조건은 평가 기간 안에 본전 회수가 어렵습니다. UA 비중을 늘리거나 기간을 길게 잡아야 합니다.", en: "These inputs do not reach payback within the horizon. Raise UA share or extend the horizon." },
+  "vc.insights.subFinalRoas":           { ko: "{horizon}개월 누적 ROAS", en: "{horizon}-month cumulative ROAS" },
+  "vc.insights.subMoic":                { ko: "투자 배수", en: "MOIC" },
+  "vc.insights.assumptions":            { ko: "가정: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production range), retention = LSTM 모델 P50. 게임 자체의 LTV/CPI 효율이 BEP 도달 한계를 결정합니다.", en: "Assumptions: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production), retention = LSTM model P50. The game's own LTV/CPI ratio sets the BEP ceiling." },
+
+  "vc.insights.lever.uaSharePct":       { ko: "UA 비중", en: "UA share" },
+  "vc.insights.lever.horizonMonths":    { ko: "평가 기간", en: "Horizon" },
+  "vc.insights.lever.deltaLtv":         { ko: "실험 LTV 가정", en: "Experiment LTV" },
+  "vc.insights.lever.investmentUsd":    { ko: "투자금", en: "Investment" },
+  "vc.insights.lever.hurdleRate":       { ko: "최소 기대수익률", en: "Hurdle rate" },
+
+  "vc.insights.ifThen.shorter":         { ko: "단축", en: "shorter" },
+  "vc.insights.ifThen.longer":          { ko: "지연", en: "longer" },
+  "vc.insights.ifThen.unchanged":       { ko: "변화 없음", en: "no change" },
+  "vc.insights.ifThen.miss":            { ko: "회수 불가", en: "no payback" },
+  "vc.insights.ifThen.toMiss":          { ko: "1년 내 회수 어려움", en: "BEP not reached in horizon" },
+  "vc.insights.ifThen.invariantTitle":  { ko: "BEP를 좌우하는 lever", en: "Levers that move BEP" },
+  "vc.insights.ifThen.invariantBody":   { ko: "UA 비중과 평가 기간 둘뿐. 투자금·hurdle은 영향 없음.", en: "Only UA share and horizon. Investment / hurdle do not move the BEP." },
+
+  "vc.insights.tornado.title":          { ko: "lever 영향도", en: "Lever impact" },
+  "vc.insights.tornado.subtitle":       { ko: "각 lever를 ±한 단계 변화시켰을 때 BEP 변화량", en: "ΔBEP when each lever is swung by one step" },
+  "vc.insights.tornado.invariant":      { ko: "영향 없음", en: "no impact" },
 
   // === Nav groups ===
   "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },

@@ -21,10 +21,10 @@ export function PresetTabs({ active, onSelect }: Props) {
           key={it.key}
           onClick={() => onSelect(PRESETS[it.key])}
           className={clsx(
-            "flex-1 text-xs px-2 py-1.5 rounded-[var(--radius-inline)] border transition",
+            "flex-1 text-xs font-medium px-2 py-1.5 rounded-md border transition-colors",
             active === it.key
-              ? "bg-[var(--brand)] text-white border-[var(--brand)]"
-              : "border-[var(--bg-4)] text-[var(--fg-2)] hover:bg-[var(--bg-2)]"
+              ? "bg-primary text-primary-foreground border-primary"
+              : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
           )}
         >
           {it.label}

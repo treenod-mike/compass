@@ -62,18 +62,18 @@ function NumberField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs text-[var(--fg-2)] flex justify-between">
+      <label className="text-xs text-muted-foreground flex justify-between">
         <span>{label}</span>
-        <span className="text-[var(--fg-3)]">{sub}</span>
+        <span className="text-muted-foreground/70">{sub}</span>
       </label>
       <input
         type="number"
         value={value}
         step={step}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="bg-[var(--bg-1)] border border-[var(--bg-4)] rounded-[var(--radius-inline)] px-2 py-1 text-sm font-mono"
+        className="bg-background border border-border rounded-md px-2 py-1.5 text-sm font-mono tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary"
       />
-      <div className="text-[11px] text-[var(--fg-3)] font-mono text-right">{formatter(value)}</div>
+      <div className="text-[11px] text-muted-foreground/70 font-mono tabular-nums text-right">{formatter(value)}</div>
     </div>
   )
 }
