@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { aggregate } from "../aggregation"
 import type { ExtendedInstall, EventRow } from "../types"
 
-const install = (id: string, t: string): ExtendedInstall => ({
-  installTime: t, partner: null, mediaSource: null, costValue: null,
+const install = (id: string, t: string, costValue: number | null = null): ExtendedInstall => ({
+  installTime: t, partner: null, mediaSource: null, costValue,
   eventRevenueUsd: null, eventName: "install",
   countryCode: null, platform: null,
   appsflyerId: id, eventTime: t,
@@ -113,5 +113,75 @@ describe("aggregate", () => {
     expect(apr10?.installs).toBe(1)         // u1 only here
     expect(apr15?.installs).toBe(1)         // u2 only — NOT u1
     expect(r.cohorts.reduce((n, c) => n + c.installs, 0)).toBe(2)  // distinct user count
+  })
+
+  it("USD costValue sums into cohort.uaSpendUsd and summary.spend.totalUsd", () => {
+    // 3 paid installs in same cohort: $1 + $2 + $3 = $6
+    const installs = [
+      install("u1", "2026-04-01 10:00:00", 1),
+      install("u2", "2026-04-01 11:00:00", 2),
+      install("u3", "2026-04-01 12:00:00", 3),
+    ]
+    const r = aggregate(installs, [], "USD")
+    const apr1 = r.cohorts.find((c) => c.cohortDate === "2026-04-01")
+    expect(apr1?.uaSpendUsd).toBeCloseTo(6)
+    expect(r.spend.totalUsd).toBeCloseTo(6)
+    expect(r.spend.homeCurrency).toBe("USD")
+  })
+
+  it("KRW costValue is converted to USD via static rate (1300 KRW = 1 USD)", () => {
+    const installs = [
+      install("u1", "2026-04-01 10:00:00", 1_300),
+      install("u2", "2026-04-01 11:00:00", 2_600),
+    ]
+    const r = aggregate(installs, [], "KRW")
+    const apr1 = r.cohorts.find((c) => c.cohortDate === "2026-04-01")
+    expect(apr1?.uaSpendUsd).toBeCloseTo(3)
+    expect(r.spend.totalUsd).toBeCloseTo(3)
+    expect(r.spend.homeCurrency).toBe("KRW")
+  })
+
+  it("organic install (costValue null) contributes 0 in supported FX cohort", () => {
+    // 1 paid + 1 organic in same cohort. uaSpendUsd should reflect paid only,
+    // not be null — distinguishing organic-only from "FX unsupported".
+    const installs = [
+      install("u1", "2026-04-01 10:00:00", 5),
+      install("u2", "2026-04-01 11:00:00", null),
+    ]
+    const r = aggregate(installs, [], "USD")
+    const apr1 = r.cohorts.find((c) => c.cohortDate === "2026-04-01")
+    expect(apr1?.uaSpendUsd).toBeCloseTo(5)
+    expect(apr1?.installs).toBe(2)
+  })
+
+  it("100% organic cohort under supported FX still reports 0, not null", () => {
+    const installs = [
+      install("u1", "2026-04-01 10:00:00", null),
+      install("u2", "2026-04-01 11:00:00", null),
+    ]
+    const r = aggregate(installs, [], "USD")
+    const apr1 = r.cohorts.find((c) => c.cohortDate === "2026-04-01")
+    expect(apr1?.uaSpendUsd).toBe(0)
+    expect(r.spend.totalUsd).toBe(0)
+  })
+
+  it("unsupported home_currency (JPY) yields null spend across cohort + summary", () => {
+    // Even with non-null costValue, JPY can't be FX-converted → null everywhere.
+    const installs = [
+      install("u1", "2026-04-01 10:00:00", 100),
+      install("u2", "2026-04-01 11:00:00", 200),
+    ]
+    const r = aggregate(installs, [], "JPY")
+    const apr1 = r.cohorts.find((c) => c.cohortDate === "2026-04-01")
+    expect(apr1?.uaSpendUsd).toBeNull()
+    expect(r.spend.totalUsd).toBeNull()
+    expect(r.spend.homeCurrency).toBe("JPY")
+  })
+
+  it("default homeCurrency arg is USD (back-compat for callers not passing it)", () => {
+    const installs = [install("u1", "2026-04-01 10:00:00", 5)]
+    const r = aggregate(installs, [])
+    expect(r.spend.homeCurrency).toBe("USD")
+    expect(r.spend.totalUsd).toBeCloseTo(5)
   })
 })

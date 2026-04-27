@@ -1,4 +1,11 @@
-import type { ExtendedInstall, EventRow, CohortObservation, CohortSummary } from "./types"
+import type {
+  ExtendedInstall,
+  EventRow,
+  CohortObservation,
+  CohortSummary,
+  HomeCurrency,
+} from "./types"
+import { convertToUsd, isCurrencySupported } from "@/shared/lib/currency"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const SESSION_EVENTS = new Set(["af_session", "af_app_opened"])
@@ -15,19 +22,34 @@ function toUtcDate(iso: string): string {
   return new Date(parseEpoch(iso)).toISOString().slice(0, 10)
 }
 
-function aggregateCohorts(installs: ExtendedInstall[], events: EventRow[]): CohortObservation[] {
+function aggregateCohorts(
+  installs: ExtendedInstall[],
+  events: EventRow[],
+  homeCurrency: HomeCurrency,
+): CohortObservation[] {
   const now = Date.now()
   const valid = installs.filter((i) => i.appsflyerId !== null && i.installTime !== null)
+  const fxSupported = isCurrencySupported(homeCurrency)
 
   // Each user belongs to exactly one cohort = their earliest install date.
   // Repeated install rows for the same appsflyerId (re-installs, multi-device,
-  // duplicated CSV rows) collapse into a single membership.
-  const firstInstall = new Map<string, { epoch: number; date: string }>()
+  // duplicated CSV rows) collapse into a single membership. Cost is taken
+  // from the row that wins the earliest-epoch tie because AppsFlyer attributes
+  // UA spend to the original paid install — subsequent re-attribution rows
+  // are organic-to-AF and would double-count.
+  const firstInstall = new Map<
+    string,
+    { epoch: number; date: string; costUsd: number | null }
+  >()
   for (const i of valid) {
     const epoch = parseEpoch(i.installTime!)
     const prior = firstInstall.get(i.appsflyerId!)
     if (!prior || epoch < prior.epoch) {
-      firstInstall.set(i.appsflyerId!, { epoch, date: toUtcDate(i.installTime!) })
+      firstInstall.set(i.appsflyerId!, {
+        epoch,
+        date: toUtcDate(i.installTime!),
+        costUsd: convertToUsd(i.costValue, homeCurrency),
+      })
     }
   }
 
@@ -73,6 +95,20 @@ function aggregateCohorts(installs: ExtendedInstall[], events: EventRow[]): Coho
       return retained
     }
 
+    // Spend semantics:
+    // - FX supported (USD/KRW): start at 0 and accumulate per-user costUsd.
+    //   An organic-only cohort therefore reports 0, which is meaningfully
+    //   different from "couldn't measure".
+    // - FX unsupported (JPY/EUR/...): we can't convert any costValue, so
+    //   leave the field null to signal "spend not measurable for this app".
+    let cohortSpendUsd: number | null = fxSupported ? 0 : null
+    if (fxSupported) {
+      for (const userId of members) {
+        const cost = firstInstall.get(userId)!.costUsd
+        if (cost !== null) cohortSpendUsd = (cohortSpendUsd ?? 0) + cost
+      }
+    }
+
     out.push({
       cohortDate,
       installs: members.size,
@@ -81,6 +117,7 @@ function aggregateCohorts(installs: ExtendedInstall[], events: EventRow[]): Coho
         d7: countRetained(7),
         d30: countRetained(30),
       },
+      uaSpendUsd: cohortSpendUsd,
     })
   }
 
@@ -112,10 +149,20 @@ function aggregateRevenue(events: EventRow[]): CohortSummary["revenue"] {
   }
 }
 
-export function aggregate(installs: ExtendedInstall[], events: EventRow[]): CohortSummary {
+export function aggregate(
+  installs: ExtendedInstall[],
+  events: EventRow[],
+  homeCurrency: HomeCurrency = "USD",
+): CohortSummary {
+  const cohorts = aggregateCohorts(installs, events, homeCurrency)
+  const fxSupported = isCurrencySupported(homeCurrency)
+  const totalUsd = fxSupported
+    ? cohorts.reduce((acc, c) => acc + (c.uaSpendUsd ?? 0), 0)
+    : null
   return {
     updatedAt: new Date().toISOString(),
-    cohorts: aggregateCohorts(installs, events),
+    cohorts,
     revenue: aggregateRevenue(events),
+    spend: { totalUsd, homeCurrency },
   }
 }

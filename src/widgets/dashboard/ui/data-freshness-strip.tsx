@@ -3,6 +3,10 @@
 import { useLocale } from "@/shared/i18n"
 import type { DataFreshness } from "@/shared/api/mock-data"
 import { InfoHint } from "@/shared/ui/info-hint"
+import {
+  revenueSnapshotAgeDays,
+  isRevenueSnapshotStale,
+} from "@/shared/api/lstm/revenue-snapshot"
 import { useLiveAfData } from "../lib/use-live-af-data"
 
 type DataFreshnessStripProps = {
@@ -123,6 +127,18 @@ export function DataFreshnessStrip({ data }: DataFreshnessStripProps) {
           label={t("data.convergence")}
           value={`${data.modelConvergence}%`}
           info={t("info.data.convergence")}
+        />
+
+        {/* LSTM predictor freshness — stale when snapshot >7 days old */}
+        <Row
+          color={
+            isRevenueSnapshotStale()
+              ? "var(--signal-caution)"
+              : "var(--signal-positive)"
+          }
+          label={t("data.mlPredictor")}
+          value={`${revenueSnapshotAgeDays()}d`}
+          info={t("info.data.mlPredictor")}
         />
 
         {/* AppsFlyer live sync row */}

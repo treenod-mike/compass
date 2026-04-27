@@ -369,6 +369,7 @@ const dictionary = {
   "data.high":             { ko: "높음",                      en: "High" },
   "data.medium":           { ko: "보통",                      en: "Medium" },
   "data.low":              { ko: "낮음",                       en: "Low" },
+  "data.mlPredictor":      { ko: "ML 예측기",                  en: "ML Predictor" },
 
   // --- Summary Card Infomarks: KPI definitions (L1 + L2 context) ---
   "info.kpi.blendedRoas":  { ko: "전 채널 통합 투자수익률. 100% = 본전, 148% = UA $1당 $1.48 회수.",
@@ -425,6 +426,8 @@ const dictionary = {
                              en: "How close the prediction model is to stable estimates. 80%+ = trustworthy, below = directional only." },
   "info.data.quality":     { ko: "연결된 데이터 소스의 완결성·최신성·일관성 종합 평가. High = 의사결정 근거로 충분.",
                              en: "Overall data source completeness, freshness, consistency. High = sufficient for decision-making." },
+  "info.data.mlPredictor": { ko: "LSTM 매출 예측 스냅샷의 경과 일수. 7일 초과 시 caution — cron이 미실행이거나 백오프 중일 수 있습니다.",
+                             en: "Age of the LSTM revenue forecast snapshot. >7d triggers caution — cron may have skipped or be backing off." },
 
   // --- Summary Card Infomarks: MarketHeroVerdict ---
   "info.marketHero.confidence":{ ko: "현재 시장 신호(투자/유지/축소)를 모델이 얼마나 확신하는가. 70% 이상이면 실행 근거 충분. Bayesian posterior 기반 추정치.",
@@ -717,6 +720,12 @@ const dictionary = {
   "vc.gap.tone.strongUp":          { ko: "시뮬이 너무 보수적", en: "Simulation is overly conservative" },
   "vc.gap.tone.modestDown":        { ko: "실측 미달 — 시뮬이 낙관적", en: "Actual underperforms — simulation is optimistic" },
   "vc.gap.tone.strongDown":        { ko: "시뮬이 너무 낙관적", en: "Simulation is overly optimistic" },
+  "vc.gap.ltvCpi.label":           { ko: "LTV/CPI", en: "LTV/CPI" },
+  "vc.gap.ltvCpi.actual":          { ko: "실측", en: "Actual" },
+  "vc.gap.ltvCpi.sim":             { ko: "시뮬", en: "Sim" },
+  "vc.gap.fxNote":                 { ko: "환율은 분기 평균 환산표 적용", en: "FX uses quarterly-average rates" },
+  "vc.gap.fxUnsupported":          { ko: "{currency}은 환산 미지원 — LTV/CPI 비교 생략", en: "{currency} not FX-supported — LTV/CPI gap unavailable" },
+  "vc.gap.noPaidInstalls":         { ko: "유료 설치 없음 — LTV/CPI 비교 생략", en: "No paid installs — LTV/CPI gap unavailable" },
 
   // === Insights panel ===
   "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
