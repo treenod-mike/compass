@@ -1,10 +1,9 @@
 "use client"
 
 import type { VcSimResult } from "@/shared/api/vc-simulation"
-import { VcKpiStrip } from "./vc-kpi-strip"
-import { VcInsightsPanel } from "./vc-insights-panel"
+import { DecisionSentence } from "./decision-sentence"
 import { CumulativeRoasChart } from "./cumulative-roas-chart"
-import { DualBaselineRunwayChart } from "./dual-baseline-runway-chart"
+import { VcResultTabs } from "./vc-result-tabs"
 
 type Props = {
   result: VcSimResult
@@ -13,6 +12,13 @@ type Props = {
   bayesianDeltaLtv: number | null
 }
 
+/**
+ * Result panel hierarchy:
+ *   1. DecisionSentence — one-line verdict, always visible.
+ *   2. CumulativeRoasChart — primary visualization, always visible.
+ *   3. VcResultTabs — secondary info (insights / KPI / cash-flow) compressed
+ *      into a tab strip so the decision-maker isn't shown everything at once.
+ */
 export function VcResultBoard({
   result,
   gameId,
@@ -21,17 +27,13 @@ export function VcResultBoard({
 }: Props) {
   return (
     <div className="space-y-4">
-      <VcKpiStrip result={result} />
-      <VcInsightsPanel
+      <DecisionSentence result={result} />
+      <CumulativeRoasChart result={result} />
+      <VcResultTabs
         result={result}
         gameId={gameId}
         appsflyerInitialCash={appsflyerInitialCash}
         bayesianDeltaLtv={bayesianDeltaLtv}
-      />
-      <CumulativeRoasChart result={result} />
-      <DualBaselineRunwayChart
-        result={result}
-        hurdleLine={(result.offer.hurdleRate * result.offer.investmentUsd) / 1000}
       />
     </div>
   )

@@ -702,6 +702,11 @@ const dictionary = {
 
   "vc.unit.quarter":           { ko: "분기차", en: "Q" },
 
+  // === Result tabs ===
+  "vc.tabs.insights":          { ko: "인사이트", en: "Insights" },
+  "vc.tabs.kpi":               { ko: "주요 지표", en: "Key metrics" },
+  "vc.tabs.runway":            { ko: "현금흐름", en: "Cash flow" },
+
   // === Insights panel ===
   "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
   "vc.insights.headline.hit":           { ko: "현재 조건으로 ROAS 100% 도달은 {n}개월차.", en: "At current inputs, ROAS reaches 100% at month {n}." },

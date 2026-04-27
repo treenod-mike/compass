@@ -9,7 +9,6 @@ import {
   tornadoSensitivity,
   type SimContext,
 } from "../lib/sensitivity"
-import { DecisionSentence } from "./decision-sentence"
 import { IfThenCard } from "./if-then-card"
 import { TornadoBar } from "./tornado-bar"
 
@@ -63,8 +62,6 @@ export function VcInsightsPanel({
 
   return (
     <div className="space-y-4">
-      <DecisionSentence result={result} />
-
       <div className="grid grid-cols-3 gap-3">
         <IfThenCard
           leverKey={scenarios[0].leverKey}
