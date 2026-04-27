@@ -45,17 +45,39 @@ type Sources = {
 }
 
 type SimulationPath = {
-  /** Net cash position per month (initial cash + cumulative net cash flow). */
+  /** Net cash position per month. */
   cash: number[]
   /** Cumulative gross revenue per month (monotonic non-decreasing). */
   cumRevenue: number[]
+}
+
+/**
+ * Pre-compute the sum of daily retention over each 30-day age window:
+ *   ageWindow[k] = Σ_{d = k*30+1 .. (k+1)*30} ret(d)
+ * Multiplying by monthlyInstalls × ARPDAU yields the revenue contribution
+ * of a single cohort while it is `k` months old.
+ */
+function buildAgeWindows(
+  snapshot: LstmSnapshot,
+  gameId: string,
+  horizonMonths: number,
+): number[] {
+  const windows: number[] = []
+  for (let k = 0; k < horizonMonths; k++) {
+    let s = 0
+    for (let d = k * 30 + 1; d <= (k + 1) * 30; d++) {
+      s += interpolateRetention(snapshot, gameId, d, "p50")
+    }
+    windows.push(s)
+  }
+  return windows
 }
 
 function simulateOnePath(
   offer: Offer,
   sources: Sources,
   rng: () => number,
-  withExperiment: boolean
+  withExperiment: boolean,
 ): SimulationPath {
   const cash: number[] = []
   const cumRevenue: number[] = []
@@ -67,27 +89,34 @@ function simulateOnePath(
   const monthlyUa = uaBudgetTotal / offer.horizonMonths
   const monthlyOps = opsBudgetTotal / offer.horizonMonths
 
-  const CPI = 2.5 + rng() * 1.0
-  const ARPDAU = 0.15 + rng() * 0.1
+  // Industry CPI/ARPDAU ranges for puzzle/casual mobile games (Liftoff/AppsFlyer).
+  const CPI = 2.5 + rng() * 1.0          // [$2.5, $3.5]
+  const ARPDAU = 0.30 + rng() * 0.20     // [$0.30, $0.50]
+  const monthlyInstalls = monthlyUa / CPI
 
   const expDeltaLtv =
     withExperiment && sources.bayesianPosterior ? sources.bayesianPosterior.deltaLtv : 0
   const expCostMonthly = withExperiment ? monthlyUa * 0.1 : 0
   const expEffectStartMonth = 6
 
+  const ageWindow = buildAgeWindows(sources.lstmSnapshot, sources.gameId, offer.horizonMonths)
+
   cash.push(cumulative)
   cumRevenue.push(0)
+
   for (let t = 1; t <= offer.horizonMonths; t++) {
-    const installs = monthlyUa / CPI
-    const liftFactor = t >= expEffectStartMonth ? 1 + expDeltaLtv : 1
-    let cohortRev = 0
-    for (let d = 1; d <= 30; d++) {
-      const ret = interpolateRetention(sources.lstmSnapshot, sources.gameId, d, "p50")
-      cohortRev += installs * ret * ARPDAU * liftFactor
+    // Sum revenue from every cohort installed in months 1..t.
+    // A cohort installed at month c is `t - c` months old this month and
+    // contributes monthlyInstalls × ageWindow[t-c] × ARPDAU × liftFactor.
+    let monthRev = 0
+    for (let c = 1; c <= t; c++) {
+      const ageMonths = t - c
+      const liftFactor = c >= expEffectStartMonth ? 1 + expDeltaLtv : 1
+      monthRev += monthlyInstalls * ageWindow[ageMonths] * ARPDAU * liftFactor
     }
     const cost = monthlyUa + monthlyOps + expCostMonthly
-    cumulative += cohortRev - cost
-    cumRev += cohortRev
+    cumulative += monthRev - cost
+    cumRev += monthRev
     cash.push(cumulative)
     cumRevenue.push(cumRev)
   }
@@ -135,7 +164,7 @@ function percentile(arr: number[], p: number): number {
 function buildBaseline(
   cashSamples: number[][],
   revSamples: number[][],
-  offer: Offer
+  offer: Offer,
 ): BaselineResult {
   const months = cashSamples[0].length
   const runway: RunwayPoint[] = []
@@ -166,10 +195,14 @@ function buildBaseline(
   const p50Irr = irrs.length > 0 ? percentile(irrs, 0.5) : NaN
   const finalCash = percentile(
     cashSamples.map((s) => s[months - 1]),
-    0.5
+    0.5,
   )
   const p50Moic = finalCash / offer.investmentUsd
-  const paybackMonths = findPaybackMonth(cashSamples, offer.investmentUsd)
+  // Payback = first month where P50 cumulative revenue meets investment.
+  // This aligns with the chart's BEP definition (revenue-based, monotonic),
+  // and avoids the prior "initial cash trap" where cash[0] already exceeded
+  // the threshold by virtue of appsflyerInitialCash being added at start.
+  const paybackMonths = findRevenueBepMonth(revSamples, offer.investmentUsd)
 
   return { runway, cumulativeRevenue, irrDistribution: irrs, p50Irr, p50Moic, paybackMonths }
 }
@@ -192,13 +225,16 @@ function computeIrr(flows: number[]): number {
   return NaN
 }
 
-function findPaybackMonth(samples: number[][], initial: number): number | null {
-  const target = initial
-  const months = samples[0].length
-  for (let m = 0; m < months; m++) {
+/**
+ * First month at which P50 cumulative gross revenue ≥ target.
+ * Skips month 0 (cumulative revenue is always 0 at start).
+ */
+function findRevenueBepMonth(revSamples: number[][], target: number): number | null {
+  const months = revSamples[0].length
+  for (let m = 1; m < months; m++) {
     const p50 = percentile(
-      samples.map((s) => s[m]),
-      0.5
+      revSamples.map((s) => s[m]),
+      0.5,
     )
     if (p50 >= target) return m
   }
