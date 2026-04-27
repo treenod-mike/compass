@@ -38,3 +38,29 @@ export function fitPowerLaw(points: Array<{ day: number; value: number }>): Powe
   const a = Math.exp(intercept)
   return { a, b }
 }
+
+export class MaxDayOutOfRangeError extends Error {
+  constructor(public readonly maxDay: number) {
+    super(`maxDay must be in (0, 1095], got ${maxDay}`)
+    this.name = "MaxDayOutOfRangeError"
+  }
+}
+
+const MAX_FORECAST_DAYS = 1095
+
+export function extrapolatePowerLawCurve(args: {
+  fit: PowerLawFit
+  maxDay: number
+  floor: number
+}): number[] {
+  const { fit, maxDay, floor } = args
+  if (!(maxDay > 0) || maxDay > MAX_FORECAST_DAYS) throw new MaxDayOutOfRangeError(maxDay)
+  if (!(floor >= 0)) throw new Error(`floor must be ≥ 0, got ${floor}`)
+  const out = new Array<number>(maxDay)
+  for (let i = 0; i < maxDay; i++) {
+    const day = i + 1
+    const raw = fit.a * Math.pow(day, -fit.b)
+    out[i] = Math.max(raw, floor)
+  }
+  return out
+}
