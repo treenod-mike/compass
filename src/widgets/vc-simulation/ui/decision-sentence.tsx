@@ -1,8 +1,14 @@
 "use client"
 
 import type { VcSimResult } from "@/shared/api/vc-simulation"
-import { useLocale } from "@/shared/i18n"
+import { useLocale, type TranslationKey } from "@/shared/i18n"
 import { clsx } from "clsx"
+import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
+import {
+  computeBenchmarkGap,
+  formatGapPct,
+  toneClass,
+} from "../lib/benchmark-gap"
 
 type Props = { result: VcSimResult }
 
@@ -26,6 +32,9 @@ export function DecisionSentence({ result }: Props) {
     ? t("vc.insights.headline.hit")
     : t("vc.insights.headline.miss")
 
+  const { state, summary } = useLiveAfData()
+  const benchmark = computeBenchmarkGap(state, summary, result.offer)
+
   return (
     <div
       className={clsx(
@@ -45,6 +54,15 @@ export function DecisionSentence({ result }: Props) {
         )}
       >
         {headline}
+        {benchmark.status === "active" && benchmark.gap !== null && benchmark.tone && (
+          <>
+            {" "}
+            <span className={toneClass(benchmark.tone)}>
+              실측은 시뮬보다 {formatGapPct(benchmark.gap)} —{" "}
+              {t(`vc.gap.tone.${benchmark.tone}` as TranslationKey)}.
+            </span>
+          </>
+        )}
       </div>
       <div className="mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-xs">
         <span className="text-muted-foreground">

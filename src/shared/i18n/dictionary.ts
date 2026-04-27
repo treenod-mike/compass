@@ -707,6 +707,17 @@ const dictionary = {
   "vc.tabs.kpi":               { ko: "주요 지표", en: "Key metrics" },
   "vc.tabs.runway":            { ko: "현금흐름", en: "Cash flow" },
 
+  // === Benchmark vs actual gap disclosure ===
+  "vc.gap.label":                  { ko: "실측 vs 시뮬", en: "Actual vs simulated" },
+  "vc.gap.disconnected":           { ko: "실측 미연결 — 시뮬 가정만 사용", en: "Actuals not connected — simulation assumptions only" },
+  "vc.gap.window.d30":             { ko: "D30 코호트 기준", en: "Based on D30 cohort" },
+  "vc.gap.window.cumulative":      { ko: "출시 이후 누적 기준", en: "Based on cumulative since launch" },
+  "vc.gap.tone.match":             { ko: "거의 일치", en: "Closely matched" },
+  "vc.gap.tone.modestUp":          { ko: "실측 양호 — 시뮬은 보수적", en: "Actual outperforms — simulation is conservative" },
+  "vc.gap.tone.strongUp":          { ko: "시뮬이 너무 보수적", en: "Simulation is overly conservative" },
+  "vc.gap.tone.modestDown":        { ko: "실측 미달 — 시뮬이 낙관적", en: "Actual underperforms — simulation is optimistic" },
+  "vc.gap.tone.strongDown":        { ko: "시뮬이 너무 낙관적", en: "Simulation is overly optimistic" },
+
   // === Insights panel ===
   "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
   "vc.insights.headline.hit":           { ko: "이 조건은 평가 기간 안에 본전 회수가 가능합니다.", en: "These inputs reach payback within the evaluation horizon." },

@@ -15,7 +15,13 @@ import {
 } from "recharts"
 import { clsx } from "clsx"
 import type { VcSimResult } from "@/shared/api/vc-simulation"
-import { useLocale } from "@/shared/i18n"
+import { useLocale, type TranslationKey } from "@/shared/i18n"
+import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
+import {
+  computeBenchmarkGap,
+  formatGapPct,
+  toneClass,
+} from "../lib/benchmark-gap"
 
 type Props = { result: VcSimResult }
 type Granularity = "monthly" | "quarterly"
@@ -65,6 +71,9 @@ export function CumulativeRoasChart({ result }: Props) {
     if (m === 0) return "M0"
     return `${m / 3}${t("vc.unit.quarter")}`
   }
+
+  const { state, summary } = useLiveAfData()
+  const benchmark = computeBenchmarkGap(state, summary, result.offer)
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary">
@@ -233,6 +242,30 @@ export function CumulativeRoasChart({ result }: Props) {
           )}
         </ComposedChart>
       </ResponsiveContainer>
+
+      {/* Benchmark vs actual gap chip — sits as a footer companion to the
+          chart so the decision-maker sees at a glance whether the simulator's
+          puzzle/casual benchmark assumptions align with their game's actuals. */}
+      <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between gap-3 text-[11px] flex-wrap">
+        <span className="text-muted-foreground/80">
+          {t("vc.gap.label")}
+        </span>
+        {benchmark.status === "active" && benchmark.gap !== null && benchmark.tone ? (
+          <span className="flex items-baseline gap-2 font-mono tabular-nums">
+            <span className="text-muted-foreground/70">
+              {benchmark.selected === "d30"
+                ? t("vc.gap.window.d30")
+                : t("vc.gap.window.cumulative")}
+            </span>
+            <span className={toneClass(benchmark.tone)}>
+              {formatGapPct(benchmark.gap)} ·{" "}
+              {t(`vc.gap.tone.${benchmark.tone}` as TranslationKey)}
+            </span>
+          </span>
+        ) : (
+          <span className="text-muted-foreground/60">{t("vc.gap.disconnected")}</span>
+        )}
+      </div>
     </div>
   )
 }
