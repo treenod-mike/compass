@@ -73,14 +73,19 @@ export default function VcSimulationPage() {
 
   return (
     <PageTransition>
-      <div className="px-10 pt-6 pb-24">
+      <div className="px-10 pt-6 pb-6 flex flex-col h-full min-h-0">
         <FadeInUp>
           <PageHeader titleKey="vc.page.title" subtitleKey="vc.page.subtitle" />
         </FadeInUp>
-        <FadeInUp>
-          <div className="mt-6 grid grid-cols-[360px_1fr] gap-6">
-            <VcInputPanel onChange={setOffer} />
-            <div className="space-y-3">
+        <FadeInUp className="flex-1 min-h-0 mt-6">
+          <div className="grid grid-cols-[360px_1fr] gap-6 h-full min-h-0">
+            {/* Left column — input panel scrolls independently. */}
+            <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
+              <VcInputPanel onChange={setOffer} />
+            </div>
+            {/* Right column — results scroll independently so input stays in
+                view as the user explores the insights / charts below. */}
+            <div className="overflow-y-auto pr-2 -mr-2 space-y-3 min-h-0">
               {/* Both badges depend on isLstmStale() / new Date() — gate behind
                   `mounted` to keep SSR-rendered HTML identical to first client render.
                   Until mount, show a deterministic "real" placeholder. */}

@@ -673,9 +673,9 @@ const dictionary = {
   "vc.baseline.withExperiment":    { ko: "실험 반영", en: "With experiments" },
   "vc.baseline.gap":               { ko: "실험 기여분", en: "Experiment contribution" },
 
-  "vc.badge.dataSource.real":      { ko: "실데이터", en: "Real data" },
-  "vc.badge.dataSource.benchmark": { ko: "장르 벤치마크", en: "Genre benchmark" },
-  "vc.badge.dataSource.default":   { ko: "기본 추정", en: "Default estimate" },
+  "vc.badge.dataSource.real":      { ko: "실측 LSTM 데이터", en: "Live LSTM data" },
+  "vc.badge.dataSource.benchmark": { ko: "장르 벤치마크 (실측 stale)", en: "Genre benchmark (LSTM stale)" },
+  "vc.badge.dataSource.default":   { ko: "데모 데이터 (실측 미연결)", en: "Demo data (no live LSTM)" },
   "vc.badge.stale":                { ko: "모델 업데이트 필요", en: "Model needs refresh" },
 
   "vc.error.convergence":      { ko: "IRR 수렴 불가 — 현금흐름 전부 음수 가능성", en: "IRR did not converge — likely all-negative cashflows" },
@@ -721,8 +721,8 @@ const dictionary = {
   "vc.insights.ifThen.unchanged":       { ko: "변화 없음", en: "no change" },
   "vc.insights.ifThen.miss":            { ko: "회수 불가", en: "no payback" },
   "vc.insights.ifThen.toMiss":          { ko: "1년 내 회수 어려움", en: "BEP not reached in horizon" },
-  "vc.insights.ifThen.invariantTitle":  { ko: "다른 입력은 영향 없음", en: "Other inputs are BEP-invariant" },
-  "vc.insights.ifThen.invariantBody":   { ko: "투자금·hurdle·initial cash 변화는 ROAS 100% 도달 시점에 영향을 주지 않습니다. 결정권자가 통제 가능한 lever는 UA 비중과 평가 기간뿐입니다.", en: "investment / hurdle / initial cash do not move the BEP. The only controllable levers are UA share and horizon." },
+  "vc.insights.ifThen.invariantTitle":  { ko: "BEP를 좌우하는 lever", en: "Levers that move BEP" },
+  "vc.insights.ifThen.invariantBody":   { ko: "UA 비중과 평가 기간 둘뿐. 투자금·hurdle은 영향 없음.", en: "Only UA share and horizon. Investment / hurdle do not move the BEP." },
 
   "vc.insights.tornado.title":          { ko: "lever 영향도", en: "Lever impact" },
   "vc.insights.tornado.subtitle":       { ko: "각 lever를 ±한 단계 변화시켰을 때 BEP 변화량", en: "ΔBEP when each lever is swung by one step" },
