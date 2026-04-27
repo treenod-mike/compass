@@ -20,6 +20,7 @@ import {
 } from "@/shared/api"
 import type { SignalStatus } from "@/shared/api/mock-data"
 import { useGameData } from "@/shared/api/use-game-data"
+import { useRevenueForecast } from "@/shared/api/lstm/use-revenue-forecast"
 import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { useGridLayout } from "@/shared/hooks"
@@ -43,6 +44,7 @@ export default function ExecutiveOverviewPage() {
   const { t: _t } = useLocale()
   const gameId = useSelectedGame((s) => s.gameId)
   const gameData = useGameData()
+  const revenueForecast = useRevenueForecast(gameId, gameData.charts.revenueForecast)
   const heatmapGrid = useGridLayout(2)
   const waterfallGrid = useGridLayout(2)
   const forecastGrid = useGridLayout(1)
@@ -197,7 +199,7 @@ export default function ExecutiveOverviewPage() {
           transition={GRID_TRANSITION}
         >
           <RevenueForecast
-            data={gameData.charts.revenueForecast}
+            data={revenueForecast.points}
             meta={gameData.charts.revenueForecastMeta}
             expanded={forecastGrid.expandedId === "chart-0"}
             onToggle={() => forecastGrid.toggle("chart-0")}

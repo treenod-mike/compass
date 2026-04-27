@@ -8,7 +8,7 @@ import lstmJson from "../data/lstm/retention-snapshot.json"
 
 export const LSTM_SNAPSHOT: LstmSnapshot = LstmSnapshotSchema.parse(lstmJson)
 
-export function isLstmStale(now: Date = new Date(), maxDays = 30): boolean {
+export function isLstmStale(now: Date = new Date(), maxDays = 7): boolean {
   const generated = new Date(LSTM_SNAPSHOT.generated_at)
   return (now.getTime() - generated.getTime()) / 86400000 > maxDays
 }

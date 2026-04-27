@@ -369,6 +369,7 @@ const dictionary = {
   "data.high":             { ko: "높음",                      en: "High" },
   "data.medium":           { ko: "보통",                      en: "Medium" },
   "data.low":              { ko: "낮음",                       en: "Low" },
+  "data.mlPredictor":      { ko: "ML 예측기",                  en: "ML Predictor" },
 
   // --- Summary Card Infomarks: KPI definitions (L1 + L2 context) ---
   "info.kpi.blendedRoas":  { ko: "전 채널 통합 투자수익률. 100% = 본전, 148% = UA $1당 $1.48 회수.",
@@ -425,6 +426,8 @@ const dictionary = {
                              en: "How close the prediction model is to stable estimates. 80%+ = trustworthy, below = directional only." },
   "info.data.quality":     { ko: "연결된 데이터 소스의 완결성·최신성·일관성 종합 평가. High = 의사결정 근거로 충분.",
                              en: "Overall data source completeness, freshness, consistency. High = sufficient for decision-making." },
+  "info.data.mlPredictor": { ko: "LSTM 매출 예측 스냅샷의 경과 일수. 7일 초과 시 caution — cron이 미실행이거나 백오프 중일 수 있습니다.",
+                             en: "Age of the LSTM revenue forecast snapshot. >7d triggers caution — cron may have skipped or be backing off." },
 
   // --- Summary Card Infomarks: MarketHeroVerdict ---
   "info.marketHero.confidence":{ ko: "현재 시장 신호(투자/유지/축소)를 모델이 얼마나 확신하는가. 70% 이상이면 실행 근거 충분. Bayesian posterior 기반 추정치.",
