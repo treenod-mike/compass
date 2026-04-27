@@ -148,6 +148,9 @@ export const AppSchema = z.object({
   gameKey: GameKeySchema,
   label: z.string().max(80),
   createdAt: z.string().datetime(),
+  // LSTM Phase 2: 장르/지역 prior lookup용. 미설정 게임은 sufficiency check에서 skip
+  genre: z.string().min(1).max(40).optional(),
+  region: z.string().min(2).max(8).optional(),
 })
 export type App = z.infer<typeof AppSchema>
 
