@@ -102,7 +102,7 @@ export function CumulativeRoasChart({ result }: Props) {
               {t("vc.chart.cumulativeRoas.headerLabel")}
             </div>
             <div
-              className="mt-1.5 text-[28px] md:text-[32px] font-extrabold leading-none tabular-nums text-foreground"
+              className="mt-1.5 text-[32px] md:text-[36px] font-extrabold leading-none tabular-nums text-foreground"
               style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
             >
               {bepMonth != null

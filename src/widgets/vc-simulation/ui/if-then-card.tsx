@@ -63,7 +63,7 @@ export function IfThenCard({
       </div>
       <div className="mt-3 flex items-baseline gap-1.5">
         <span
-          className="text-[24px] md:text-[28px] font-extrabold tabular-nums leading-none text-foreground"
+          className="text-[18px] md:text-[22px] font-extrabold tabular-nums leading-none text-foreground"
           style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}
         >
           {newBep != null ? newBep : "—"}

@@ -43,7 +43,7 @@ function KpiCard({ label, value, tone }: { label: string; value: string; tone?: 
       </div>
       <div
         className={clsx(
-          "mt-2.5 text-[28px] md:text-[32px] font-extrabold leading-none tabular-nums",
+          "mt-2.5 text-[22px] md:text-[24px] font-extrabold leading-none tabular-nums",
           tone === "risk" ? "text-destructive" : "text-foreground",
         )}
         style={{ letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}

@@ -709,8 +709,8 @@ const dictionary = {
 
   // === Insights panel ===
   "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
-  "vc.insights.headline.hit":           { ko: "현재 조건으로 ROAS 100% 도달은 {n}개월차.", en: "At current inputs, ROAS reaches 100% at month {n}." },
-  "vc.insights.headline.miss":          { ko: "현재 조건으로 1년 내 ROAS 100% 도달 불가.", en: "At current inputs, ROAS does not reach 100% within the horizon." },
+  "vc.insights.headline.hit":           { ko: "이 조건은 평가 기간 안에 본전 회수가 가능합니다.", en: "These inputs reach payback within the evaluation horizon." },
+  "vc.insights.headline.miss":          { ko: "이 조건은 평가 기간 안에 본전 회수가 어렵습니다. UA 비중을 늘리거나 기간을 길게 잡아야 합니다.", en: "These inputs do not reach payback within the horizon. Raise UA share or extend the horizon." },
   "vc.insights.subFinalRoas":           { ko: "{horizon}개월 누적 ROAS", en: "{horizon}-month cumulative ROAS" },
   "vc.insights.subMoic":                { ko: "투자 배수", en: "MOIC" },
   "vc.insights.assumptions":            { ko: "가정: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production range), retention = LSTM 모델 P50. 게임 자체의 LTV/CPI 효율이 BEP 도달 한계를 결정합니다.", en: "Assumptions: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production), retention = LSTM model P50. The game's own LTV/CPI ratio sets the BEP ceiling." },
