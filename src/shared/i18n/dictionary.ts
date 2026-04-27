@@ -702,6 +702,32 @@ const dictionary = {
 
   "vc.unit.quarter":           { ko: "분기차", en: "Q" },
 
+  // === Insights panel ===
+  "vc.insights.decisionLabel":          { ko: "한 줄 결론", en: "Verdict" },
+  "vc.insights.headline.hit":           { ko: "현재 조건으로 ROAS 100% 도달은 {n}개월차.", en: "At current inputs, ROAS reaches 100% at month {n}." },
+  "vc.insights.headline.miss":          { ko: "현재 조건으로 1년 내 ROAS 100% 도달 불가.", en: "At current inputs, ROAS does not reach 100% within the horizon." },
+  "vc.insights.subFinalRoas":           { ko: "{horizon}개월 누적 ROAS", en: "{horizon}-month cumulative ROAS" },
+  "vc.insights.subMoic":                { ko: "투자 배수", en: "MOIC" },
+  "vc.insights.assumptions":            { ko: "가정: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production range), retention = LSTM 모델 P50. 게임 자체의 LTV/CPI 효율이 BEP 도달 한계를 결정합니다.", en: "Assumptions: CPI $2.5–3.5, ARPDAU $0.30–0.50 (puzzle/casual production), retention = LSTM model P50. The game's own LTV/CPI ratio sets the BEP ceiling." },
+
+  "vc.insights.lever.uaSharePct":       { ko: "UA 비중", en: "UA share" },
+  "vc.insights.lever.horizonMonths":    { ko: "평가 기간", en: "Horizon" },
+  "vc.insights.lever.deltaLtv":         { ko: "실험 LTV 가정", en: "Experiment LTV" },
+  "vc.insights.lever.investmentUsd":    { ko: "투자금", en: "Investment" },
+  "vc.insights.lever.hurdleRate":       { ko: "최소 기대수익률", en: "Hurdle rate" },
+
+  "vc.insights.ifThen.shorter":         { ko: "단축", en: "shorter" },
+  "vc.insights.ifThen.longer":          { ko: "지연", en: "longer" },
+  "vc.insights.ifThen.unchanged":       { ko: "변화 없음", en: "no change" },
+  "vc.insights.ifThen.miss":            { ko: "회수 불가", en: "no payback" },
+  "vc.insights.ifThen.toMiss":          { ko: "1년 내 회수 어려움", en: "BEP not reached in horizon" },
+  "vc.insights.ifThen.invariantTitle":  { ko: "다른 입력은 영향 없음", en: "Other inputs are BEP-invariant" },
+  "vc.insights.ifThen.invariantBody":   { ko: "투자금·hurdle·initial cash 변화는 ROAS 100% 도달 시점에 영향을 주지 않습니다. 결정권자가 통제 가능한 lever는 UA 비중과 평가 기간뿐입니다.", en: "investment / hurdle / initial cash do not move the BEP. The only controllable levers are UA share and horizon." },
+
+  "vc.insights.tornado.title":          { ko: "lever 영향도", en: "Lever impact" },
+  "vc.insights.tornado.subtitle":       { ko: "각 lever를 ±한 단계 변화시켰을 때 BEP 변화량", en: "ΔBEP when each lever is swung by one step" },
+  "vc.insights.tornado.invariant":      { ko: "영향 없음", en: "no impact" },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },
   "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },

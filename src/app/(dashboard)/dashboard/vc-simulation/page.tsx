@@ -87,7 +87,12 @@ export default function VcSimulationPage() {
               <DataSourceBadge badge={mounted ? result.dataSourceBadge : "real"} />
               {mounted && stale && <StaleBadge />}
               <CalcBoundary>
-                <VcResultBoard result={result} />
+                <VcResultBoard
+                  result={result}
+                  gameId={gameId}
+                  appsflyerInitialCash={initialCash}
+                  bayesianDeltaLtv={bayesianDeltaLtv}
+                />
               </CalcBoundary>
             </div>
           </div>

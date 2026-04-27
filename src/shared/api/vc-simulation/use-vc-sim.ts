@@ -6,7 +6,7 @@ import { computeVcSimulation } from "./compute"
 import { LstmSnapshotSchema } from "./types"
 import lstmJson from "../data/lstm/retention-snapshot.json"
 
-const LSTM_SNAPSHOT: LstmSnapshot = LstmSnapshotSchema.parse(lstmJson)
+export const LSTM_SNAPSHOT: LstmSnapshot = LstmSnapshotSchema.parse(lstmJson)
 
 export function isLstmStale(now: Date = new Date(), maxDays = 30): boolean {
   const generated = new Date(LSTM_SNAPSHOT.generated_at)
