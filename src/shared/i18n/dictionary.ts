@@ -783,6 +783,17 @@ const dictionary = {
   "mmm.benchmarkNoData":    { ko: "데이터 없음",                  en: "No benchmark data" },
   "mmm.edit":               { ko: "편집",                        en: "Edit" },
 
+  "marketingSim.page.title":      { ko: "UA 시뮬레이션",                 en: "UA Simulator" },
+  "marketingSim.page.subtitle":   { ko: "광고비·CPI·리텐션·ARPDAU로 90일 ROAS와 회수일 추정", en: "Estimate 90-day ROAS and payback from UA spend, CPI, retention and ARPDAU" },
+  "marketingSim.hero.payback":    { ko: "{country} {genre} {budget}/일 → 회수 {day}일", en: "{country} {genre} {budget}/day → payback day {day}" },
+  "marketingSim.hero.noPayback":  { ko: "{country} {genre} {budget}/일 → 90일 내 미회수", en: "{country} {genre} {budget}/day → no payback within 90 days" },
+  "marketingSim.hero.noResult":   { ko: "입력값으로 결과를 계산할 수 없습니다", en: "Cannot compute result for current inputs" },
+  "marketingSim.section.inputs":  { ko: "입력",                          en: "Inputs" },
+  "marketingSim.section.kpis":    { ko: "주요 지표",                     en: "Key metrics" },
+  "marketingSim.section.roas":    { ko: "누적 ROAS (90일)",              en: "Cumulative ROAS (90 days)" },
+  "marketingSim.section.revenue": { ko: "관측 vs 목표 ARPDAU",           en: "Observed vs target ARPDAU" },
+  "marketingSim.badge.cpiFallback": { ko: "장르 fallback CPI 사용",       en: "Using genre-fallback CPI" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary

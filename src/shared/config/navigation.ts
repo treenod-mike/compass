@@ -3,6 +3,7 @@ import calculatorBold from '@iconify-icons/solar/calculator-bold'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
+import rocket2Bold from '@iconify-icons/solar/rocket-2-bold'
 import widget5Bold from '@iconify-icons/solar/widget-5-bold'
 import type { TranslationKey } from '@/shared/i18n/dictionary'
 import { flaskBold } from './custom-icons'
@@ -52,6 +53,12 @@ export const navigationItems: NavigationItem[] = [
     url: '/dashboard/vc-simulation',
     icon: calculatorBold,
     category: 'overview',
+  },
+  {
+    title: 'UA 시뮬레이션',
+    url: '/dashboard/marketing-sim',
+    icon: rocket2Bold,
+    category: 'channel',
   },
   {
     title: '채널 포화도',
