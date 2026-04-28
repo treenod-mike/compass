@@ -3,6 +3,7 @@
 import { useMemo } from "react"
 import type { RevenueForecastPoint as ChartPoint } from "../mock-data"
 import { loadRevenueSnapshot } from "./revenue-snapshot"
+import { resolveSnapshotGameId } from "./game-id"
 import {
   buildRevenueForecastVm,
   type RevenueForecastVm,
@@ -15,7 +16,7 @@ export function useRevenueForecast(
   return useMemo(
     () =>
       buildRevenueForecastVm({
-        gameId,
+        gameId: resolveSnapshotGameId(gameId),
         snapshot: loadRevenueSnapshot(),
         mockPoints,
         now: new Date(),

@@ -2,6 +2,7 @@
 import { useMemo } from "react"
 import { useLiveAfData } from "./use-live-af-data"
 import { loadRevenueSnapshot } from "@/shared/api/lstm/revenue-snapshot"
+import { resolveSnapshotGameId } from "@/shared/api/lstm/game-id"
 import { computeRealKpi } from "@/shared/api/composite/roas-payback"
 import type {
   RealKpiInput,
@@ -18,7 +19,7 @@ export function useRealKpi(
   return useMemo(
     () =>
       computeRealKpi({
-        gameId,
+        gameId: resolveSnapshotGameId(gameId),
         cohortSummary,
         revenueSnapshot: loadRevenueSnapshot(),
         mockFallback,
