@@ -25,6 +25,7 @@ import { useSelectedGame, PORTFOLIO_ID } from "@/shared/store/selected-game"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { useGridLayout } from "@/shared/hooks"
 import { motion } from "framer-motion"
+import { useMemo } from "react"
 
 const GRID_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }
 
@@ -45,6 +46,22 @@ export default function ExecutiveOverviewPage() {
   const gameId = useSelectedGame((s) => s.gameId)
   const gameData = useGameData()
   const revenueForecast = useRevenueForecast(gameId, gameData.charts.revenueForecast)
+
+  // Mock fallback used by KPICards when computeRealKpi gates fall through to mock.
+  // Single-game ROAS is a single number in mock-data, so synthesize a ±30% band;
+  // the payback band is already authored as p10/p50/p90 in `signal.payback`.
+  const realKpiFallback = useMemo(
+    () => ({
+      roas: {
+        p10: Math.round(gameData.charts.kpis.roas.value * 0.7),
+        p50: gameData.charts.kpis.roas.value,
+        p90: Math.round(gameData.charts.kpis.roas.value * 1.3),
+      },
+      payback: gameData.signal.payback,
+    }),
+    [gameData],
+  )
+
   const heatmapGrid = useGridLayout(2)
   const waterfallGrid = useGridLayout(2)
   const forecastGrid = useGridLayout(1)
@@ -123,6 +140,8 @@ export default function ExecutiveOverviewPage() {
               { labelKey: "kpi.marketTiming", value: mockPortfolioKPIs.marketTiming.value, unit: mockPortfolioKPIs.marketTiming.unit, trend: mockPortfolioKPIs.marketTiming.trend, trendLabel: mockPortfolioKPIs.marketTiming.trendLabel },
             ]}
             basisKey="kpi.basisPortfolio"
+            gameId={gameId}
+            realKpiFallback={realKpiFallback}
           />
         ) : (
           <KPICards
@@ -133,6 +152,8 @@ export default function ExecutiveOverviewPage() {
               { labelKey: "kpi.burn",    value: gameData.charts.kpis.burn.value,         unit: _t("common.months"), trend: gameData.charts.kpis.burn.trend,    trendLabel: gameData.charts.kpis.burn.trendLabel },
             ]}
             basisKey="kpi.basis"
+            gameId={gameId}
+            realKpiFallback={realKpiFallback}
           />
         )}
       </FadeInUp>

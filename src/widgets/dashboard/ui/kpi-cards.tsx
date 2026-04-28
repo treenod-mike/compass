@@ -9,6 +9,8 @@ import minusBold from "@iconify-icons/solar/minus-circle-bold"
 import { AnimatedNumber } from "@/shared/ui/animated-number"
 import { InfoHint } from "@/shared/ui/info-hint"
 import { useLiveAfData } from "../lib/use-live-af-data"
+import { useRealKpi } from "../lib/use-real-kpi"
+import type { RealKpiInput } from "@/shared/api/composite/types"
 
 export type KPIItem = {
   labelKey: TranslationKey
@@ -22,6 +24,8 @@ export type KPIItem = {
 type KPICardsProps = {
   items: KPIItem[]
   basisKey?: TranslationKey
+  gameId: string
+  realKpiFallback: RealKpiInput["mockFallback"]
 }
 
 function resolveInfoKey(
@@ -47,9 +51,10 @@ function resolveInfoKey(
  *   unit       14px semibold muted             ← value 옆 보조
  *   trend      11px semibold signal-color      ← 아래 subtle
  */
-export function KPICards({ items, basisKey }: KPICardsProps) {
+export function KPICards({ items, basisKey, gameId, realKpiFallback }: KPICardsProps) {
   const { t } = useLocale()
   const { state, summary, badge } = useLiveAfData()
+  const real = useRealKpi(gameId, realKpiFallback)
 
   // Merge live AF data into items: replace installs + revenue values when active
   const liveInstalls =
@@ -58,14 +63,30 @@ export function KPICards({ items, basisKey }: KPICardsProps) {
   const isActive = state?.status === "active"
 
   const mergedItems: KPIItem[] = items.map((item) => {
-    if (!isActive) return item
     const key = item.labelKey as string
-    if (key === "kpi.installs" && liveInstalls !== null)
+    if (isActive && key === "kpi.installs" && liveInstalls !== null)
       return { ...item, value: liveInstalls }
-    if ((key === "kpi.revenue" || key === "kpi.totalRevenue") && liveRevenue !== null)
+    if (isActive && (key === "kpi.revenue" || key === "kpi.totalRevenue") && liveRevenue !== null)
       return { ...item, value: Math.round(liveRevenue) }
+    if (key === "kpi.roas")
+      return { ...item, value: `${Math.round(real.roas.p50)}%` }
+    if (key === "kpi.payback")
+      return { ...item, value: real.payback.p50 }
     return item
   })
+
+  // Composite freshness takes precedence over the generic AppsFlyer badge
+  // because it carries KPI-specific semantics (ML1=Forecast Mock, ML2=Stale).
+  const effectiveBadgeText: string | null =
+    real.freshness === "ML1"
+      ? "Forecast Mock"
+      : real.freshness === "ML2"
+      ? "Stale"
+      : badge === "ML1"
+      ? "Live data unavailable"
+      : badge === "ML2"
+      ? `Data from ${state?.lastSyncAt?.slice(0, 10) ?? "—"}`
+      : null
 
   const n = mergedItems.length
   const gridClass =
@@ -77,11 +98,9 @@ export function KPICards({ items, basisKey }: KPICardsProps) {
 
   return (
     <div className="relative">
-      {badge && (
+      {effectiveBadgeText && (
         <span className="absolute right-2 top-2 z-10 rounded-[var(--radius-inline)] bg-[var(--bg-3)] px-2 py-0.5 text-xs text-[var(--fg-2)]">
-          {badge === "ML1"
-            ? "Live data unavailable"
-            : `Data from ${state?.lastSyncAt?.slice(0, 10) ?? "—"}`}
+          {effectiveBadgeText}
         </span>
       )}
       <div className={cn("grid gap-4", gridClass)}>
