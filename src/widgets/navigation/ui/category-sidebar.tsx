@@ -31,6 +31,7 @@ import {
   PADDING_EXPANDED,
   SECTION_SPACING,
 } from '../model/constants'
+import { BrandAndProduct } from './brand-and-product'
 import { SidebarFooter } from './sidebar-footer'
 
 const iconHoverTransition = { type: 'spring' as const, stiffness: 400, damping: 17 }
@@ -111,15 +112,25 @@ export function CategorySidebar({
       style={{
         overflow: 'hidden',
         willChange: 'transform, width',
-        ...(isMobileOpen
-          ? {}
-          : {
-              top: 'var(--app-top-bar-height, 113px)',
-              height: 'calc(100vh - var(--app-top-bar-height, 113px))',
-            }),
+        ...(isMobileOpen ? {} : { top: 0, height: '100vh' }),
       }}
       data-new-nav-sidebar
     >
+      <div className="shrink-0">
+        <BrandAndProduct
+          isCollapsed={isCollapsed}
+          showExpandedContent={showExpandedContent}
+        />
+      </div>
+
+      <div
+        className="shrink-0 h-px bg-border transition-[margin] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{
+          marginLeft: isCollapsed ? PADDING_COLLAPSED : PADDING_EXPANDED,
+          marginRight: isCollapsed ? PADDING_COLLAPSED : PADDING_EXPANDED,
+        }}
+      />
+
       <nav
         className="flex-1 pt-4 pb-4 overflow-y-auto overflow-x-hidden"
         style={{
