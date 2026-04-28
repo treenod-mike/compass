@@ -238,7 +238,7 @@ describe("computeRealKpi — splice continuity", () => {
 })
 
 describe("computeRealKpi — inverted band mapping", () => {
-  const split = (_d: number) => ({ p10: 0.5, p50: 1.0, p90: 2.0 })
+  const split = () => ({ p10: 0.5, p50: 1.0, p90: 2.0 })
 
   it("observed revenue > 0 yields shorter payback than the zero-observed equivalent (splice baseline)", () => {
     const withObserved = computeRealKpi({
