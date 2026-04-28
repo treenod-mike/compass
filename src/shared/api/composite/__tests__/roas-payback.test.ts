@@ -1,8 +1,8 @@
 // src/shared/api/composite/__tests__/roas-payback.test.ts
-// RED phase — 19 cases for computeRealKpi.
-// All cases are it.skip until Task 4 impl lands; precommit-gate.sh runs
-// `npm test`, so failing tests would block the TDD RED commit. Skip-then-
-// unskip is the explicitly recommended fallback in the Task 3 plan.
+// 19 cases pinned to spec §5 (algorithm) and §6 (status machine).
+// Numerical assertions are derived inline above each non-trivial expectation
+// so future regressions can be debugged without reverse-engineering the
+// curve constants.
 import { describe, expect, it } from "vitest"
 import type { CohortSummary } from "../../appsflyer"
 import type { RevenueSnapshot } from "../../lstm/revenue-snapshot"
@@ -60,7 +60,8 @@ function makeCohortSummary(opts: {
   basisDays?: number
 } = {}): CohortSummary {
   const installs = opts.installs ?? 1000
-  const spendUsd = opts.spendUsd ?? 2500
+  // Use === undefined check so explicit `spendUsd: null` (fxUnsupported case) is preserved.
+  const spendUsd = opts.spendUsd === undefined ? 2500 : opts.spendUsd
   const observedRevenueUsd = opts.observedRevenueUsd ?? 200
   const basisDays = opts.basisDays ?? 14
   const cohortDate = new Date(NOW.getTime() - basisDays * 86_400_000).toISOString().slice(0, 10)
@@ -86,7 +87,7 @@ function makeCohortSummary(opts: {
 }
 
 describe("computeRealKpi — status gating", () => {
-  it.skip("returns mock + ML1 when cohortSummary is null", () => {
+  it("returns mock + ML1 when cohortSummary is null", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: null,
@@ -100,7 +101,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.payback).toEqual(MOCK_FALLBACK.payback)
   })
 
-  it.skip("returns fxUnsupported + ML2 when spend.totalUsd is null", () => {
+  it("returns fxUnsupported + ML2 when spend.totalUsd is null", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ spendUsd: null }),
@@ -113,7 +114,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.spendUsd).toBeNull()
   })
 
-  it.skip("returns insufficient + ML1 when basisDays < 14", () => {
+  it("returns insufficient + ML1 when basisDays < 14", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ basisDays: 7 }),
@@ -126,7 +127,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.basisDays).toBe(7)
   })
 
-  it.skip("returns mock + ML2 when snapshot is stale (>7d)", () => {
+  it("returns mock + ML2 when snapshot is stale (>7d)", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary(),
@@ -138,7 +139,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.freshness).toBe("ML2")
   })
 
-  it.skip("returns mock + ML2 when forecast for gameId is missing", () => {
+  it("returns mock + ML2 when forecast for gameId is missing", () => {
     const r = computeRealKpi({
       gameId: "missing-game",
       cohortSummary: makeCohortSummary(),
@@ -150,7 +151,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.freshness).toBe("ML2")
   })
 
-  it.skip("returns insufficient + ML1 when installs is 0", () => {
+  it("returns insufficient + ML1 when installs is 0", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 0, spendUsd: 0 }),
@@ -162,7 +163,7 @@ describe("computeRealKpi — status gating", () => {
     expect(r.freshness).toBe("ML1")
   })
 
-  it.skip("returns real + null badge when all gates pass", () => {
+  it("returns real + null badge when all gates pass", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 2500, observedRevenueUsd: 200, basisDays: 14 }),
@@ -178,10 +179,12 @@ describe("computeRealKpi — status gating", () => {
 describe("computeRealKpi — splice continuity", () => {
   const flatCurve = () => ({ p10: 0.8, p50: 1.0, p90: 1.2 })
 
-  it.skip("observedRevenueUsd is preserved verbatim from cohortSummary", () => {
+  // Use spendUsd=300 so cpi=0.3 and the splice (observed 0.2 + flat tail) reaches it
+  // around d=114 → status='real' → observedRevenueUsd is forwarded verbatim.
+  it("observedRevenueUsd is preserved verbatim from cohortSummary", () => {
     const r = computeRealKpi({
       gameId: "poco",
-      cohortSummary: makeCohortSummary({ installs: 1000, observedRevenueUsd: 200, basisDays: 14 }),
+      cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 300, observedRevenueUsd: 200, basisDays: 14 }),
       revenueSnapshot: makeSnapshot({ installsAssumption: 1000, curve: flatCurve }),
       mockFallback: MOCK_FALLBACK,
       now: NOW,
@@ -189,10 +192,14 @@ describe("computeRealKpi — splice continuity", () => {
     expect(r.observedRevenueUsd).toBe(200)
   })
 
-  it.skip("forecastRevenueUsd equals (cumPerInstall(horizon, P50) − observedPerInstall) × installs", () => {
+  // spendUsd=300 → cpi=0.3, status='real' (firstHit P50 ≈ 114).
+  // observedPerInstall = 200 / 1000 = 0.2
+  // cumPerInstall(365, P50) = 0.2 + Σ_{k=15..365} 1.0 × (1/1000) = 0.2 + 351 × 0.001 = 0.551
+  // forecastRevenueUsd = (0.551 − 0.2) × 1000 = 351
+  it("forecastRevenueUsd equals (cumPerInstall(horizon, P50) − observedPerInstall) × installs", () => {
     const r = computeRealKpi({
       gameId: "poco",
-      cohortSummary: makeCohortSummary({ installs: 1000, observedRevenueUsd: 200, basisDays: 14 }),
+      cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 300, observedRevenueUsd: 200, basisDays: 14 }),
       revenueSnapshot: makeSnapshot({ installsAssumption: 1000, curve: flatCurve, horizon: 365 }),
       mockFallback: MOCK_FALLBACK,
       now: NOW,
@@ -200,18 +207,25 @@ describe("computeRealKpi — splice continuity", () => {
     expect(r.forecastRevenueUsd).toBeCloseTo(351, 1)
   })
 
-  it.skip("when basisDays === horizon, no forecast tail is added (forecastRevenueUsd ≈ 0)", () => {
+  // basisDays===horizon means cum(d) = observedPerInstall × (d/365) for all d (no forecast tail).
+  // spendUsd=300 → cpi=0.3, observedPerInstall=0.5 → first hit at d≈219 → status='real'.
+  // forecastRevenueUsd = cum(365, P50) × 1000 − observedRev = 0.5 × 1000 − 500 = 0.
+  it("when basisDays === horizon, no forecast tail is added (forecastRevenueUsd ≈ 0)", () => {
     const r = computeRealKpi({
       gameId: "poco",
-      cohortSummary: makeCohortSummary({ installs: 1000, observedRevenueUsd: 500, basisDays: 365 }),
+      cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 300, observedRevenueUsd: 500, basisDays: 365 }),
       revenueSnapshot: makeSnapshot({ installsAssumption: 1000, curve: flatCurve, horizon: 365 }),
       mockFallback: MOCK_FALLBACK,
       now: NOW,
     })
+    expect(r.status).toBe("real")
     expect(r.forecastRevenueUsd).toBeCloseTo(0, 1)
   })
 
-  it.skip("ROAS scales linearly with cumulative-revenue / spend", () => {
+  // spend=600, observedRev=600, installs=1000 → cpi = 0.6, observedPerInstall = 0.6
+  // cumPerInstall(365, P50) = 0.6 + (365 − 14) × 0.001 = 0.951
+  // roas.p50 = 0.951 / 0.6 × 100 = 158.5%
+  it("ROAS scales linearly with cumulative-revenue / spend", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 600, observedRevenueUsd: 600, basisDays: 14 }),
@@ -226,7 +240,7 @@ describe("computeRealKpi — splice continuity", () => {
 describe("computeRealKpi — inverted band mapping", () => {
   const split = (_d: number) => ({ p10: 0.5, p50: 1.0, p90: 2.0 })
 
-  it.skip("observed revenue > 0 yields shorter payback than the zero-observed equivalent (splice baseline)", () => {
+  it("observed revenue > 0 yields shorter payback than the zero-observed equivalent (splice baseline)", () => {
     const withObserved = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 100, observedRevenueUsd: 50, basisDays: 14 }),
@@ -246,7 +260,12 @@ describe("computeRealKpi — inverted band mapping", () => {
     expect(withObserved.payback.p50).toBeLessThan(zeroObserved.payback.p50)
   })
 
-  it.skip("payback.p50 with mid curve sits between p10 and p90", () => {
+  // cpi = spend / installs = 100 / 1000 = 0.1; observedRev = 0
+  // split curve per-install daily: P10 = 0.0005, P50 = 0.001, P90 = 0.002 (since N = 1000)
+  // cum(d, P90) ≥ 0.1 → (d − 14) × 0.002 ≥ 0.1 → d − 14 ≥ 50 → d = 64 → payback.p10 = 64
+  // cum(d, P50) ≥ 0.1 → (d − 14) × 0.001 ≥ 0.1 → d − 14 ≥ 100 → d = 114 → payback.p50 = 114
+  // cum(d, P10) ≥ 0.1 → (d − 14) × 0.0005 ≥ 0.1 → d − 14 ≥ 200 → d = 214 → payback.p90 = 214
+  it("payback.p50 with mid curve sits between p10 and p90", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 100, observedRevenueUsd: 0, basisDays: 14 }),
@@ -259,7 +278,7 @@ describe("computeRealKpi — inverted band mapping", () => {
     expect(r.payback.p90).toBe(214)
   })
 
-  it.skip("revenue.P10 always maps to payback.p90 (slowest)", () => {
+  it("revenue.P10 always maps to payback.p90 (slowest)", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 100, observedRevenueUsd: 0, basisDays: 14 }),
@@ -275,7 +294,7 @@ describe("computeRealKpi — inverted band mapping", () => {
 describe("computeRealKpi — payback misses horizon", () => {
   const tooSlow = () => ({ p10: 0.0001, p50: 0.0002, p90: 0.001 })
 
-  it.skip("demotes to insufficient when P50 misses horizon", () => {
+  it("demotes to insufficient when P50 misses horizon", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 10_000, observedRevenueUsd: 0, basisDays: 14 }),
@@ -287,7 +306,7 @@ describe("computeRealKpi — payback misses horizon", () => {
     expect(r.payback).toEqual(MOCK_FALLBACK.payback)
   })
 
-  it.skip("caps payback.p90 at horizon when only P10 misses", () => {
+  it("caps payback.p90 at horizon when only P10 misses", () => {
     const onlyP10Slow = () => ({ p10: 0.0001, p50: 1.0, p90: 2.0 })
     const r = computeRealKpi({
       gameId: "poco",
@@ -302,7 +321,7 @@ describe("computeRealKpi — payback misses horizon", () => {
 })
 
 describe("computeRealKpi — zero edge cases", () => {
-  it.skip("returns insufficient when spend === 0", () => {
+  it("returns insufficient when spend === 0", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 1000, spendUsd: 0 }),
@@ -313,7 +332,7 @@ describe("computeRealKpi — zero edge cases", () => {
     expect(r.status).toBe("insufficient")
   })
 
-  it.skip("returns insufficient when installs === 0 (avoids divide-by-zero)", () => {
+  it("returns insufficient when installs === 0 (avoids divide-by-zero)", () => {
     const r = computeRealKpi({
       gameId: "poco",
       cohortSummary: makeCohortSummary({ installs: 0, spendUsd: 100 }),
@@ -327,7 +346,7 @@ describe("computeRealKpi — zero edge cases", () => {
 })
 
 describe("computeRealKpi — mockFallback pass-through", () => {
-  it.skip("returns mockFallback values verbatim for every non-real status", () => {
+  it("returns mockFallback values verbatim for every non-real status", () => {
     const customFallback: RealKpiInput["mockFallback"] = {
       roas: { p10: 11, p50: 22, p90: 33 },
       payback: { p10: 44, p50: 55, p90: 66 },
