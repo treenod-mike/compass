@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from '@/shared/ui/tooltip'
 import { GameSelector } from '@/widgets/dashboard/ui/game-selector'
+import { cn } from '@/shared/lib/utils'
 
 function CompassMark() {
   return (
@@ -30,33 +31,55 @@ function CompassMark() {
   )
 }
 
+interface BrandAndProductProps {
+  /** 사이드바 collapsed 상태 */
+  isCollapsed?: boolean
+  /** width 애니메이션 완료 후 텍스트/세컨더리 콘텐츠 fade-in 트리거 */
+  showExpandedContent?: boolean
+}
+
 /**
- * BrandAndProduct — AppTopBar 좌측 영역.
- *   로고 | divider | 포트폴리오/게임 선택 드롭다운
+ * BrandAndProduct — CategorySidebar 상단 영역.
+ *   로고 + COMPASS 워드마크 + 포트폴리오/게임 선택 드롭다운
  *
- * gameboard의 BrandAndProduct 레이아웃 구조 동일 (ProductSelector 자리에
- * Compass의 GameSelector를 배치).
+ * collapsed 모드(76px): 아이콘만 표시
+ * expanded 모드(220px): 아이콘 + COMPASS 워드마크 + GameSelector
  */
-export function BrandAndProduct() {
+export function BrandAndProduct({
+  isCollapsed = false,
+  showExpandedContent = true,
+}: BrandAndProductProps = {}) {
   return (
-    <div className="flex items-center gap-3 min-w-0 ml-2">
+    <div
+      className={cn(
+        'flex flex-col items-stretch min-w-0 transition-[padding] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]',
+        isCollapsed ? 'items-center px-2 pt-3 pb-2' : 'px-4 pt-3 pb-3 gap-3',
+      )}
+    >
       <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 shrink-0 text-primary"
+              className={cn(
+                'flex items-center shrink-0 text-primary',
+                isCollapsed ? 'justify-center' : 'gap-2.5',
+              )}
               aria-label="대시보드로 돌아가기"
             >
               <CompassMark />
               <span
-                className="leading-none"
+                className="leading-none whitespace-nowrap overflow-hidden inline-block"
                 style={{
                   fontFamily: "'Rocko Ultra', 'Pretendard Variable', sans-serif",
                   fontSize: "30px",
                   fontWeight: 900,
                   letterSpacing: "-0.015em",
                   textShadow: "0 1px 0 rgba(145,40,180,0.15)",
+                  maxWidth: showExpandedContent ? '200px' : '0px',
+                  opacity: showExpandedContent ? 1 : 0,
+                  transition: 'max-width 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s cubic-bezier(0.4,0,0.2,1)',
+                  pointerEvents: showExpandedContent ? 'auto' : 'none',
                 }}
               >
                 COMPASS
@@ -72,11 +95,19 @@ export function BrandAndProduct() {
         </Tooltip>
       </TooltipProvider>
 
-      <div className="h-6 w-px bg-border shrink-0" aria-hidden />
-
-      <div className="w-[200px] shrink-0">
-        <GameSelector />
-      </div>
+      {!isCollapsed && (
+        <div
+          className="overflow-hidden"
+          style={{
+            maxHeight: showExpandedContent ? '60px' : '0px',
+            opacity: showExpandedContent ? 1 : 0,
+            transition: 'max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s cubic-bezier(0.4,0,0.2,1)',
+            pointerEvents: showExpandedContent ? 'auto' : 'none',
+          }}
+        >
+          <GameSelector />
+        </div>
+      )}
     </div>
   )
 }
