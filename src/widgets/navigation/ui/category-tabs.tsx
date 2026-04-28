@@ -27,11 +27,18 @@ interface CategoryTabsProps {
   items: NavigationItem[]
   onToggleSidebar?: () => void
   isSidebarCollapsed?: boolean
+  /** 헤더 우측 영역에 추가할 컨트롤 (DateRangePicker, StaleChip 등) */
+  rightSlot?: React.ReactNode
 }
 
 const CLOSE_DELAY_MS = 120
 
-export function CategoryTabs({ items, onToggleSidebar, isSidebarCollapsed }: CategoryTabsProps) {
+export function CategoryTabs({
+  items,
+  onToggleSidebar,
+  isSidebarCollapsed,
+  rightSlot,
+}: CategoryTabsProps) {
   const pathname = usePathname()
   const activeCategory = inferCategoryFromPath(pathname, items)
   const availableIds = new Set(getAvailableCategories(items))
@@ -165,6 +172,11 @@ export function CategoryTabs({ items, onToggleSidebar, isSidebarCollapsed }: Cat
             />
           ))}
         </div>
+        {rightSlot && (
+          <div className="flex items-center gap-3 shrink-0 pl-3 pr-2">
+            {rightSlot}
+          </div>
+        )}
       </div>
     </div>
   )
