@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useId } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 import { useLocale } from "@/shared/i18n"
@@ -8,16 +8,23 @@ import { useGameData } from "@/shared/api/use-game-data"
 import { useRevenueForecast } from "@/shared/api/lstm/use-revenue-forecast"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { RevenueForecast } from "@/widgets/charts/ui/revenue-forecast"
-import { CohortHeatmap } from "@/widgets/charts/ui/cohort-heatmap"
 
 /**
  * 시뮬 베이스라인의 출처를 보여주는 좌측 컬럼 디스클로저.
- * 3개 미니 카드 (RevenueForecast / CohortHeatmap / KPI baseline) 를 stack.
+ * 3개 미니 카드 (RevenueForecast / D1/D7/D30 retention strip / KPI baseline) 를 stack.
  * 모든 데이터는 *읽기 전용* — 사용자가 조작할 수 없다.
  */
+
+/** Per-game D1/D7/D30 retention baseline (mirrors mockCompetitors rank-3 entry + portfolio blend). */
+const RETENTION_BASELINE: Record<string, { d1: number; d7: number; d30: number }> = {
+  poco:      { d1: 42.3, d7: 18.7, d30: 8.5 },
+  portfolio: { d1: 41.2, d7: 17.8, d30: 8.0 },
+}
+
 export function AssumptionSourcePanel() {
   const { t } = useLocale()
   const [expanded, setExpanded] = useState(false)
+  const regionId = useId()
   const { gameId } = useSelectedGame()
   const gameData = useGameData()
 
@@ -32,6 +39,8 @@ export function AssumptionSourcePanel() {
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        aria-controls={regionId}
         className="flex items-center justify-between w-full text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground transition-colors"
       >
         <span>{t("vc.assumption.title")}</span>
@@ -48,6 +57,9 @@ export function AssumptionSourcePanel() {
         {expanded && (
           <motion.div
             key="content"
+            id={regionId}
+            role="region"
+            aria-label={t("vc.assumption.title")}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -60,7 +72,7 @@ export function AssumptionSourcePanel() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-2">
                   {t("vc.assumption.revenue")}
                 </div>
-                <div className="h-40">
+                <div className="min-h-40">
                   {meta ? (
                     <RevenueForecast
                       data={vm.points}
@@ -74,15 +86,12 @@ export function AssumptionSourcePanel() {
                 </div>
               </div>
 
-              {/* Mini card 2 — Cohort retention baseline */}
-              {/* CohortHeatmap takes zero props — uses hardcoded internal data */}
+              {/* Mini card 2 — D1/D7/D30 retention baseline (per-game) */}
               <div className="rounded-md border border-border bg-card p-3">
                 <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-2">
                   {t("vc.assumption.cohort")}
                 </div>
-                <div className="h-40">
-                  <CohortHeatmap />
-                </div>
+                <RetentionStrip gameId={gameId} />
               </div>
 
               {/* Mini card 3 — KPI baseline (read-only) */}
@@ -90,7 +99,7 @@ export function AssumptionSourcePanel() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-2">
                   {t("vc.assumption.kpi")}
                 </div>
-                <KpiBaselineGrid />
+                <KpiBaselineGrid kpis={gameData?.charts?.kpis} />
               </div>
             </div>
           </motion.div>
@@ -100,11 +109,36 @@ export function AssumptionSourcePanel() {
   )
 }
 
-function KpiBaselineGrid() {
-  const gameData = useGameData()
-  // charts.kpis is a named object: { roas, payback, bep, burn }
-  // each entry: { value: number; trend: number; trendLabel: string }
-  const kpis = gameData?.charts?.kpis
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function RetentionStrip({ gameId }: { gameId: string }) {
+  const ret = RETENTION_BASELINE[gameId] ?? RETENTION_BASELINE["poco"]
+  const cols: Array<{ label: string; value: number | undefined }> = [
+    { label: "D1",  value: ret?.d1  },
+    { label: "D7",  value: ret?.d7  },
+    { label: "D30", value: ret?.d30 },
+  ]
+  return (
+    <div className="grid grid-cols-3 gap-2 text-xs">
+      {cols.map((c) => (
+        <div key={c.label} className="flex flex-col">
+          <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+            {c.label}
+          </span>
+          <span className="font-mono tabular-nums text-foreground font-semibold">
+            {c.value != null ? `${c.value}%` : "—"}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+type KpiItem = NonNullable<NonNullable<ReturnType<typeof useGameData>>["charts"]>["kpis"]
+
+function KpiBaselineGrid({ kpis }: { kpis?: KpiItem }) {
   if (!kpis) {
     return <div className="text-xs text-muted-foreground">—</div>
   }
