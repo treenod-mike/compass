@@ -23,13 +23,13 @@ export interface NavigationItem {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'overview', label: 'Dashboard', groupKey: 'nav.group.investment', position: 'primary', icon: chart2Bold },
+  { id: 'overview', label: '대시보드', groupKey: 'nav.group.investment', position: 'primary', icon: chart2Bold },
   { id: 'settings', label: '데이터 연결', groupKey: 'nav.group.settings', position: 'utility', icon: plugCircleBold },
 ]
 
 export const navigationItems: NavigationItem[] = [
   {
-    title: 'Dashboard',
+    title: '대시보드',
     url: '/dashboard',
     icon: chart2Bold,
     category: 'overview',

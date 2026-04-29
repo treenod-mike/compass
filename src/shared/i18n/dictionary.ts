@@ -754,7 +754,8 @@ const dictionary = {
   "vc.insights.tornado.invariant":      { ko: "영향 없음", en: "no impact" },
 
   // === Nav groups ===
-  "nav.group.investment":      { ko: "투자 결정", en: "Investment Decision" },
+  "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
+  // Kept for Phase 3 PRISM re-introduction (spec 2026-04-29-vc-simulator-product-pivot-design.md §2)
   "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },
   "nav.group.channel":         { ko: "채널 포화도", en: "Channel Saturation" },
   "nav.group.experiments":     { ko: "실험 영향", en: "Experiment Impact" },
