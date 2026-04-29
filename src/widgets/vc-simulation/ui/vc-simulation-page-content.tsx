@@ -35,7 +35,9 @@ const REFERENCE_LTV_PER_USER = 10
 
 export function VcSimulationPageContent() {
   const { gameId } = useSelectedGame()
+  const { t } = useLocale()
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
+  const [compareMarket, setCompareMarket] = useState(false)
   const gameData = useGameData()
   // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
   // client-side only, preventing SSR/CSR hydration mismatch (and the
@@ -81,6 +83,23 @@ export function VcSimulationPageContent() {
           <PageHeader titleKey="vc.page.title" subtitleKey="vc.page.subtitle" />
         </FadeInUp>
 
+        <FadeInUp className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setCompareMarket((v) => !v)}
+            aria-pressed={compareMarket}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-primary hover:text-foreground transition-colors"
+          >
+            <span
+              className={`size-2 rounded-full transition-colors ${
+                compareMarket ? "bg-primary" : "bg-muted-foreground/40"
+              }`}
+              aria-hidden="true"
+            />
+            {t("vc.compare.title")}
+          </button>
+        </FadeInUp>
+
         {/* Hero — 항상 보이는 결정 sentence (full-width). */}
         <FadeInUp className="mt-4">
           <DecisionSentence result={result} />
@@ -91,7 +110,7 @@ export function VcSimulationPageContent() {
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
               <VcInputPanel onChange={setOffer} />
-              <AssumptionSourcePanel />
+              <AssumptionSourcePanel compareMarket={compareMarket} />
             </div>
             {/* Right column — results scroll independently so input stays in
                 view as the user explores the insights / charts below. */}

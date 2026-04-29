@@ -8,6 +8,7 @@ import { useGameData } from "@/shared/api/use-game-data"
 import { useRevenueForecast } from "@/shared/api/lstm/use-revenue-forecast"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { RevenueForecast } from "@/widgets/charts/ui/revenue-forecast"
+import { getPrior } from "@/shared/api/prior-data"
 
 /**
  * 시뮬 베이스라인의 출처를 보여주는 좌측 컬럼 디스클로저.
@@ -21,7 +22,9 @@ const RETENTION_BASELINE: Record<string, { d1: number; d7: number; d30: number }
   portfolio: { d1: 41.2, d7: 17.8, d30: 8.0 },
 }
 
-export function AssumptionSourcePanel() {
+type Props = { compareMarket?: boolean }
+
+export function AssumptionSourcePanel({ compareMarket = false }: Props = {}) {
   const { t } = useLocale()
   const [expanded, setExpanded] = useState(false)
   const regionId = useId()
@@ -91,7 +94,7 @@ export function AssumptionSourcePanel() {
                 <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground mb-2">
                   {t("vc.assumption.cohort")}
                 </div>
-                <RetentionStrip gameId={gameId} />
+                <RetentionStrip gameId={gameId} compareMarket={compareMarket} />
               </div>
 
               {/* Mini card 3 — KPI baseline (read-only) */}
@@ -113,25 +116,67 @@ export function AssumptionSourcePanel() {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function RetentionStrip({ gameId }: { gameId: string }) {
+function RetentionStrip({ gameId, compareMarket }: { gameId: string; compareMarket: boolean }) {
+  const { t } = useLocale()
   const ret = RETENTION_BASELINE[gameId] ?? RETENTION_BASELINE["poco"]
   const cols: Array<{ label: string; value: number | undefined }> = [
     { label: "D1",  value: ret?.d1  },
     { label: "D7",  value: ret?.d7  },
     { label: "D30", value: ret?.d30 },
   ]
+
+  const prior = compareMarket ? getPrior({ genre: "Merge", region: "JP" }) : null
+  const market = prior
+    ? {
+        d1:  prior.retention.d1.p50  * 100,
+        d7:  prior.retention.d7.p50  * 100,
+        d30: prior.retention.d30.p50 * 100,
+      }
+    : null
+
   return (
-    <div className="grid grid-cols-3 gap-2 text-xs">
-      {cols.map((c) => (
-        <div key={c.label} className="flex flex-col">
-          <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
-            {c.label}
-          </span>
-          <span className="font-mono tabular-nums text-foreground font-semibold">
-            {c.value != null ? `${c.value}%` : "—"}
-          </span>
+    <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        {cols.map((c) => (
+          <div key={c.label} className="flex flex-col">
+            <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+              {c.label}
+            </span>
+            <span className="font-mono tabular-nums text-foreground font-semibold">
+              {c.value != null ? `${c.value}%` : "—"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {market && (
+        <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-border/50">
+          <div className="flex flex-col">
+            <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
+              {t("vc.compare.market")}
+            </span>
+            <span className="font-mono tabular-nums text-muted-foreground">
+              {market.d1.toFixed(1)}%
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-muted-foreground text-[10px] uppercase tracking-wider invisible">
+              —
+            </span>
+            <span className="font-mono tabular-nums text-muted-foreground">
+              {market.d7.toFixed(1)}%
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-muted-foreground text-[10px] uppercase tracking-wider invisible">
+              —
+            </span>
+            <span className="font-mono tabular-nums text-muted-foreground">
+              {market.d30.toFixed(1)}%
+            </span>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   )
 }

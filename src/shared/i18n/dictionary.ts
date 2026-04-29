@@ -691,6 +691,10 @@ const dictionary = {
   "vc.assumption.cohort":  { ko: "코호트 리텐션", en: "Cohort retention" },
   "vc.assumption.kpi":     { ko: "KPI 베이스라인", en: "KPI baseline" },
 
+  "vc.compare.title":  { ko: "시장과 비교", en: "Compare with market" },
+  "vc.compare.market": { ko: "시장 p50", en: "Market p50" },
+  "vc.compare.you":    { ko: "우리", en: "Us" },
+
   "vc.unit.months":            { ko: "개월", en: "months" },
   "vc.unit.usd":               { ko: "USD", en: "USD" },
 
