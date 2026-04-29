@@ -686,6 +686,11 @@ const dictionary = {
   "vc.error.jcurveNoDrop":     { ko: "해당 없음 — 실험 비용이 초기부터 상쇄됨", en: "N/A — experiment cost offset from start" },
   "vc.error.calcFailed":       { ko: "계산 실패", en: "Calculation failed" },
 
+  "vc.assumption.title":   { ko: "가정값 출처", en: "Assumption sources" },
+  "vc.assumption.revenue": { ko: "매출 베이스라인", en: "Revenue baseline" },
+  "vc.assumption.cohort":  { ko: "코호트 리텐션", en: "Cohort retention" },
+  "vc.assumption.kpi":     { ko: "KPI 베이스라인", en: "KPI baseline" },
+
   "vc.unit.months":            { ko: "개월", en: "months" },
   "vc.unit.usd":               { ko: "USD", en: "USD" },
 

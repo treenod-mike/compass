@@ -5,6 +5,7 @@ import { useSelectedGame } from "@/shared/store/selected-game"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { VcInputPanel, VcResultBoard } from "@/widgets/vc-simulation"
+import { AssumptionSourcePanel } from "./assumption-source-panel"
 import { DecisionSentence } from "./decision-sentence"
 import { VcKpiStrip } from "./vc-kpi-strip"
 import { CalcErrorCard } from "@/widgets/vc-simulation/ui/calc-error-card"
@@ -90,6 +91,7 @@ export function VcSimulationPageContent() {
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
               <VcInputPanel onChange={setOffer} />
+              <AssumptionSourcePanel />
             </div>
             {/* Right column — results scroll independently so input stays in
                 view as the user explores the insights / charts below. */}
