@@ -86,7 +86,7 @@ export function VcSimulationPageContent() {
         </FadeInUp>
 
         <FadeInUp className="flex-1 min-h-0 mt-4">
-          <div className="grid grid-cols-[2fr_3fr] gap-6 h-full min-h-0">
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6 h-full min-h-0">
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
               <VcInputPanel onChange={setOffer} />
