@@ -879,6 +879,17 @@ const dictionary = {
   "portfolio.kpi.expVelocity":   { ko: "Exp. velocity",                      en: "Exp. velocity" },
   "portfolio.kpi.marketTiming":  { ko: "Market timing",                      en: "Market timing" },
 
+  "cohort.page.title":      { ko: "코호트 진단",                          en: "Cohort Diagnostics" },
+  "cohort.page.subtitle":   { ko: "리텐션 곡선과 코호트별 일자 retention으로 게임 건강도 진단", en: "Diagnose game health via retention curve and per-cohort day retention" },
+  "cohort.hero.template":   { ko: "D1 {d1}% · D7 {d7}% · D30 {d30}% (장르 대비 {gap1}/{gap7}/{gap30}pp)", en: "D1 {d1}% · D7 {d7}% · D30 {d30}% (vs genre {gap1}/{gap7}/{gap30}pp)" },
+  "cohort.hero.noData":     { ko: "리텐션 데이터를 계산할 수 없습니다",          en: "Cannot compute retention data" },
+  "cohort.kpi.d1":          { ko: "D1 retention",                        en: "D1 retention" },
+  "cohort.kpi.d7":          { ko: "D7 retention",                        en: "D7 retention" },
+  "cohort.kpi.d30":         { ko: "D30 retention",                       en: "D30 retention" },
+  "cohort.kpi.gap":         { ko: "장르 대비 gap (D7)",                   en: "Genre gap (D7)" },
+  "cohort.section.curve":   { ko: "리텐션 곡선 (P10/P50/P90)",            en: "Retention curve (P10/P50/P90)" },
+  "cohort.section.heatmap": { ko: "코호트 매트릭스",                       en: "Cohort matrix" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary

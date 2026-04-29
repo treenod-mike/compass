@@ -3,6 +3,7 @@ import chart2Bold from '@iconify-icons/solar/chart-2-bold'
 import layersBold from '@iconify-icons/solar/layers-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
 import magnifierBold from '@iconify-icons/solar/magnifer-bold'
+import usersGroupRoundedBold from '@iconify-icons/solar/users-group-rounded-bold'
 import type { TranslationKey } from '@/shared/i18n/dictionary'
 
 export type CategoryId = 'overview' | 'settings'
@@ -46,6 +47,12 @@ export const navigationItems: NavigationItem[] = [
     title: 'Diligence',
     url: '/dashboard/diligence',
     icon: magnifierBold,
+    category: 'overview',
+  },
+  {
+    title: '코호트 진단',
+    url: '/dashboard/cohort',
+    icon: usersGroupRoundedBold,
     category: 'overview',
   },
   {
