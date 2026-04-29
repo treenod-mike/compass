@@ -8,7 +8,7 @@ import { useGameData } from "@/shared/api/use-game-data"
 import { useRevenueForecast } from "@/shared/api/lstm/use-revenue-forecast"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { RevenueForecast } from "@/widgets/charts/ui/revenue-forecast"
-import { getPrior } from "@/shared/api/prior-data"
+import { getMarketRetentionPct, isPriorStale } from "@/shared/api/prior-data"
 
 /**
  * 시뮬 베이스라인의 출처를 보여주는 좌측 컬럼 디스클로저.
@@ -125,14 +125,8 @@ function RetentionStrip({ gameId, compareMarket }: { gameId: string; compareMark
     { label: "D30", value: ret?.d30 },
   ]
 
-  const prior = compareMarket ? getPrior({ genre: "Merge", region: "JP" }) : null
-  const market = prior
-    ? {
-        d1:  prior.retention.d1.p50  * 100,
-        d7:  prior.retention.d7.p50  * 100,
-        d30: prior.retention.d30.p50 * 100,
-      }
-    : null
+  const market = compareMarket ? getMarketRetentionPct({ genre: "Merge", region: "JP" }) : null
+  const stale = market != null && isPriorStale()
 
   return (
     <div className="space-y-2">
@@ -154,6 +148,11 @@ function RetentionStrip({ gameId, compareMarket }: { gameId: string; compareMark
           <div className="flex flex-col">
             <span className="text-muted-foreground text-[10px] uppercase tracking-wider">
               {t("vc.compare.market")}
+              {stale && (
+                <span className="ml-1 text-[var(--signal-caution)]" aria-label="snapshot stale" title="snapshot stale">
+                  ⚠
+                </span>
+              )}
             </span>
             <span className="font-mono tabular-nums text-muted-foreground">
               {market.d1.toFixed(1)}%

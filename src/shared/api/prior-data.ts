@@ -175,3 +175,21 @@ export function isPriorStale(maxDays = STALE_DAYS): boolean {
 export function priorAgeDays(): number {
   return bundles["Merge:JP"]!.ageDays
 }
+
+/**
+ * Convenience accessor — returns market median retention (D1/D7/D30) in
+ * percent (0–100 scale) for a given genre/region. Returns null if no
+ * snapshot is available. Centralizes the fraction-to-percent conversion
+ * so consumers don't drift to inconsistent units.
+ */
+export function getMarketRetentionPct(key: PriorBundleKey):
+  | { d1: number; d7: number; d30: number }
+  | null {
+  const p = getPrior(key)
+  if (!p) return null
+  return {
+    d1: p.retention.d1.p50 * 100,
+    d7: p.retention.d7.p50 * 100,
+    d30: p.retention.d30.p50 * 100,
+  }
+}
