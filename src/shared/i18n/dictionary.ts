@@ -722,6 +722,19 @@ const dictionary = {
   // === Result tabs ===
   "vc.tabs.insights":          { ko: "인사이트", en: "Insights" },
   "vc.tabs.runway":            { ko: "현금흐름", en: "Cash flow" },
+  "vc.tabs.sensitivity":       { ko: "민감도", en: "Sensitivity" },
+
+  // === Sensitivity heatmap ===
+  "vc.sensitivity.title":            { ko: "2D Sensitivity Heatmap", en: "2D Sensitivity Heatmap" },
+  "vc.sensitivity.subtitle":         { ko: "UA 비중 × 평가 기간 — BEP 회수 시점", en: "UA share × Horizon — BEP timing" },
+  "vc.sensitivity.xLabel":           { ko: "UA 비중", en: "UA share" },
+  "vc.sensitivity.tooltip.ua":       { ko: "UA 비중", en: "UA share" },
+  "vc.sensitivity.tooltip.horizon":  { ko: "평가 기간", en: "Horizon" },
+  "vc.sensitivity.tooltip.bep":      { ko: "BEP", en: "BEP" },
+  "vc.sensitivity.tooltip.noBep":    { ko: "회수 불가", en: "No payback" },
+  "vc.sensitivity.hint":             { ko: "셀 hover로 BEP 회수 시점 확인", en: "Hover a cell to see BEP timing" },
+  "vc.sensitivity.legend.fast":      { ko: "빠른 회수", en: "Fast payback" },
+  "vc.sensitivity.legend.slow":      { ko: "느린/없음", en: "Slow / none" },
 
   // === Benchmark vs actual gap disclosure ===
   "vc.gap.label":                  { ko: "실측 vs 시뮬", en: "Actual vs simulated" },
