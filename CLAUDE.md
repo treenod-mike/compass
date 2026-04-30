@@ -69,11 +69,14 @@ src/
 │   ├── page.tsx                    # / → /dashboard 리다이렉트
 │   ├── layout.tsx                  # Root layout (fonts, providers)
 │   └── (dashboard)/
-│       ├── layout.tsx              # Dashboard shell (StatusBar + Sidebar)
+│       ├── layout.tsx              # Dashboard shell (Sidebar + Header)
 │       └── dashboard/
-│           ├── page.tsx            # Executive Overview (Module 1)
-│           └── market-gap/
-│               └── page.tsx        # Market Gap Analysis (Module 2)
+│           ├── page.tsx            # VC Simulator (홈) — 시뮬레이터 = 제품
+│           ├── connections/        # AppsFlyer 연동 관리 (사이드바 노출)
+│           ├── market-gap/         # URL 보존, 사이드바 hidden
+│           ├── mmm/                # URL 보존, 사이드바 hidden
+│           ├── prism/              # URL 보존, 사이드바 hidden
+│           └── vc-simulation/      # URL 보존 (`/dashboard` 와 동일 콘텐츠)
 ├── shared/
 │   ├── api/                        # Mock data, types, hooks (use-game-data)
 │   ├── config/
@@ -99,24 +102,33 @@ src/
 
 ## 4. Dashboard Pages
 
-### Executive Overview (`/dashboard`)
-포트폴리오 레벨 투자 판정. 게임 선택에 따라 Portfolio/Single-game 뷰 전환.
+**제품 정체성**: 관찰형 대시보드 → 조작형 시뮬레이터로 pivot 완료
+(spec: `docs/superpowers/specs/2026-04-29-vc-simulator-product-pivot-design.md`).
 
-**구성 위젯:**
-1. **PortfolioVerdict / HeroVerdict** — 투자 상태 (Invest/Hold/Reduce) + 신뢰도
-2. **KPICards** — 6개(포트폴리오) 또는 4개(단일게임) 핵심 지표
-3. **TitleHeatmap + MarketContextCard** — 타이틀별 건강도 + 시장 맥락 (3:2 split)
-4. **CapitalWaterfall + RevenueVsInvest** — 자본 흐름 + 수익 대비 투자 (2-col)
-5. **RevenueForecast + DataFreshnessStrip** — 매출 예측 (Bayesian P10/P50/P90) + 데이터 신선도 (3:1 split)
+### `/dashboard` — VC Simulator (홈)
+사이드바의 "Dashboard" 진입점. VC 자본 배분 시뮬레이션을 한 화면에 압축.
 
-### Market Gap (`/dashboard/market-gap`)
-Bayesian 사전/사후 확률 분석으로 시장 대비 포지셔닝 시각화.
+**구성:**
+1. **Hero Decision Sentence** — "이 자본 배분이면 X" 풀폭 헤드라인
+2. **시장과 비교 토글** (헤더 우측) — ON 시 시장 p50 retention overlay
+3. **좌 40% INPUT 컬럼**:
+   - Preset 탭 / Horizon / Fund / Channel mix / Offer fields
+   - **채널 분해 보기** 트리거 → 우측 480px Sheet drawer (CpiQuadrant + CpiBenchmarkTable)
+   - **가정값 출처** 디스클로저 → RevenueForecast 미니 / D1/D7/D30 retention strip / KPI 2×2
+4. **우 60% RESULT 컬럼**:
+   - DataSourceBadge + StaleBadge
+   - VcKpiStrip — IRR / MOIC / Payback / J-Curve (4개, 항상 보임)
+   - CumulativeRoasChart (메인 차트)
+   - VcResultTabs — Insights / Runway
 
-**구성 위젯:**
-1. **MarketHeroVerdict** — 시장 내 순위 + 경쟁 포지션 판정
-2. **PriorPosteriorChart** — 장르 기대치 vs 우리 실적 (핵심 차별화 차트)
-3. **MarketBenchmark + RankingTrend** — 리텐션 벤치마크 + 순위 추세 (2-col)
-4. **SaturationTrendChart + Competitor Table** — 포화도 추세 + 경쟁사 테이블 (2-col)
+### `/dashboard/connections` — AppsFlyer 연동 관리
+사이드바의 "데이터 연결". 백엔드 설정 영역. 시뮬레이터의 일부가 아님.
+
+### Hidden routes (URL 보존, 사이드바 비노출)
+- `/dashboard/market-gap` — Bayesian Prior/Posterior (구 Module 2)
+- `/dashboard/mmm` — Marketing Mix (Channel drawer의 "전체 화면" 링크에서 진입)
+- `/dashboard/prism` — PRISM × LTV (다음 챕터에서 시뮬레이터 입력으로 흡수 예정)
+- `/dashboard/vc-simulation` — `/dashboard` 와 동일 콘텐츠 (북마크 호환)
 
 ---
 

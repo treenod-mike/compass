@@ -693,7 +693,6 @@ const dictionary = {
 
   "vc.compare.title":  { ko: "시장과 비교", en: "Compare with market" },
   "vc.compare.market": { ko: "시장 p50", en: "Market p50" },
-  "vc.compare.you":    { ko: "우리", en: "Us" },
 
   "vc.channel.title":      { ko: "채널 분해", en: "Channel breakdown" },
   "vc.channel.trigger":    { ko: "채널 분해 보기", en: "View channels" },
@@ -721,7 +720,6 @@ const dictionary = {
 
   // === Result tabs ===
   "vc.tabs.insights":          { ko: "인사이트", en: "Insights" },
-  "vc.tabs.kpi":               { ko: "주요 지표", en: "Key metrics" },
   "vc.tabs.runway":            { ko: "현금흐름", en: "Cash flow" },
 
   // === Benchmark vs actual gap disclosure ===
@@ -769,10 +767,6 @@ const dictionary = {
 
   // === Nav groups ===
   "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
-  // Kept for Phase 3 PRISM re-introduction (spec 2026-04-29-vc-simulator-product-pivot-design.md §2)
-  "nav.group.market":          { ko: "시장 분석", en: "Market Analysis" },
-  "nav.group.channel":         { ko: "채널 포화도", en: "Channel Saturation" },
-  "nav.group.experiments":     { ko: "실험 영향", en: "Experiment Impact" },
   "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },
   "nav.vc-simulation":         { ko: "투자 시뮬레이션", en: "VC Simulation" },
 
