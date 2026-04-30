@@ -6,8 +6,9 @@ import type { VcSimResult } from "@/shared/api/vc-simulation"
 import { useLocale, type TranslationKey } from "@/shared/i18n"
 import { VcInsightsPanel } from "./vc-insights-panel"
 import { DualBaselineRunwayChart } from "./dual-baseline-runway-chart"
+import { SensitivityHeatmap } from "./sensitivity-heatmap"
 
-type TabKey = "insights" | "runway"
+type TabKey = "insights" | "runway" | "sensitivity"
 
 type Props = {
   result: VcSimResult
@@ -34,6 +35,7 @@ export function VcResultTabs({
   const tabs: { key: TabKey; labelKey: TranslationKey }[] = [
     { key: "insights", labelKey: "vc.tabs.insights" },
     { key: "runway", labelKey: "vc.tabs.runway" },
+    { key: "sensitivity", labelKey: "vc.tabs.sensitivity" },
   ]
 
   return (
@@ -69,6 +71,14 @@ export function VcResultTabs({
           <DualBaselineRunwayChart
             result={result}
             hurdleLine={(result.offer.hurdleRate * result.offer.investmentUsd) / 1000}
+          />
+        )}
+        {tab === "sensitivity" && (
+          <SensitivityHeatmap
+            result={result}
+            gameId={gameId}
+            appsflyerInitialCash={appsflyerInitialCash}
+            bayesianDeltaLtv={bayesianDeltaLtv}
           />
         )}
       </div>
