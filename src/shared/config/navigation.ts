@@ -1,5 +1,6 @@
 import type { IconifyIcon } from '@iconify/types'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
+import layersBold from '@iconify-icons/solar/layers-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
 import type { TranslationKey } from '@/shared/i18n/dictionary'
 
@@ -32,6 +33,12 @@ export const navigationItems: NavigationItem[] = [
     title: '대시보드',
     url: '/dashboard',
     icon: chart2Bold,
+    category: 'overview',
+  },
+  {
+    title: '포트폴리오',
+    url: '/dashboard/portfolio',
+    icon: layersBold,
     category: 'overview',
   },
   {

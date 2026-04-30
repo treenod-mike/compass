@@ -792,6 +792,23 @@ const dictionary = {
   "mmm.benchmarkNoData":    { ko: "데이터 없음",                  en: "No benchmark data" },
   "mmm.edit":               { ko: "편집",                        en: "Edit" },
 
+  // === Portfolio page ===
+  "portfolio.page.title":        { ko: "포트폴리오",                          en: "Portfolio" },
+  "portfolio.page.subtitle":     { ko: "운영 중인 게임의 투자 상태",            en: "Investment status of active games" },
+  "portfolio.gamesHeading":      { ko: "운영 중 게임",                        en: "Active games" },
+  "portfolio.openInSimulator":   { ko: "시뮬레이터에서 보기",                   en: "Open in simulator" },
+  "portfolio.signal.invest":     { ko: "INVEST",                             en: "INVEST" },
+  "portfolio.signal.hold":       { ko: "HOLD",                               en: "HOLD" },
+  "portfolio.signal.reduce":     { ko: "REDUCE",                             en: "REDUCE" },
+  "portfolio.kpi.payback":       { ko: "Payback",                            en: "Payback" },
+  "portfolio.kpi.confidence":    { ko: "Confidence",                         en: "Confidence" },
+  "portfolio.kpi.blendedRoas":   { ko: "Blended ROAS",                       en: "Blended ROAS" },
+  "portfolio.kpi.deployPace":    { ko: "Deploy pace",                        en: "Deploy pace" },
+  "portfolio.kpi.portfolioMoic": { ko: "Portfolio MOIC",                     en: "Portfolio MOIC" },
+  "portfolio.kpi.fundDpi":       { ko: "Fund DPI",                           en: "Fund DPI" },
+  "portfolio.kpi.expVelocity":   { ko: "Exp. velocity",                      en: "Exp. velocity" },
+  "portfolio.kpi.marketTiming":  { ko: "Market timing",                      en: "Market timing" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary
