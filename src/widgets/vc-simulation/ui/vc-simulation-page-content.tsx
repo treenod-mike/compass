@@ -9,11 +9,12 @@ import { AssumptionSourcePanel } from "./assumption-source-panel"
 import { DecisionSentence } from "./decision-sentence"
 import { VcKpiStrip } from "./vc-kpi-strip"
 import { CalcErrorCard } from "@/widgets/vc-simulation/ui/calc-error-card"
-import { DEFAULT_OFFER, useVcSimulation, isLstmStale, type Offer } from "@/shared/api/vc-simulation"
+import { DEFAULT_OFFER, useVcSimulation, isLstmStale, type Offer, type VcSimResult } from "@/shared/api/vc-simulation"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useLocale } from "@/shared/i18n"
 import { ArrowRight } from "lucide-react"
 import { ChannelDrawer } from "./channel-drawer"
+import { ScenarioPinButton } from "./scenario-pin-button"
 
 class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null }
@@ -41,6 +42,7 @@ export function VcSimulationPageContent() {
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
   const [compareMarket, setCompareMarket] = useState(false)
   const [channelOpen, setChannelOpen] = useState(false)
+  const [pinned, setPinned] = useState<VcSimResult | null>(null)
   const gameData = useGameData()
   // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
   // client-side only, preventing SSR/CSR hydration mismatch (and the
@@ -112,6 +114,13 @@ export function VcSimulationPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6 h-full min-h-0">
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
+              <div className="mb-3">
+                <ScenarioPinButton
+                  isPinned={pinned !== null}
+                  onPin={() => setPinned(result)}
+                  onClear={() => setPinned(null)}
+                />
+              </div>
               <VcInputPanel onChange={setOffer} />
               <button
                 type="button"
@@ -132,7 +141,7 @@ export function VcSimulationPageContent() {
               <DataSourceBadge badge={mounted ? result.dataSourceBadge : "real"} />
               {mounted && stale && <StaleBadge />}
               {/* KPI 상시 노출 (Phase 2: 결과 탭에서 hoist). */}
-              <VcKpiStrip result={result} />
+              <VcKpiStrip result={result} pinned={pinned} />
               <CalcBoundary>
                 <VcResultBoard
                   result={result}
@@ -140,6 +149,7 @@ export function VcSimulationPageContent() {
                   appsflyerInitialCash={initialCash}
                   bayesianDeltaLtv={bayesianDeltaLtv}
                   compareMarket={compareMarket}
+                  pinned={pinned}
                 />
               </CalcBoundary>
             </div>

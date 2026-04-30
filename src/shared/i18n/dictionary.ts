@@ -766,6 +766,13 @@ const dictionary = {
   "vc.insights.tornado.subtitle":       { ko: "각 lever를 ±한 단계 변화시켰을 때 BEP 변화량", en: "ΔBEP when each lever is swung by one step" },
   "vc.insights.tornado.invariant":      { ko: "영향 없음", en: "no impact" },
 
+  // === VC Simulator — Scenario A/B pin ===
+  "vc.scenario.pin":    { ko: "시나리오 핀", en: "Pin scenario" },
+  "vc.scenario.repin":  { ko: "다시 핀하기", en: "Re-pin" },
+  "vc.scenario.clear":  { ko: "핀 해제", en: "Clear pin" },
+  "vc.scenario.aLabel": { ko: "Scenario A (핀됨)", en: "Scenario A (pinned)" },
+  "vc.scenario.bLabel": { ko: "현재 (B)", en: "Current (B)" },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
   "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },
