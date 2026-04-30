@@ -1,13 +1,9 @@
 import type { IconifyIcon } from '@iconify/types'
-import calculatorBold from '@iconify-icons/solar/calculator-bold'
 import chart2Bold from '@iconify-icons/solar/chart-2-bold'
-import graphUpBold from '@iconify-icons/solar/graph-up-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
-import widget5Bold from '@iconify-icons/solar/widget-5-bold'
 import type { TranslationKey } from '@/shared/i18n/dictionary'
-import { flaskBold } from './custom-icons'
 
-export type CategoryId = 'overview' | 'market' | 'channel' | 'experiments' | 'settings'
+export type CategoryId = 'overview' | 'settings'
 
 export interface CategoryMeta {
   id: CategoryId
@@ -27,44 +23,16 @@ export interface NavigationItem {
 }
 
 export const CATEGORIES: CategoryMeta[] = [
-  { id: 'overview', label: '투자 판정', groupKey: 'nav.group.investment', position: 'primary', icon: chart2Bold },
-  { id: 'market', label: '시장 포지셔닝', groupKey: 'nav.group.market', position: 'primary', icon: graphUpBold },
-  { id: 'channel', label: '채널 포화도', groupKey: 'nav.group.channel', position: 'primary', icon: widget5Bold },
-  { id: 'experiments', label: '실험 영향 (PRISM)', groupKey: 'nav.group.experiments', position: 'primary', icon: flaskBold },
+  { id: 'overview', label: '대시보드', groupKey: 'nav.group.investment', position: 'primary', icon: chart2Bold },
   { id: 'settings', label: '데이터 연결', groupKey: 'nav.group.settings', position: 'utility', icon: plugCircleBold },
 ]
 
 export const navigationItems: NavigationItem[] = [
   {
-    title: '투자 판정',
+    title: '대시보드',
     url: '/dashboard',
     icon: chart2Bold,
     category: 'overview',
-  },
-  {
-    title: '시장 포지셔닝',
-    url: '/dashboard/market-gap',
-    icon: graphUpBold,
-    category: 'market',
-  },
-  {
-    title: '투자 시뮬레이션',
-    url: '/dashboard/vc-simulation',
-    icon: calculatorBold,
-    category: 'overview',
-  },
-  {
-    title: '채널 포화도',
-    url: '/dashboard/mmm',
-    icon: widget5Bold,
-    category: 'channel',
-  },
-  {
-    title: 'PRISM 연동',
-    url: '/dashboard/prism',
-    icon: flaskBold,
-    category: 'experiments',
-    badge: '개발 예정',
   },
   {
     title: '데이터 연결',
