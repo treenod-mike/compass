@@ -12,6 +12,8 @@ import { CalcErrorCard } from "@/widgets/vc-simulation/ui/calc-error-card"
 import { DEFAULT_OFFER, useVcSimulation, isLstmStale, type Offer } from "@/shared/api/vc-simulation"
 import { useGameData } from "@/shared/api/use-game-data"
 import { useLocale } from "@/shared/i18n"
+import { ArrowRight } from "lucide-react"
+import { ChannelDrawer } from "./channel-drawer"
 
 class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null }
@@ -38,6 +40,7 @@ export function VcSimulationPageContent() {
   const { t } = useLocale()
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
   const [compareMarket, setCompareMarket] = useState(false)
+  const [channelOpen, setChannelOpen] = useState(false)
   const gameData = useGameData()
   // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
   // client-side only, preventing SSR/CSR hydration mismatch (and the
@@ -110,6 +113,14 @@ export function VcSimulationPageContent() {
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
               <VcInputPanel onChange={setOffer} />
+              <button
+                type="button"
+                onClick={() => setChannelOpen(true)}
+                className="mt-4 w-full inline-flex items-center justify-between rounded-md border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground hover:border-primary transition-colors"
+              >
+                <span>{t("vc.channel.trigger")}</span>
+                <ArrowRight className="size-4 text-muted-foreground" />
+              </button>
               <AssumptionSourcePanel compareMarket={compareMarket} />
             </div>
             {/* Right column — results scroll independently so input stays in
@@ -134,6 +145,7 @@ export function VcSimulationPageContent() {
           </div>
         </FadeInUp>
       </div>
+      <ChannelDrawer open={channelOpen} onClose={() => setChannelOpen(false)} />
     </PageTransition>
   )
 }

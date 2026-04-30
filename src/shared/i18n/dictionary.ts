@@ -695,6 +695,11 @@ const dictionary = {
   "vc.compare.market": { ko: "시장 p50", en: "Market p50" },
   "vc.compare.you":    { ko: "우리", en: "Us" },
 
+  "vc.channel.title":      { ko: "채널 분해", en: "Channel breakdown" },
+  "vc.channel.trigger":    { ko: "채널 분해 보기", en: "View channels" },
+  "vc.channel.fullscreen": { ko: "전체 화면", en: "Full view" },
+  "vc.channel.close":      { ko: "닫기", en: "Close" },
+
   "vc.unit.months":            { ko: "개월", en: "months" },
   "vc.unit.usd":               { ko: "USD", en: "USD" },
 
