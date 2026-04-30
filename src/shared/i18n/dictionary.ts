@@ -792,6 +792,16 @@ const dictionary = {
   "mmm.benchmarkNoData":    { ko: "데이터 없음",                  en: "No benchmark data" },
   "mmm.edit":               { ko: "편집",                        en: "Edit" },
 
+  // === Diligence hub ===
+  "diligence.page.title":         { ko: "Diligence",                                                  en: "Diligence" },
+  "diligence.page.subtitle":      { ko: "시뮬 입력 가정값을 다지는 분석 toolkit",                       en: "Analysis toolkit for simulator input assumptions" },
+  "diligence.card.market.title":  { ko: "시장 포지셔닝",                                               en: "Market positioning" },
+  "diligence.card.market.desc":   { ko: "장르 기대치 vs 우리 실적 분포 (Bayesian prior/posterior)",     en: "Genre prior vs our actual distribution (Bayesian)" },
+  "diligence.card.channel.title": { ko: "채널 분해",                                                  en: "Channel breakdown" },
+  "diligence.card.channel.desc":  { ko: "UA 채널별 CPI 벤치마크와 효율 (MMM)",                         en: "UA channel CPI benchmark and efficiency (MMM)" },
+  "diligence.card.prism.title":   { ko: "실험 영향",                                                  en: "Experiment impact" },
+  "diligence.card.prism.desc":    { ko: "변이 / 실험이 LTV에 미친 영향 (PRISM × LTV)",                 en: "Variant / experiment impact on LTV (PRISM × LTV)" },
+
   // === Portfolio page ===
   "portfolio.page.title":        { ko: "포트폴리오",                          en: "Portfolio" },
   "portfolio.page.subtitle":     { ko: "운영 중인 게임의 투자 상태",            en: "Investment status of active games" },
