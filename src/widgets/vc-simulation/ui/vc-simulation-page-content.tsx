@@ -17,6 +17,9 @@ import { ChannelDrawer } from "./channel-drawer"
 import { ScenarioPinButton } from "./scenario-pin-button"
 import { TrancheConfigPanel, DEFAULT_TRANCHE_CONFIG, type TrancheConfig } from "./tranche-config-panel"
 import { TrancheTimeline } from "./tranche-timeline"
+import { useSimHistory } from "../lib/use-sim-history"
+import { SimHistoryButton } from "./sim-history-button"
+import { SimHistoryDrawer } from "./sim-history-drawer"
 
 class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null }
@@ -44,8 +47,11 @@ export function VcSimulationPageContent() {
   const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
   const [compareMarket, setCompareMarket] = useState(false)
   const [channelOpen, setChannelOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [restoreCount, setRestoreCount] = useState(0)
   const [pinned, setPinned] = useState<VcSimResult | null>(null)
   const [trancheConfig, setTranche] = useState<TrancheConfig>(DEFAULT_TRANCHE_CONFIG)
+  const history = useSimHistory()
   const gameData = useGameData()
   // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
   // client-side only, preventing SSR/CSR hydration mismatch (and the
@@ -124,7 +130,14 @@ export function VcSimulationPageContent() {
                   onClear={() => setPinned(null)}
                 />
               </div>
-              <VcInputPanel onChange={setOffer} />
+              <div className="mb-3">
+                <SimHistoryButton
+                  count={history.entries.length}
+                  onSave={() => history.saveCurrent(offer, result)}
+                  onOpenHistory={() => setHistoryOpen(true)}
+                />
+              </div>
+              <VcInputPanel key={restoreCount} initial={offer} onChange={setOffer} />
               <div className="mt-3">
                 <TrancheConfigPanel config={trancheConfig} onChange={setTranche} />
               </div>
@@ -168,6 +181,17 @@ export function VcSimulationPageContent() {
         </FadeInUp>
       </div>
       <ChannelDrawer open={channelOpen} onClose={() => setChannelOpen(false)} />
+      <SimHistoryDrawer
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        entries={history.entries}
+        onRestore={(savedOffer) => {
+          setOffer(savedOffer)
+          setRestoreCount((c) => c + 1)
+        }}
+        onRemove={history.remove}
+        onClear={history.clear}
+      />
     </PageTransition>
   )
 }
