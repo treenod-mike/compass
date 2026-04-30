@@ -9,6 +9,7 @@ type Props = {
   gameId: string
   appsflyerInitialCash: number
   bayesianDeltaLtv: number | null
+  compareMarket?: boolean
 }
 
 /**
@@ -20,10 +21,11 @@ export function VcResultBoard({
   gameId,
   appsflyerInitialCash,
   bayesianDeltaLtv,
+  compareMarket = false,
 }: Props) {
   return (
     <div className="space-y-4">
-      <CumulativeRoasChart result={result} />
+      <CumulativeRoasChart result={result} compareMarket={compareMarket} />
       <VcResultTabs
         result={result}
         gameId={gameId}

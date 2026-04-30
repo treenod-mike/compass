@@ -24,8 +24,11 @@ import {
   toneClass,
 } from "../lib/benchmark-gap"
 
-type Props = { result: VcSimResult }
+type Props = { result: VcSimResult; compareMarket?: boolean }
 type Granularity = "monthly" | "quarterly"
+
+/** Merge:JP genre median BEP timing (hardcoded v1 — derive from getPrior in future). */
+const MARKET_TYPICAL_BEP_MONTHS = 14
 
 /**
  * CumulativeRoasChart — VC 시뮬레이터 핵심 시각화.
@@ -37,7 +40,7 @@ type Granularity = "monthly" | "quarterly"
  * X축 단위: monthly / quarterly 토글. compute가 month 단위라 daily는
  * false precision이라 옵션에서 제외.
  */
-export function CumulativeRoasChart({ result }: Props) {
+export function CumulativeRoasChart({ result, compareMarket = false }: Props) {
   const { t } = useLocale()
   const [granularity, setGranularity] = useState<Granularity>("monthly")
 
@@ -240,6 +243,27 @@ export function CumulativeRoasChart({ result }: Props) {
                 />
               )}
             </>
+          )}
+
+          {/* Market typical BEP — genre median (Merge:JP ~14 months).
+              Quarterly mode: x snaps to nearest quarter boundary (M15 = Q5). */}
+          {compareMarket && (
+            <ReferenceLine
+              x={
+                granularity === "monthly"
+                  ? MARKET_TYPICAL_BEP_MONTHS
+                  : Math.round(MARKET_TYPICAL_BEP_MONTHS / 3) * 3
+              }
+              stroke="var(--fg-3)"
+              strokeDasharray="4 4"
+              strokeWidth={1}
+              label={{
+                value: t("vc.compare.marketBEP"),
+                position: "top",
+                fill: "var(--fg-2)",
+                fontSize: 10,
+              }}
+            />
           )}
         </ComposedChart>
       </ResponsiveContainer>
