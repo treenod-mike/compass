@@ -691,8 +691,9 @@ const dictionary = {
   "vc.assumption.cohort":  { ko: "코호트 리텐션", en: "Cohort retention" },
   "vc.assumption.kpi":     { ko: "KPI 베이스라인", en: "KPI baseline" },
 
-  "vc.compare.title":  { ko: "시장과 비교", en: "Compare with market" },
-  "vc.compare.market": { ko: "시장 p50", en: "Market p50" },
+  "vc.compare.title":     { ko: "시장과 비교", en: "Compare with market" },
+  "vc.compare.market":    { ko: "시장 p50", en: "Market p50" },
+  "vc.compare.marketBEP": { ko: "시장 typical BEP", en: "Market typical BEP" },
 
   "vc.channel.title":      { ko: "채널 분해", en: "Channel breakdown" },
   "vc.channel.trigger":    { ko: "채널 분해 보기", en: "View channels" },

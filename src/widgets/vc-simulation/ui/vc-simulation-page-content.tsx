@@ -139,6 +139,7 @@ export function VcSimulationPageContent() {
                   gameId={gameId}
                   appsflyerInitialCash={initialCash}
                   bayesianDeltaLtv={bayesianDeltaLtv}
+                  compareMarket={compareMarket}
                 />
               </CalcBoundary>
             </div>
