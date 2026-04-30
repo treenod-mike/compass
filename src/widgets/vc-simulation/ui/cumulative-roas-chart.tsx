@@ -24,7 +24,7 @@ import {
   toneClass,
 } from "../lib/benchmark-gap"
 
-type Props = { result: VcSimResult; compareMarket?: boolean }
+type Props = { result: VcSimResult; compareMarket?: boolean; pinned?: VcSimResult | null }
 type Granularity = "monthly" | "quarterly"
 
 /** Merge:JP genre median BEP timing (hardcoded v1 — derive from getPrior in future). */
@@ -40,18 +40,28 @@ const MARKET_TYPICAL_BEP_MONTHS = 14
  * X축 단위: monthly / quarterly 토글. compute가 month 단위라 daily는
  * false precision이라 옵션에서 제외.
  */
-export function CumulativeRoasChart({ result, compareMarket = false }: Props) {
+export function CumulativeRoasChart({ result, compareMarket = false, pinned = null }: Props) {
   const { t } = useLocale()
   const [granularity, setGranularity] = useState<Granularity>("monthly")
 
   const investment = result.offer.investmentUsd
   const horizon = result.offer.horizonMonths
 
+  // Pinned scenario p50 — separate ROAS curve overlaid as dashed line when pinned.
+  const pinnedInvestment = pinned?.offer.investmentUsd ?? 1
+  const pinnedByMonth = new Map<number, number>()
+  if (pinned) {
+    for (const p of pinned.baselineB.cumulativeRevenue) {
+      pinnedByMonth.set(p.month, (p.p50 / pinnedInvestment) * 100)
+    }
+  }
+
   const monthlyPoints = result.baselineB.cumulativeRevenue.map((p) => ({
     month: p.month,
     p10: (p.p10 / investment) * 100,
     p50: (p.p50 / investment) * 100,
     p90: (p.p90 / investment) * 100,
+    pinnedP50: pinnedByMonth.get(p.month),
   }))
 
   // Quarterly mode: 데이터 자체를 분기 끝 시점으로 압축. M0, M3, M6, M9, M12.
@@ -201,6 +211,20 @@ export function CumulativeRoasChart({ result, compareMarket = false }: Props) {
             dot={false}
             isAnimationActive={false}
           />
+
+          {/* Pinned Scenario A — dashed overlay when comparison is active. */}
+          {pinned && (
+            <Line
+              type="monotone"
+              dataKey="pinnedP50"
+              stroke="var(--fg-2)"
+              strokeWidth={1.5}
+              strokeDasharray="6 4"
+              dot={false}
+              isAnimationActive={false}
+              connectNulls
+            />
+          )}
 
           {/* BEP 100% horizontal line */}
           <ReferenceLine

@@ -10,6 +10,7 @@ type Props = {
   appsflyerInitialCash: number
   bayesianDeltaLtv: number | null
   compareMarket?: boolean
+  pinned?: VcSimResult | null
 }
 
 /**
@@ -22,10 +23,11 @@ export function VcResultBoard({
   appsflyerInitialCash,
   bayesianDeltaLtv,
   compareMarket = false,
+  pinned = null,
 }: Props) {
   return (
     <div className="space-y-4">
-      <CumulativeRoasChart result={result} compareMarket={compareMarket} />
+      <CumulativeRoasChart result={result} compareMarket={compareMarket} pinned={pinned} />
       <VcResultTabs
         result={result}
         gameId={gameId}
