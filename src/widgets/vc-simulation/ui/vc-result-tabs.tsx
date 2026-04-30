@@ -4,11 +4,10 @@ import { useState } from "react"
 import { clsx } from "clsx"
 import type { VcSimResult } from "@/shared/api/vc-simulation"
 import { useLocale, type TranslationKey } from "@/shared/i18n"
-import { VcKpiStrip } from "./vc-kpi-strip"
 import { VcInsightsPanel } from "./vc-insights-panel"
 import { DualBaselineRunwayChart } from "./dual-baseline-runway-chart"
 
-type TabKey = "insights" | "kpi" | "runway"
+type TabKey = "insights" | "runway"
 
 type Props = {
   result: VcSimResult
@@ -34,7 +33,6 @@ export function VcResultTabs({
 
   const tabs: { key: TabKey; labelKey: TranslationKey }[] = [
     { key: "insights", labelKey: "vc.tabs.insights" },
-    { key: "kpi", labelKey: "vc.tabs.kpi" },
     { key: "runway", labelKey: "vc.tabs.runway" },
   ]
 
@@ -67,7 +65,6 @@ export function VcResultTabs({
             bayesianDeltaLtv={bayesianDeltaLtv}
           />
         )}
-        {tab === "kpi" && <VcKpiStrip result={result} />}
         {tab === "runway" && (
           <DualBaselineRunwayChart
             result={result}

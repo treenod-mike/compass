@@ -1,7 +1,6 @@
 "use client"
 
 import type { VcSimResult } from "@/shared/api/vc-simulation"
-import { DecisionSentence } from "./decision-sentence"
 import { CumulativeRoasChart } from "./cumulative-roas-chart"
 import { VcResultTabs } from "./vc-result-tabs"
 
@@ -13,11 +12,8 @@ type Props = {
 }
 
 /**
- * Result panel hierarchy:
- *   1. DecisionSentence — one-line verdict, always visible.
- *   2. CumulativeRoasChart — primary visualization, always visible.
- *   3. VcResultTabs — secondary info (insights / KPI / cash-flow) compressed
- *      into a tab strip so the decision-maker isn't shown everything at once.
+ * Result panel: primary chart + tabbed secondary info. The decision sentence
+ * is rendered at the page level (above the grid) per spec §5.
  */
 export function VcResultBoard({
   result,
@@ -27,7 +23,6 @@ export function VcResultBoard({
 }: Props) {
   return (
     <div className="space-y-4">
-      <DecisionSentence result={result} />
       <CumulativeRoasChart result={result} />
       <VcResultTabs
         result={result}

@@ -5,6 +5,8 @@ import { useSelectedGame } from "@/shared/store/selected-game"
 import { PageHeader } from "@/shared/ui"
 import { PageTransition, FadeInUp } from "@/shared/ui/page-transition"
 import { VcInputPanel, VcResultBoard } from "@/widgets/vc-simulation"
+import { DecisionSentence } from "./decision-sentence"
+import { VcKpiStrip } from "./vc-kpi-strip"
 import { CalcErrorCard } from "@/widgets/vc-simulation/ui/calc-error-card"
 import { DEFAULT_OFFER, useVcSimulation, isLstmStale, type Offer } from "@/shared/api/vc-simulation"
 import { useGameData } from "@/shared/api/use-game-data"
@@ -77,8 +79,14 @@ export function VcSimulationPageContent() {
         <FadeInUp>
           <PageHeader titleKey="vc.page.title" subtitleKey="vc.page.subtitle" />
         </FadeInUp>
-        <FadeInUp className="flex-1 min-h-0 mt-6">
-          <div className="grid grid-cols-[360px_1fr] gap-6 h-full min-h-0">
+
+        {/* Hero — 항상 보이는 결정 sentence (full-width). */}
+        <FadeInUp className="mt-4">
+          <DecisionSentence result={result} />
+        </FadeInUp>
+
+        <FadeInUp className="flex-1 min-h-0 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-6 h-full min-h-0">
             {/* Left column — input panel scrolls independently. */}
             <div className="overflow-y-auto pr-2 -mr-2 min-h-0">
               <VcInputPanel onChange={setOffer} />
@@ -91,6 +99,8 @@ export function VcSimulationPageContent() {
                   Until mount, show a deterministic "real" placeholder. */}
               <DataSourceBadge badge={mounted ? result.dataSourceBadge : "real"} />
               {mounted && stale && <StaleBadge />}
+              {/* KPI 상시 노출 (Phase 2: 결과 탭에서 hoist). */}
+              <VcKpiStrip result={result} />
               <CalcBoundary>
                 <VcResultBoard
                   result={result}
