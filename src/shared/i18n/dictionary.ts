@@ -786,6 +786,14 @@ const dictionary = {
   "vc.scenario.aLabel": { ko: "Scenario A (핀됨)", en: "Scenario A (pinned)" },
   "vc.scenario.bLabel": { ko: "현재 (B)", en: "Current (B)" },
 
+  // === Greenlight Gate (company-policy badge) ===
+  "vc.greenlight.label":          { ko: "회사 정책", en: "Policy gate" },
+  "vc.greenlight.pass":           { ko: "PASS", en: "PASS" },
+  "vc.greenlight.conditional":    { ko: "조건부", en: "CONDITIONAL" },
+  "vc.greenlight.fail":           { ko: "FAIL", en: "FAIL" },
+  "vc.greenlight.target.payback": { ko: "Payback ≤ 12mo", en: "Payback ≤ 12mo" },
+  "vc.greenlight.target.irr":     { ko: "IRR ≥ hurdle", en: "IRR ≥ hurdle" },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
   "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },

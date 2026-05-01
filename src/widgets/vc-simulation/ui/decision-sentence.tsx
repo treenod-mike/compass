@@ -9,6 +9,7 @@ import {
   formatGapPct,
   toneClass,
 } from "../lib/benchmark-gap"
+import { evaluateGreenlight, type GreenlightStatus } from "../lib/greenlight-gate"
 
 type Props = { result: VcSimResult }
 
@@ -34,6 +35,13 @@ export function DecisionSentence({ result }: Props) {
 
   const { state, summary } = useLiveAfData()
   const benchmark = computeBenchmarkGap(state, summary, result.offer)
+  const gate = evaluateGreenlight(result)
+
+  const gateClass: Record<GreenlightStatus, string> = {
+    pass: "text-[var(--signal-positive)] bg-[var(--signal-positive)]/10 border-[var(--signal-positive)]/30",
+    conditional: "text-[var(--signal-caution)] bg-[var(--signal-caution)]/10 border-[var(--signal-caution)]/30",
+    fail: "text-[var(--signal-risk)] bg-[var(--signal-risk)]/10 border-[var(--signal-risk)]/30",
+  }
 
   return (
     <div
@@ -44,8 +52,19 @@ export function DecisionSentence({ result }: Props) {
           : "border-destructive/40 bg-destructive/5",
       )}
     >
-      <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep mb-2">
-        {t("vc.insights.decisionLabel")}
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+          {t("vc.insights.decisionLabel")}
+        </div>
+        <div
+          className={clsx(
+            "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider",
+            gateClass[gate.status],
+          )}
+        >
+          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+          {t("vc.greenlight.label")} · {t(`vc.greenlight.${gate.status}` as TranslationKey)}
+        </div>
       </div>
       <div
         className={clsx(
