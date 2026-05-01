@@ -780,6 +780,11 @@ const dictionary = {
   "vc.insights.tornado.invariant":      { ko: "영향 없음", en: "no impact" },
 
   // === VC Simulator — Scenario A/B pin ===
+  "vc.share.label":           { ko: "공유", en: "Share" },
+  "vc.share.copied":          { ko: "복사됨!", en: "Copied!" },
+  "vc.share.fallbackPrompt":  { ko: "URL을 복사해 공유하세요:", en: "Copy this URL to share:" },
+  "vc.share.tooltip":         { ko: "현재 시뮬을 URL로 공유", en: "Share current simulation via URL" },
+
   "vc.scenario.pin":    { ko: "시나리오 핀", en: "Pin scenario" },
   "vc.scenario.repin":  { ko: "다시 핀하기", en: "Re-pin" },
   "vc.scenario.clear":  { ko: "핀 해제", en: "Clear pin" },
