@@ -20,6 +20,8 @@ import { TrancheTimeline } from "./tranche-timeline"
 import { useSimHistory } from "../lib/use-sim-history"
 import { SimHistoryButton } from "./sim-history-button"
 import { SimHistoryDrawer } from "./sim-history-drawer"
+import { ShareLinkButton } from "./share-link-button"
+import { useShareableOffer } from "../lib/use-shareable-offer"
 
 class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null }
@@ -44,7 +46,8 @@ const REFERENCE_LTV_PER_USER = 10
 export function VcSimulationPageContent() {
   const { gameId } = useSelectedGame()
   const { t } = useLocale()
-  const [offer, setOffer] = useState<Offer>(DEFAULT_OFFER)
+  const { hydratedOffer } = useShareableOffer()
+  const [offer, setOffer] = useState<Offer>(hydratedOffer ?? DEFAULT_OFFER)
   const [compareMarket, setCompareMarket] = useState(false)
   const [channelOpen, setChannelOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
@@ -97,7 +100,8 @@ export function VcSimulationPageContent() {
           <PageHeader titleKey="vc.page.title" subtitleKey="vc.page.subtitle" />
         </FadeInUp>
 
-        <FadeInUp className="mt-4 flex justify-end">
+        <FadeInUp className="mt-4 flex justify-end gap-2">
+          <ShareLinkButton offer={offer} />
           <button
             type="button"
             onClick={() => setCompareMarket((v) => !v)}
