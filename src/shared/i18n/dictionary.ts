@@ -805,6 +805,18 @@ const dictionary = {
   "vc.tranches.timelineHint": { ko: "v1: 시각화만 — compute 통합은 v2 예정", en: "v1: visual only — compute integration in v2" },
   "vc.tranches.v2Note":       { ko: "v1: 화면 표시만 됩니다. 시뮬 결과에는 아직 반영되지 않습니다 (v2 예정).", en: "v1: visualization only. Sim results don't reflect tranching yet (v2 backlog)." },
 
+  // === VC Simulation — Decision History ===
+  "vc.history.save":       { ko: "저장", en: "Save" },
+  "vc.history.title":      { ko: "의사결정 이력", en: "Decision history" },
+  "vc.history.subtitle":   { ko: "저장된 시뮬레이션 — 클릭하면 복원됩니다", en: "Saved simulations — click to restore" },
+  "vc.history.empty":      { ko: "저장된 시뮬이 없습니다", en: "No saved simulations" },
+  "vc.history.count":      { ko: "총", en: "Total" },
+  "vc.history.clearAll":   { ko: "전체 삭제", en: "Clear all" },
+  "vc.history.remove":     { ko: "삭제", en: "Remove" },
+  "vc.history.restored":   { ko: "복원됨", en: "Restored" },
+  "vc.history.openLabel":  { ko: "이력 열기", en: "Open history" },
+  "vc.history.savedLabel": { ko: "저장됨", en: "Saved" },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
   "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },
