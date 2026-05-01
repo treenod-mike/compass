@@ -794,6 +794,17 @@ const dictionary = {
   "vc.greenlight.target.payback": { ko: "Payback ≤ 12mo", en: "Payback ≤ 12mo" },
   "vc.greenlight.target.irr":     { ko: "IRR ≥ hurdle", en: "IRR ≥ hurdle" },
 
+  // === Capital Tranches v1 ===
+  "vc.tranches.title":        { ko: "조건부 후속 투자", en: "Capital tranches" },
+  "vc.tranches.subtitle":     { ko: "투자금을 단계별로 배포", en: "Phased investment deployment" },
+  "vc.tranches.tranche1":     { ko: "Tranche 1 (즉시)", en: "Tranche 1 (immediate)" },
+  "vc.tranches.tranche2":     { ko: "Tranche 2 (조건부)", en: "Tranche 2 (conditional)" },
+  "vc.tranches.tranche2Pct":  { ko: "Tranche 2 비중", en: "Tranche 2 share" },
+  "vc.tranches.triggerMonth": { ko: "Tranche 2 발동 시점 (개월)", en: "Tranche 2 trigger month" },
+  "vc.tranches.timeline":     { ko: "자본 배포 스케줄", en: "Capital deployment schedule" },
+  "vc.tranches.timelineHint": { ko: "v1: 시각화만 — compute 통합은 v2 예정", en: "v1: visual only — compute integration in v2" },
+  "vc.tranches.v2Note":       { ko: "v1: 화면 표시만 됩니다. 시뮬 결과에는 아직 반영되지 않습니다 (v2 예정).", en: "v1: visualization only. Sim results don't reflect tranching yet (v2 backlog)." },
+
   // === Nav groups ===
   "nav.group.investment":      { ko: "대시보드", en: "Dashboard" },
   "nav.group.settings":        { ko: "데이터 연결", en: "Data Connections" },

@@ -15,6 +15,8 @@ import { useLocale } from "@/shared/i18n"
 import { ArrowRight } from "lucide-react"
 import { ChannelDrawer } from "./channel-drawer"
 import { ScenarioPinButton } from "./scenario-pin-button"
+import { TrancheConfigPanel, DEFAULT_TRANCHE_CONFIG, type TrancheConfig } from "./tranche-config-panel"
+import { TrancheTimeline } from "./tranche-timeline"
 
 class CalcBoundary extends Component<{ children: ReactNode }, { err: Error | null }> {
   state = { err: null as Error | null }
@@ -43,6 +45,7 @@ export function VcSimulationPageContent() {
   const [compareMarket, setCompareMarket] = useState(false)
   const [channelOpen, setChannelOpen] = useState(false)
   const [pinned, setPinned] = useState<VcSimResult | null>(null)
+  const [trancheConfig, setTranche] = useState<TrancheConfig>(DEFAULT_TRANCHE_CONFIG)
   const gameData = useGameData()
   // Gate time-dependent rendering (isLstmStale uses `new Date()`) to
   // client-side only, preventing SSR/CSR hydration mismatch (and the
@@ -122,6 +125,9 @@ export function VcSimulationPageContent() {
                 />
               </div>
               <VcInputPanel onChange={setOffer} />
+              <div className="mt-3">
+                <TrancheConfigPanel config={trancheConfig} onChange={setTranche} />
+              </div>
               <button
                 type="button"
                 onClick={() => setChannelOpen(true)}
@@ -142,6 +148,11 @@ export function VcSimulationPageContent() {
               {mounted && stale && <StaleBadge />}
               {/* KPI 상시 노출 (Phase 2: 결과 탭에서 hoist). */}
               <VcKpiStrip result={result} pinned={pinned} />
+              <TrancheTimeline
+                config={trancheConfig}
+                totalInvestmentUsd={offer.investmentUsd}
+                horizonMonths={offer.horizonMonths}
+              />
               <CalcBoundary>
                 <VcResultBoard
                   result={result}
