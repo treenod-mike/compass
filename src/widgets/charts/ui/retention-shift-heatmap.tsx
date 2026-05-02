@@ -4,9 +4,18 @@ import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { ActionData } from "@/shared/api/mock-data"
 import { ACTION_TIMELINE_COLORS } from "@/shared/config/chart-colors"
-import { ChartHeader } from "@/shared/ui/chart-header"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
-type Props = { actions: ActionData[] }
+type Props = {
+  actions: ActionData[]
+  compact?: boolean
+}
 
 const DAYS = ["d1", "d3", "d7", "d14", "d30"] as const
 
@@ -23,19 +32,30 @@ function cellColor(v: number): string {
   return `rgba(201, 55, 44, ${0.08 + intensity * 0.55})`
 }
 
-export function RetentionShiftHeatmap({ actions }: Props) {
-  const { t } = useLocale()
+export function RetentionShiftHeatmap({ actions, compact = false }: Props) {
+  const { t, locale } = useLocale()
   const rows = actions.filter((a) => a.retentionShift)
 
-  return (
-    <motion.div
-      layout
-      className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6"
-    >
-      <ChartHeader
-        title={t("chart.retentionShift")}
-        subtitle={t("info.retentionShift")}
-      />
+  const legend = (
+    <div className="mt-3 flex items-center gap-4 text-[10px] text-[var(--fg-2)]">
+      <span>{t("chart.retentionShift.legend")}</span>
+      <div className="flex items-center gap-1">
+        <div className="h-3 w-6 rounded" style={{ background: cellColor(-2) }} />
+        <span>-2pp</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <div className="h-3 w-6 rounded" style={{ background: cellColor(0) }} />
+        <span>0</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <div className="h-3 w-6 rounded" style={{ background: cellColor(2) }} />
+        <span>+2pp</span>
+      </div>
+    </div>
+  )
+
+  const tableBody = (
+    <>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
@@ -80,21 +100,35 @@ export function RetentionShiftHeatmap({ actions }: Props) {
           </tbody>
         </table>
       </div>
-      <div className="mt-3 flex items-center gap-4 text-[10px] text-[var(--fg-2)]">
-        <span>{t("chart.retentionShift.legend")}</span>
-        <div className="flex items-center gap-1">
-          <div className="h-3 w-6 rounded" style={{ background: cellColor(-2) }} />
-          <span>-2pp</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="h-3 w-6 rounded" style={{ background: cellColor(0) }} />
-          <span>0</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="h-3 w-6 rounded" style={{ background: cellColor(2) }} />
-          <span>+2pp</span>
-        </div>
-      </div>
+      {legend}
+    </>
+  )
+
+  if (compact) {
+    return <div className="flex flex-col h-full">{tableBody}</div>
+  }
+
+  return (
+    <motion.div layout transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.retentionShift")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {locale === "ko"
+                  ? "액션 전후 리텐션 변화량 (pp)"
+                  : "Retention delta by action (pp)"}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {tableBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
