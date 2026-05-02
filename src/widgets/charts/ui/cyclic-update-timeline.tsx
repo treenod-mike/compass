@@ -7,6 +7,13 @@ import { MARKET_GAP_PROOF_COLORS as C } from "@/shared/config/chart-colors"
 import { computeMarketSignal, cn } from "@/shared/lib"
 import { useLocale } from "@/shared/i18n"
 import { type TranslationKey } from "@/shared/i18n/dictionary"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 // ─── Play state machine ───────────────────────────────────────────────────────
 type PlayStatus = "idle" | "playing" | "paused" | "done"
@@ -92,7 +99,6 @@ function StepFrame({
   const gapSign = signal && signal.deltaPct >= 0 ? "+" : ""
   const gapColor = C.gapAccent
 
-  // Active frame: brand border + glow; hovered: brand ring; dimmed: opacity
   const borderColor = isActive ? "var(--brand)" : isHovered ? "var(--brand)" : "var(--border-default)"
   const borderWidth = isActive || isHovered ? 2 : 1
   const ringClass = isHovered && !isActive ? "ring-2 ring-[var(--brand)]/20" : ""
@@ -322,9 +328,10 @@ function AbsorptionArrow({ locale, isAdjacentHovered, isTransitioning, t }: Abso
 // ─── CyclicUpdateTimeline ─────────────────────────────────────────────────────
 type CyclicUpdateTimelineProps = {
   data: CyclicUpdateData
+  compact?: boolean
 }
 
-export function CyclicUpdateTimeline({ data }: CyclicUpdateTimelineProps) {
+export function CyclicUpdateTimeline({ data, compact = false }: CyclicUpdateTimelineProps) {
   const { locale, t } = useLocale()
   const bandHeight = 120
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -383,7 +390,7 @@ export function CyclicUpdateTimeline({ data }: CyclicUpdateTimelineProps) {
     return `⏵ ${t("methodology.play")}`
   }
 
-  return (
+  const interactiveContent = (
     <>
       {/* Keyframe for arrow dash animation */}
       <style>{`@keyframes dashflow { to { stroke-dashoffset: -12; } }`}</style>
@@ -417,15 +424,12 @@ export function CyclicUpdateTimeline({ data }: CyclicUpdateTimelineProps) {
         >
           {data.steps.map((step, i) => {
             const isHovered = hoveredIdx === i
-            // Dimmed: hover-based OR play-based
             const playIsActive = play.status === "playing" && play.activeStep !== -1
             const isDimmed =
               (hoveredIdx !== null && !isHovered) ||
               (playIsActive && play.activeStep !== i)
             const isActive = play.status === "playing" && play.activeStep === i
-            // Arrow pulse: transitioning arrow between i and i+1 when play just moved to i+1
             const isTransitioning = play.status === "playing" && play.activeStep === i + 1
-            // Arrow between frames i and i+1 is adjacent-hovered if frame i or i+1 is hovered
             const arrowAdjacentHovered = hoveredIdx === i || hoveredIdx === i + 1
 
             return (
@@ -456,5 +460,31 @@ export function CyclicUpdateTimeline({ data }: CyclicUpdateTimelineProps) {
         </div>
       </div>
     </>
+  )
+
+  if (compact) {
+    return <div>{interactiveContent}</div>
+  }
+
+  return (
+    <motion.div layout transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.cyclicUpdate")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {t("info.cyclicUpdate")}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {interactiveContent}
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

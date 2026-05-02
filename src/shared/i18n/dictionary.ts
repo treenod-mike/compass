@@ -63,6 +63,8 @@ const dictionary = {
   "chart.causalImpact.verdict.subtitle":{ ko: "자연 변동 아님",             en: "Not natural variance" },
   "chart.causalImpact.executionPoint":{ ko: "실행 시점",                  en: "Execution" },
   "info.causalImpact":                { ko: "특정 액션 실행 전후의 관측값을 '운영이 없었을 때'의 반사실 예측과 비교. 차이가 반사실 구간을 벗어나면 인과적 영향으로 판정.", en: "Compares observed values to a counterfactual forecast. Divergence beyond the band signals real causal impact." },
+  "chart.cyclicUpdate":               { ko: "업데이트 주기별 Bayesian 업데이트",  en: "Cyclic Update Timeline" },
+  "info.cyclicUpdate":                { ko: "D0 → D90 각 업데이트 사이클에서 장르 Prior가 실제 데이터를 흡수해 Posterior로 수렴하는 과정을 시각화합니다.", en: "Visualises how genre priors absorb new data at each D0→D90 update cycle, converging toward the posterior." },
   "chart.retentionShift":             { ko: "리텐션 구간별 영향",           en: "Retention Shift by Day" },
   "chart.retentionShift.legend":      { ko: "ΔRetention (pp)",             en: "ΔRetention (pp)" },
   "info.retentionShift":              { ko: "각 액션이 D1/D3/D7/D14/D30 리텐션 중 어느 구간을 움직였는지 히트맵으로 비교. 초기 스파이크형 vs 장기 리텐션형 구분.", en: "Heatmap of ΔRetention per cohort day — distinguishes early-spike vs long-tail actions." },
