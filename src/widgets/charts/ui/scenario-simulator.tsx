@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import { computeScenario } from "@/shared/api/mock-data"
 import { formatNumber } from "@/shared/lib"
@@ -8,10 +9,21 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { SCENARIO_SIMULATOR_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { ChartTooltip } from "@/shared/ui/chart-tooltip"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 const C = SCENARIO_SIMULATOR_COLORS
 
-export function ScenarioSimulator() {
+type ScenarioSimulatorProps = {
+  compact?: boolean
+}
+
+export function ScenarioSimulator({ compact = false }: ScenarioSimulatorProps) {
   const { t } = useLocale()
   const [uaBudget, setUaBudget] = useState(100000)
   const [targetRoas, setTargetRoas] = useState(142)
@@ -23,51 +35,145 @@ export function ScenarioSimulator() {
 
   const current = computeScenario(uaBudget, targetRoas)
 
-  return (
-    <div className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-5">
-      <h3 className="text-h3 text-[var(--fg-0)] mb-1">{t("chart.scenario")}</h3>
-      <p className="text-caption text-[var(--fg-2)] mt-1 mb-4 leading-relaxed">{t("info.scenario")}</p>
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        <div>
-          <label className="text-caption text-[var(--fg-2)] mb-1.5 block">
-            {t("scenario.uaBudget")}: <span className="font-semibold text-[var(--fg-0)]">{formatNumber(uaBudget)}</span>
-          </label>
-          <input type="range" min={50000} max={200000} step={10000} value={uaBudget} onChange={(e) => setUaBudget(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
-          <div className="flex justify-between text-[10px] text-[var(--fg-3)]"><span>$50K</span><span>$200K</span></div>
-        </div>
-        <div>
-          <label className="text-caption text-[var(--fg-2)] mb-1.5 block">
-            {t("scenario.targetRoas")}: <span className="font-semibold text-[var(--fg-0)]">{targetRoas}%</span>
-          </label>
-          <input type="range" min={80} max={300} step={5} value={targetRoas} onChange={(e) => setTargetRoas(Number(e.target.value))} className="w-full accent-[var(--brand)]" />
-          <div className="flex justify-between text-[10px] text-[var(--fg-3)]"><span>80%</span><span>300%</span></div>
-        </div>
+  const controls = (
+    <div className="grid grid-cols-2 gap-6 mb-6">
+      <div>
+        <label className="text-caption text-[var(--fg-2)] mb-1.5 block">
+          {t("scenario.uaBudget")}: <span className="font-semibold text-[var(--fg-0)]">{formatNumber(uaBudget)}</span>
+        </label>
+        <input
+          type="range"
+          min={50000}
+          max={200000}
+          step={10000}
+          value={uaBudget}
+          onChange={(e) => setUaBudget(Number(e.target.value))}
+          className="w-full accent-[var(--brand)]"
+        />
+        <div className="flex justify-between text-[10px] text-[var(--fg-3)]"><span>$50K</span><span>$200K</span></div>
       </div>
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
-          <p className="text-caption text-[var(--fg-2)]">{t("scenario.paybackChange")}</p>
-          <p className="text-h2 font-mono text-[var(--fg-0)]">{current.paybackDays}d</p>
-        </div>
-        <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
-          <p className="text-caption text-[var(--fg-2)]">{t("scenario.bepChange")}</p>
-          <p className="text-h2 font-mono text-[var(--fg-0)]">{current.bepProbability}%</p>
-        </div>
-        <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
-          <p className="text-caption text-[var(--fg-2)]">{t("chart.revenue")}</p>
-          <p className="text-h2 font-mono text-[var(--fg-0)]">{formatNumber(current.monthlyRevenue)}/mo</p>
-        </div>
+      <div>
+        <label className="text-caption text-[var(--fg-2)] mb-1.5 block">
+          {t("scenario.targetRoas")}: <span className="font-semibold text-[var(--fg-0)]">{targetRoas}%</span>
+        </label>
+        <input
+          type="range"
+          min={80}
+          max={300}
+          step={5}
+          value={targetRoas}
+          onChange={(e) => setTargetRoas(Number(e.target.value))}
+          className="w-full accent-[var(--brand)]"
+        />
+        <div className="flex justify-between text-[10px] text-[var(--fg-3)]"><span>80%</span><span>300%</span></div>
       </div>
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart data={scenarioData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="4 4" stroke="var(--chart-grid)" vertical={false} />
-          <XAxis dataKey="budget" tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }} axisLine={{ stroke: "var(--border-default)" }} tickLine={false} />
-          <YAxis yAxisId="left" tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${v}d`} />
-          <YAxis yAxisId="right" orientation="right" tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${v}%`} />
-          <Tooltip content={<ChartTooltip />} />
-          <Line yAxisId="left" type="monotone" dataKey="payback" stroke={C.payback} strokeWidth={2} name="Payback" dot={{ r: 2 }} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
-          <Line yAxisId="right" type="monotone" dataKey="bep" stroke={C.bep} strokeWidth={2} name="BEP %" dot={{ r: 2 }} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
-        </LineChart>
-      </ResponsiveContainer>
     </div>
+  )
+
+  const kpis = (
+    <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
+        <p className="text-caption text-[var(--fg-2)]">{t("scenario.paybackChange")}</p>
+        <p className="text-h2 font-mono text-[var(--fg-0)]">{current.paybackDays}d</p>
+      </div>
+      <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
+        <p className="text-caption text-[var(--fg-2)]">{t("scenario.bepChange")}</p>
+        <p className="text-h2 font-mono text-[var(--fg-0)]">{current.bepProbability}%</p>
+      </div>
+      <div className="rounded-[var(--radius-card)] bg-[var(--bg-2)] p-3 text-center">
+        <p className="text-caption text-[var(--fg-2)]">{t("chart.revenue")}</p>
+        <p className="text-h2 font-mono text-[var(--fg-0)]">{formatNumber(current.monthlyRevenue)}/mo</p>
+      </div>
+    </div>
+  )
+
+  const chartBody = (
+    <ResponsiveContainer width="100%" height={160}>
+      <LineChart data={scenarioData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="4 4" stroke="var(--chart-grid)" vertical={false} />
+        <XAxis
+          dataKey="budget"
+          tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }}
+          axisLine={{ stroke: "var(--border-default)" }}
+          tickLine={false}
+        />
+        <YAxis
+          yAxisId="left"
+          tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(v: number) => `${v}d`}
+        />
+        <YAxis
+          yAxisId="right"
+          orientation="right"
+          tick={{ ...CHART_TYPO.axisTick, fill: "var(--fg-3)" }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(v: number) => `${v}%`}
+        />
+        <Tooltip content={<ChartTooltip />} />
+        <Line
+          yAxisId="left"
+          type="monotone"
+          dataKey="payback"
+          stroke={C.payback}
+          strokeWidth={2}
+          name="Payback"
+          dot={{ r: 2 }}
+          animationBegin={400}
+          animationDuration={1000}
+          animationEasing="ease-out"
+        />
+        <Line
+          yAxisId="right"
+          type="monotone"
+          dataKey="bep"
+          stroke={C.bep}
+          strokeWidth={2}
+          name="BEP %"
+          dot={{ r: 2 }}
+          animationBegin={400}
+          animationDuration={1000}
+          animationEasing="ease-out"
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  )
+
+  // --- Compact mode: no Card wrapper ---
+  if (compact) {
+    return (
+      <div className="flex flex-col">
+        {controls}
+        {kpis}
+        {chartBody}
+      </div>
+    )
+  }
+
+  // --- Full mode: Gameboard-pattern Card wrapper ---
+  return (
+    <motion.div layout transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.scenario")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {t("info.scenario")}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {controls}
+          {kpis}
+          {chartBody}
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

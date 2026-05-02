@@ -4,7 +4,6 @@ import { useMemo } from "react"
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { RevenueVsInvestPoint } from "@/shared/api/mock-data"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip, TooltipDot } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
@@ -20,18 +19,35 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 type RevenueVsInvestProps = {
   data: RevenueVsInvestPoint[]
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 const C = REVENUE_VS_INVEST_COLORS
 
-export function RevenueVsInvest({ data, expanded: externalExpanded, onToggle: externalToggle }: RevenueVsInvestProps) {
+export function RevenueVsInvest({
+  data,
+  expanded: externalExpanded,
+  onToggle: externalToggle,
+  compact = false,
+}: RevenueVsInvestProps) {
   const { t, locale } = useLocale()
-  const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 384, expanded: externalExpanded, onToggle: externalToggle })
+  const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({
+    baseHeight: 384,
+    expanded: externalExpanded,
+    onToggle: externalToggle,
+  })
 
   // Find BEP crossing: first index where cumRevenue >= cumUaSpend
   const bepIndex = useMemo(
@@ -39,24 +55,8 @@ export function RevenueVsInvest({ data, expanded: externalExpanded, onToggle: ex
     [data],
   )
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <ChartHeader
-        title={t("chart.rovsInvest")}
-        subtitle="포코머지 · 2025.7 — 2026.4 · $K"
-        info={t("info.revenueVsInvest")}
-        insight={
-          locale === "ko"
-            ? "누적 매출이 1월에 UA 투자를 추월 — 손익분기 도달."
-            : "Cumulative revenue overtook UA spend in Jan — break-even reached."
-        }
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
-      <div className="flex-1" style={{ minHeight: chartHeight }}>
+  const chartBody = (
+    <div className="flex-1" style={{ minHeight: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 16, right: 20, left: 8, bottom: 0 }}>
           <defs>
@@ -230,7 +230,47 @@ export function RevenueVsInvest({ data, expanded: externalExpanded, onToggle: ex
           />
         </AreaChart>
       </ResponsiveContainer>
+    </div>
+  )
+
+  // --- Compact mode: no Card wrapper ---
+  if (compact) {
+    return (
+      <div className="flex flex-col h-full">
+        {chartBody}
       </div>
+    )
+  }
+
+  // --- Full mode: Gameboard-pattern Card wrapper ---
+  return (
+    <motion.div
+      layout
+      className={gridClassName}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.rovsInvest")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {locale === "ko"
+                  ? "누적 매출이 1월에 UA 투자를 추월 — 손익분기 도달."
+                  : "Cumulative revenue overtook UA spend in Jan — break-even reached."}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
