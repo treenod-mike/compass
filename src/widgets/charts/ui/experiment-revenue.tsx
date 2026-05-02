@@ -4,7 +4,6 @@ import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { RevenueDecompPoint, DecompStats } from "@/shared/api/mock-data"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip, TooltipDot } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
@@ -19,6 +18,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 const C = REVENUE_DECOMP_COLORS
 
@@ -29,6 +35,7 @@ type ExperimentRevenueProps = {
   stats: DecompStats
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 /* ── Velocity / Elasticity stats bar ── */
@@ -139,7 +146,7 @@ function DeployMarker({ x, y, width, value }: { x: number; y: number; width: num
 }
 
 /* ── Main component ── */
-export function ExperimentRevenue({ data, stats, expanded: externalExpanded, onToggle: externalToggle }: ExperimentRevenueProps) {
+export function ExperimentRevenue({ data, stats, expanded: externalExpanded, onToggle: externalToggle, compact = false }: ExperimentRevenueProps) {
   const { t, locale } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 384, expanded: externalExpanded, onToggle: externalToggle })
   const [mode, setMode] = useState<IsolateMode>("all")
@@ -163,153 +170,137 @@ export function ExperimentRevenue({ data, stats, expanded: externalExpanded, onT
   const lastPoint = data[data.length - 1]
   const expShare = lastPoint ? Math.round((lastPoint.experiment / lastPoint.total) * 100) : 0
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <ChartHeader
-        title={t("chart.revenueDecomp")}
-        subtitle="포코머지 · 2025.7 — 2026.4 · $K"
-        info={t("info.revenueDecomp")}
-        insight={
-          locale === "ko"
-            ? `실험이 매출의 ${expShare}%를 만들고 있습니다.`
-            : `Experiments drive ${expShare}% of revenue.`
-        }
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
-
+  const chartBody = (
+    <>
       <StatsBar mode={mode} stats={stats} locale={locale} />
 
       <div className="flex-1" style={{ minHeight: chartHeight }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <ComposedChart data={data} margin={{ top: 20, right: 16, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="4 4" stroke={C.grid} vertical={false} />
-          <XAxis
-            dataKey="month"
-            tick={{ ...CHART_TYPO.axisTick, fill: C.axis }}
-            axisLine={{ stroke: C.border }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ ...CHART_TYPO.axisTick, fill: C.axis }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v: number) => `$${v}`}
-            width={48}
-            domain={yDomain}
-            label={{
-              value: "$K",
-              position: "top",
-              offset: 4,
-              style: { ...CHART_TYPO.axisLabel, fill: C.axis, textAnchor: "middle" },
-            }}
-          />
-
-          <Tooltip
-            content={
-              <ChartTooltip
-                render={({ payload, label }) => {
-                  const d = payload[0]?.payload as RevenueDecompPoint | undefined
-                  if (!d) return null
-                  const ratio = d.total > 0 ? Math.round((d.experiment / d.total) * 100) : 0
-                  return (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: C.fg0, marginBottom: 6 }}>
-                        {label}
-                      </div>
-                      {(mode === "all" || mode === "organic") && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
-                          <TooltipDot color={C.organic} />
-                          <span style={{ color: C.fg2 }}>{t("chart.organic")}</span>
-                          <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 500, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
-                            ${d.organic}K
-                          </span>
-                        </div>
-                      )}
-                      {(mode === "all" || mode === "experiment") && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
-                          <TooltipDot color={C.experiment} />
-                          <span style={{ color: C.fg2 }}>{t("chart.expLift")}</span>
-                          <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 500, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
-                            ${d.experiment}K
-                          </span>
-                        </div>
-                      )}
-                      {mode === "all" && (
-                        <>
-                          <div style={{ borderTop: "1px solid #E2E2DD", margin: "4px 0" }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
-                            <span style={{ color: C.fg2 }}>{locale === "ko" ? "총 매출" : "Total"}</span>
-                            <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 700, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
-                              ${d.total}K
-                            </span>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, lineHeight: 1.6, opacity: 0.7 }}>
-                            <span style={{ color: C.fg2, marginLeft: 0 }}>
-                              {t("chart.expRatio")} {ratio}%
-                            </span>
-                          </div>
-                        </>
-                      )}
-                      {d.expShipped > 0 && (
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, lineHeight: 1.6, marginTop: 2 }}>
-                          <TooltipDot color={C.deploy} />
-                          <span style={{ color: C.fg2 }}>
-                            {t("chart.deployCount")} {d.expShipped}{locale === "ko" ? "건" : ""}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )
-                }}
-              />
-            }
-          />
-
-          {/* ── Organic bar (bottom of stack) ── */}
-          {(mode === "all" || mode === "organic") && (
-            <Bar
-              dataKey="organic"
-              stackId="revenue"
-              fill={C.organic}
-              fillOpacity={mode === "organic" ? 0.85 : 0.55}
-              radius={mode === "organic" ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-              barSize={32}
-              name={t("chart.organic")}
-              animationBegin={200}
-              animationDuration={800}
-              animationEasing="ease-out"
-              isAnimationActive={false}
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={data} margin={{ top: 20, right: 16, left: 8, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="4 4" stroke={C.grid} vertical={false} />
+            <XAxis
+              dataKey="month"
+              tick={{ ...CHART_TYPO.axisTick, fill: C.axis }}
+              axisLine={{ stroke: C.border }}
+              tickLine={false}
             />
-          )}
-
-          {/* ── Experiment bar (top of stack) ── */}
-          {(mode === "all" || mode === "experiment") && (
-            <Bar
-              dataKey="experiment"
-              stackId={mode === "all" ? "revenue" : "exp-solo"}
-              fill={C.experiment}
-              fillOpacity={0.8}
-              radius={[4, 4, 0, 0]}
-              barSize={32}
-              name={t("chart.expLift")}
-              animationBegin={200}
-              animationDuration={800}
-              animationEasing="ease-out"
-              isAnimationActive={false}
-              label={(props) => {
-                const { x, y, width, index } = props as unknown as { x: number; y: number; width: number; index: number }
-                const point = data[index]
-                if (!point || point.expShipped === 0) return <g key={index} />
-                return <DeployMarker key={index} x={x} y={y} width={width} value={point.expShipped} />
+            <YAxis
+              tick={{ ...CHART_TYPO.axisTick, fill: C.axis }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(v: number) => `$${v}`}
+              width={48}
+              domain={yDomain}
+              label={{
+                value: "$K",
+                position: "top",
+                offset: 4,
+                style: { ...CHART_TYPO.axisLabel, fill: C.axis, textAnchor: "middle" },
               }}
             />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
+
+            <Tooltip
+              content={
+                <ChartTooltip
+                  render={({ payload, label }) => {
+                    const d = payload[0]?.payload as RevenueDecompPoint | undefined
+                    if (!d) return null
+                    const ratio = d.total > 0 ? Math.round((d.experiment / d.total) * 100) : 0
+                    return (
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: C.fg0, marginBottom: 6 }}>
+                          {label}
+                        </div>
+                        {(mode === "all" || mode === "organic") && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
+                            <TooltipDot color={C.organic} />
+                            <span style={{ color: C.fg2 }}>{t("chart.organic")}</span>
+                            <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 500, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
+                              ${d.organic}K
+                            </span>
+                          </div>
+                        )}
+                        {(mode === "all" || mode === "experiment") && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
+                            <TooltipDot color={C.experiment} />
+                            <span style={{ color: C.fg2 }}>{t("chart.expLift")}</span>
+                            <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 500, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
+                              ${d.experiment}K
+                            </span>
+                          </div>
+                        )}
+                        {mode === "all" && (
+                          <>
+                            <div style={{ borderTop: "1px solid #E2E2DD", margin: "4px 0" }} />
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, lineHeight: 1.6 }}>
+                              <span style={{ color: C.fg2 }}>{locale === "ko" ? "총 매출" : "Total"}</span>
+                              <span style={{ marginLeft: "auto", paddingLeft: 12, fontWeight: 700, color: C.fg0, fontVariantNumeric: CHART_TYPO.tooltipValue.fontVariantNumeric, fontFamily: CHART_TYPO.tooltipValue.fontFamily }}>
+                                ${d.total}K
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, lineHeight: 1.6, opacity: 0.7 }}>
+                              <span style={{ color: C.fg2, marginLeft: 0 }}>
+                                {t("chart.expRatio")} {ratio}%
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        {d.expShipped > 0 && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, lineHeight: 1.6, marginTop: 2 }}>
+                            <TooltipDot color={C.deploy} />
+                            <span style={{ color: C.fg2 }}>
+                              {t("chart.deployCount")} {d.expShipped}{locale === "ko" ? "건" : ""}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }}
+                />
+              }
+            />
+
+            {/* ── Organic bar (bottom of stack) ── */}
+            {(mode === "all" || mode === "organic") && (
+              <Bar
+                dataKey="organic"
+                stackId="revenue"
+                fill={C.organic}
+                fillOpacity={mode === "organic" ? 0.85 : 0.55}
+                radius={mode === "organic" ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                barSize={32}
+                name={t("chart.organic")}
+                animationBegin={200}
+                animationDuration={800}
+                animationEasing="ease-out"
+                isAnimationActive={false}
+              />
+            )}
+
+            {/* ── Experiment bar (top of stack) ── */}
+            {(mode === "all" || mode === "experiment") && (
+              <Bar
+                dataKey="experiment"
+                stackId={mode === "all" ? "revenue" : "exp-solo"}
+                fill={C.experiment}
+                fillOpacity={0.8}
+                radius={[4, 4, 0, 0]}
+                barSize={32}
+                name={t("chart.expLift")}
+                animationBegin={200}
+                animationDuration={800}
+                animationEasing="ease-out"
+                isAnimationActive={false}
+                label={(props) => {
+                  const { x, y, width, index } = props as unknown as { x: number; y: number; width: number; index: number }
+                  const point = data[index]
+                  if (!point || point.expShipped === 0) return <g key={index} />
+                  return <DeployMarker key={index} x={x} y={y} width={width} value={point.expShipped} />
+                }}
+              />
+            )}
+          </ComposedChart>
+        </ResponsiveContainer>
       </div>
 
       <DecompLegend
@@ -321,6 +312,37 @@ export function ExperimentRevenue({ data, stats, expanded: externalExpanded, onT
           showAll: t("chart.showAll"),
         }}
       />
+    </>
+  )
+
+  if (compact) {
+    return <div className="flex flex-col h-full">{chartBody}</div>
+  }
+
+  return (
+    <motion.div layout className={gridClassName} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.revenueDecomp")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {locale === "ko"
+                  ? `실험이 매출의 ${expShare}%를 만들고 있습니다.`
+                  : `Experiments drive ${expShare}% of revenue.`}
+              </CardDescription>
+            </div>
+            <div className="shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0 flex-1 flex flex-col">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
