@@ -9,7 +9,13 @@ import { readAllApps, readCohortSummary } from "./io"
 
 type Skipped = {
   gameId: string
-  reason: SufficiencyReason | "zero_arpdau" | "forecast_failed" | "input_schema_invalid"
+  reason:
+    | SufficiencyReason
+    | "zero_arpdau"
+    | "forecast_failed"
+    | "input_schema_invalid"
+    | "cohort_absent"
+    | "cohort_fetch_failed"
 }
 
 export const dynamic = "force-dynamic"
@@ -53,12 +59,20 @@ export async function GET(req: Request): Promise<Response> {
     try {
       summary = await readCohortSummary(app.appId)
     } catch (err) {
-      console.error(`[lstm-cron] readCohortSummary failed for ${app.appId}:`, err)
-      skipped.push({ gameId: app.appId, reason: "input_schema_invalid" })
+      // io.readCohortSummary throws with a prefixed message we can classify on:
+      //   "schema_invalid: …"     → input_schema_invalid (alert worth)
+      //   anything else           → cohort_fetch_failed   (transient, retry next tick)
+      const msg = String(err)
+      const reason: Skipped["reason"] = msg.includes("schema_invalid")
+        ? "input_schema_invalid"
+        : "cohort_fetch_failed"
+      console.error(`[lstm-cron] readCohortSummary ${reason} for ${app.appId}:`, err)
+      skipped.push({ gameId: app.appId, reason })
       continue
     }
     if (!summary) {
-      skipped.push({ gameId: app.appId, reason: "input_schema_invalid" })
+      // No cohort blob yet — AppsFlyer cron has not synced this app. Legitimate skip.
+      skipped.push({ gameId: app.appId, reason: "cohort_absent" })
       continue
     }
 

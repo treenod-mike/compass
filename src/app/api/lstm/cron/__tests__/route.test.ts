@@ -130,4 +130,44 @@ describe("GET /api/lstm/cron", () => {
     const body = await res.json()
     expect(body.error).toBe("blob_fetch_failed")
   })
+
+  it("skips with cohort_absent when readCohortSummary returns null", async () => {
+    mockReadAllApps.mockResolvedValueOnce([
+      { appId: "absent_game", gameKey: "portfolio", label: "A", genre: "Merge", region: "JP" },
+    ])
+    mockReadCohortSummary.mockResolvedValueOnce(null)
+    const res = await GET(buildRequest(SECRET))
+    const body = await res.json()
+    expect(body.processed).toEqual([])
+    expect(body.skipped).toEqual([{ gameId: "absent_game", reason: "cohort_absent" }])
+    expect(writeLstmSnapshots).not.toHaveBeenCalled()
+  })
+
+  it("skips with cohort_fetch_failed when readCohortSummary throws blob_fetch_failed", async () => {
+    mockReadAllApps.mockResolvedValueOnce([
+      { appId: "fetch_fail", gameKey: "portfolio", label: "F", genre: "Merge", region: "JP" },
+    ])
+    mockReadCohortSummary.mockRejectedValueOnce(
+      new Error("blob_fetch_failed: appsflyer/cohort/fetch_fail/summary.json: status=503"),
+    )
+    const res = await GET(buildRequest(SECRET))
+    const body = await res.json()
+    expect(body.processed).toEqual([])
+    expect(body.skipped).toEqual([{ gameId: "fetch_fail", reason: "cohort_fetch_failed" }])
+    expect(writeLstmSnapshots).not.toHaveBeenCalled()
+  })
+
+  it("skips with input_schema_invalid when readCohortSummary throws schema_invalid", async () => {
+    mockReadAllApps.mockResolvedValueOnce([
+      { appId: "bad_shape", gameKey: "portfolio", label: "B", genre: "Merge", region: "JP" },
+    ])
+    mockReadCohortSummary.mockRejectedValueOnce(
+      new Error("schema_invalid: bad_shape: Required field missing"),
+    )
+    const res = await GET(buildRequest(SECRET))
+    const body = await res.json()
+    expect(body.processed).toEqual([])
+    expect(body.skipped).toEqual([{ gameId: "bad_shape", reason: "input_schema_invalid" }])
+    expect(writeLstmSnapshots).not.toHaveBeenCalled()
+  })
 })
