@@ -80,6 +80,7 @@ export function AssumptionSourcePanel({ compareMarket = false }: Props = {}) {
                     <RevenueForecast
                       data={vm.points}
                       meta={meta}
+                      compact
                     />
                   ) : (
                     <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
