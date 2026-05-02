@@ -630,6 +630,7 @@ const dictionary = {
   "mmm.benchmark.quadrant.q.creative":      { ko: "여유+비쌈 (Creative)",     en: "Room + Expensive" },
   "mmm.benchmark.quadrant.q.optimal":       { ko: "여유+저렴 (최적)",          en: "Room + Cheap (Optimal)" },
   "mmm.benchmark.quadrant.q.unicorn":       { ko: "포화+저렴 (유니콘)",        en: "Saturated + Cheap" },
+  "mmm.benchmark.table.title":              { ko: "CPI 벤치마크",  en: "CPI Benchmark" },
   "mmm.benchmark.table.headers.channel":    { ko: "채널",   en: "Channel" },
   "mmm.benchmark.table.headers.us":         { ko: "우리",   en: "Us" },
   "mmm.benchmark.table.headers.market":     { ko: "시장",   en: "Market" },
