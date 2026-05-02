@@ -6,10 +6,16 @@ import type { ExperimentVariant } from "@/shared/api/mock-data"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ErrorBar, ResponsiveContainer } from "recharts"
 import { VARIANT_IMPACT_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 const C = VARIANT_IMPACT_COLORS
 
@@ -17,6 +23,7 @@ type VariantImpactChartProps = {
   variants: ExperimentVariant[]
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 function colorForStatus(status: string): string {
@@ -26,7 +33,7 @@ function colorForStatus(status: string): string {
   return C.running
 }
 
-export function VariantImpactChart({ variants, expanded: externalExpanded, onToggle: externalToggle }: VariantImpactChartProps) {
+export function VariantImpactChart({ variants, expanded: externalExpanded, onToggle: externalToggle, compact = false }: VariantImpactChartProps) {
   const { t } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 320, expanded: externalExpanded, onToggle: externalToggle })
 
@@ -38,18 +45,8 @@ export function VariantImpactChart({ variants, expanded: externalExpanded, onTog
     sampleSize: v.sample_size,
   }))
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-    >
-      <ChartHeader
-        title={t("exp.variantImpact")}
-        subtitle="ΔLTV per variant · 95% CI"
-        info={t("info.variantImpact")}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
-      <div className="flex-1" style={{ minHeight: chartHeight }}>
+  const chartBody = (
+    <div className="flex-1" style={{ minHeight: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 120, bottom: 10 }}>
           <CartesianGrid strokeDasharray="4 4" stroke={C.grid} horizontal={false} />
@@ -103,7 +100,35 @@ export function VariantImpactChart({ variants, expanded: externalExpanded, onTog
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      </div>
+    </div>
+  )
+
+  if (compact) {
+    return <div className="flex flex-col h-full">{chartBody}</div>
+  }
+
+  return (
+    <motion.div layout className={`${gridClassName} h-full`}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("exp.variantImpact")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                ΔLTV per variant · 95% CI
+              </CardDescription>
+            </div>
+            <div className="shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0 flex-1 flex flex-col">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
