@@ -8,16 +8,23 @@ import {
   ReferenceLine, ZAxis, Cell,
 } from "recharts"
 import { PALETTE, ACTION_TIMELINE_COLORS } from "@/shared/config/chart-colors"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 type Props = {
   actions: ActionData[]
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 const typeColor: Record<ActionData["type"], string> = {
@@ -26,7 +33,7 @@ const typeColor: Record<ActionData["type"], string> = {
   release: ACTION_TIMELINE_COLORS.release,
 }
 
-export function ActionRoiQuadrant({ actions, expanded: extExpanded, onToggle }: Props) {
+export function ActionRoiQuadrant({ actions, expanded: extExpanded, onToggle, compact = false }: Props) {
   const { t } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({
     baseHeight: 260,
@@ -48,19 +55,11 @@ export function ActionRoiQuadrant({ actions, expanded: extExpanded, onToggle }: 
   const medianCost = [...rows].sort((a, b) => a.x - b.x)[Math.floor(rows.length / 2)]?.x ?? 40
   const medianLtv = [...rows].sort((a, b) => a.y - b.y)[Math.floor(rows.length / 2)]?.y ?? 1.5
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 ${gridClassName}`}
-    >
-      <ChartHeader
-        title={t("chart.roiQuadrant")}
-        subtitle={t("info.roiQuadrant")}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
+  const chartBody = (
+    <>
       <div className="flex gap-4 mb-3">
         {(["ua", "liveops", "release"] as const).map((type) => (
-          <div key={type} className="flex items-center gap-1.5 text-[11px] text-[var(--fg-2)]">
+          <div key={type} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <div className="h-2.5 w-2.5 rounded-full" style={{ background: typeColor[type] }} />
             {t(`action.${type}`)}
           </div>
@@ -99,12 +98,41 @@ export function ActionRoiQuadrant({ actions, expanded: extExpanded, onToggle }: 
           </Scatter>
         </ScatterChart>
       </ResponsiveContainer>
-      <div className="mt-3 grid grid-cols-4 gap-2 text-[10px] text-[var(--fg-2)]">
-        <div className="rounded bg-[var(--bg-2)] px-2 py-1">◀ {t("chart.roiQuadrant.q.highRoi")}</div>
-        <div className="rounded bg-[var(--bg-2)] px-2 py-1">{t("chart.roiQuadrant.q.bigBet")} ▶</div>
-        <div className="rounded bg-[var(--bg-2)] px-2 py-1">◀ {t("chart.roiQuadrant.q.lowEffort")}</div>
-        <div className="rounded bg-[var(--bg-2)] px-2 py-1">{t("chart.roiQuadrant.q.wasteful")} ▶</div>
+      <div className="mt-3 grid grid-cols-4 gap-2 text-[10px] text-muted-foreground">
+        <div className="rounded bg-muted px-2 py-1">◀ {t("chart.roiQuadrant.q.highRoi")}</div>
+        <div className="rounded bg-muted px-2 py-1">{t("chart.roiQuadrant.q.bigBet")} ▶</div>
+        <div className="rounded bg-muted px-2 py-1">◀ {t("chart.roiQuadrant.q.lowEffort")}</div>
+        <div className="rounded bg-muted px-2 py-1">{t("chart.roiQuadrant.q.wasteful")} ▶</div>
       </div>
+    </>
+  )
+
+  if (compact) {
+    return <div>{chartBody}</div>
+  }
+
+  return (
+    <motion.div layout className={gridClassName} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.roiQuadrant")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {t("info.roiQuadrant")}
+              </CardDescription>
+            </div>
+            <div className="shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }

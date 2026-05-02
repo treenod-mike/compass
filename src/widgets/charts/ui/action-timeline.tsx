@@ -5,17 +5,24 @@ import { useLocale } from "@/shared/i18n"
 import type { ActionData } from "@/shared/api/mock-data"
 import { ComposedChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from "recharts"
 import { ACTION_TIMELINE_COLORS } from "@/shared/config/chart-colors"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 const C = ACTION_TIMELINE_COLORS
 
 type ActionTimelineProps = {
   retentionTrend: { date: string; retention: number }[]
   actions: ActionData[]
+  compact?: boolean
 }
 
 const actionColors: Record<ActionData["type"], string> = {
@@ -24,23 +31,15 @@ const actionColors: Record<ActionData["type"], string> = {
   release: C.release,
 }
 
-export function ActionTimeline({ retentionTrend, actions }: ActionTimelineProps) {
+export function ActionTimeline({ retentionTrend, actions, compact = false }: ActionTimelineProps) {
   const { t } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 240 })
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 ${gridClassName}`}
-    >
-      <ChartHeader
-        title={t("chart.actionTimeline")}
-        subtitle={t("info.actionTimeline")}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
+  const chartBody = (
+    <>
       <div className="flex gap-4 mb-3">
         {(["ua", "liveops", "release"] as const).map((type) => (
-          <div key={type} className="flex items-center gap-1.5 text-[11px] text-[var(--fg-2)]">
+          <div key={type} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <div className="h-2.5 w-2.5 rounded-full" style={{ background: actionColors[type] }} />
             {t(`action.${type}`)}
           </div>
@@ -58,6 +57,35 @@ export function ActionTimeline({ retentionTrend, actions }: ActionTimelineProps)
           ))}
         </ComposedChart>
       </ResponsiveContainer>
+    </>
+  )
+
+  if (compact) {
+    return <div>{chartBody}</div>
+  }
+
+  return (
+    <motion.div layout className={gridClassName} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.actionTimeline")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {t("info.actionTimeline")}
+              </CardDescription>
+            </div>
+            <div className="shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
