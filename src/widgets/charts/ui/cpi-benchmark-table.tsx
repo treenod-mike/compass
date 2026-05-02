@@ -1,14 +1,23 @@
 "use client"
 
+import { motion } from "framer-motion"
 import { cn } from "@/shared/lib/utils"
 import { useLocale } from "@/shared/i18n"
 import type { MmmChannel } from "@/shared/api/mmm-data"
 import { useSelectedGame } from "@/shared/store/selected-game"
 import { useGameSettings } from "@/shared/store/game-settings"
 import { lookupCpi } from "@/shared/api/cpi-benchmarks"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
 type CpiBenchmarkTableProps = {
   channels: readonly MmmChannel[]
+  compact?: boolean
 }
 
 const CHANNEL_LABEL_KEY = {
@@ -41,8 +50,8 @@ const VERDICT_LABEL_KEY: Record<Verdict, "mmm.benchmark.verdict.expensive" | "mm
   cheap: "mmm.benchmark.verdict.cheap",
 }
 
-export function CpiBenchmarkTable({ channels }: CpiBenchmarkTableProps) {
-  const { t } = useLocale()
+export function CpiBenchmarkTable({ channels, compact = false }: CpiBenchmarkTableProps) {
+  const { t, locale } = useLocale()
   const gameId = useSelectedGame((s) => s.gameId)
   const settings = useGameSettings((s) => s.settings[gameId])
 
@@ -51,8 +60,8 @@ export function CpiBenchmarkTable({ channels }: CpiBenchmarkTableProps) {
   // Platform fixed to "ios" for Phase 2 (channels don't carry platform info yet).
   const marketCpi = settings ? lookupCpi(settings.country, settings.genre, "ios") : null
 
-  return (
-    <div className="rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-4 h-full flex flex-col">
+  const tableBody = (
+    <>
       <div className="overflow-auto flex-1">
         <table className="w-full text-sm">
           <thead>
@@ -115,6 +124,43 @@ export function CpiBenchmarkTable({ channels }: CpiBenchmarkTableProps) {
       <p className="text-[10px] text-[var(--fg-3)] mt-3 italic">
         {t("mmm.benchmark.source")}
       </p>
-    </div>
+    </>
+  )
+
+  // --- Compact mode: no Card wrapper ---
+  if (compact) {
+    return (
+      <div className="flex flex-col h-full">
+        {tableBody}
+      </div>
+    )
+  }
+
+  // --- Full mode: Gameboard-pattern Card wrapper ---
+  return (
+    <motion.div
+      layout
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("mmm.benchmark.table.title")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {locale === "ko"
+                  ? "채널 CPI vs 시장 벤치마크 편차"
+                  : "Channel CPI vs market benchmark deviation"}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {tableBody}
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }
