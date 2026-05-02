@@ -890,6 +890,16 @@ const dictionary = {
   "cohort.section.curve":   { ko: "리텐션 곡선 (P10/P50/P90)",            en: "Retention curve (P10/P50/P90)" },
   "cohort.section.heatmap": { ko: "코호트 매트릭스",                       en: "Cohort matrix" },
 
+  "capital.page.title":      { ko: "자본·런웨이",                           en: "Capital & Runway" },
+  "capital.page.subtitle":   { ko: "포트폴리오 현금 흐름과 시나리오 시뮬레이션", en: "Portfolio cash flow and scenario simulation" },
+  "capital.hero.template":   { ko: "현금 ${cash}M · P50 cash-out {months}개월 · 확률 {prob}%", en: "Cash ${cash}M · P50 cash-out in {months} months · prob {prob}%" },
+  "capital.hero.noCashOut":  { ko: "현금 ${cash}M · P50 시나리오 cash-out 없음", en: "Cash ${cash}M · no cash-out under P50 scenario" },
+  "capital.section.runway":   { ko: "현금 잔고 팬 차트 (P10/P50/P90)",       en: "Cash runway fan (P10/P50/P90)" },
+  "capital.section.waterfall":{ ko: "자본 워터폴",                            en: "Capital waterfall" },
+  "capital.section.revenue":  { ko: "수익 vs 투자",                          en: "Revenue vs investment" },
+  "capital.section.budget":   { ko: "예산 배분",                              en: "Budget allocation" },
+  "capital.section.scenario": { ko: "시나리오 시뮬레이터",                     en: "Scenario simulator" },
+
 } as const
 
 export type TranslationKey = keyof typeof dictionary

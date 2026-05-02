@@ -4,6 +4,7 @@ import layersBold from '@iconify-icons/solar/layers-bold'
 import plugCircleBold from '@iconify-icons/solar/plug-circle-bold'
 import magnifierBold from '@iconify-icons/solar/magnifer-bold'
 import usersGroupRoundedBold from '@iconify-icons/solar/users-group-rounded-bold'
+import walletMoneyBold from '@iconify-icons/solar/wallet-money-bold'
 import type { TranslationKey } from '@/shared/i18n/dictionary'
 
 export type CategoryId = 'overview' | 'settings'
@@ -53,6 +54,12 @@ export const navigationItems: NavigationItem[] = [
     title: '코호트 진단',
     url: '/dashboard/cohort',
     icon: usersGroupRoundedBold,
+    category: 'overview',
+  },
+  {
+    title: '자본·런웨이',
+    url: '/dashboard/capital',
+    icon: walletMoneyBold,
     category: 'overview',
   },
   {
