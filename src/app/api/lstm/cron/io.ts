@@ -29,8 +29,12 @@ async function readPrivateJson(path: string): Promise<unknown | null> {
     throw new Error(`blob_fetch_failed: ${path}: ${msg}`)
   }
   if (!result) return null
-  if (result.statusCode !== 200 && result.statusCode !== 304) {
-    throw new Error(`blob_fetch_failed: ${path}: status=${result.statusCode}`)
+  // Vercel Blob types narrow to 200/304 only, but mocks/edge cases may surface
+  // other status codes — defend with a runtime cast + check before reading.
+  const status = (result as { statusCode?: number }).statusCode
+  if (status === 404) return null
+  if (status != null && status !== 200 && status !== 304) {
+    throw new Error(`blob_fetch_failed: ${path}: status=${status}`)
   }
   const text = await new Response(result.stream).text()
   try {
