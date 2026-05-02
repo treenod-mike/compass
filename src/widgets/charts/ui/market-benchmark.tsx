@@ -3,7 +3,6 @@
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { RetentionDataPoint } from "@/shared/api/mock-data"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip, TooltipDot } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
@@ -11,8 +10,20 @@ import { MARKET_BENCHMARK_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { priorTopGames } from "@/shared/api/prior-data"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 
-type MarketBenchmarkProps = { data: RetentionDataPoint[]; expanded?: boolean; onToggle?: () => void }
+type MarketBenchmarkProps = {
+  data: RetentionDataPoint[]
+  expanded?: boolean
+  onToggle?: () => void
+  compact?: boolean
+}
 
 const C = MARKET_BENCHMARK_COLORS
 
@@ -24,7 +35,12 @@ const top5Benchmark = priorTopGames.slice(0, 5).map((g) => ({
 // Use the median of top-5 D7 retention as the genre benchmark line value
 const top5D7Median = top5Benchmark.map((g) => g.value).sort((a, b) => a - b)[Math.floor(top5Benchmark.length / 2)]
 
-export function MarketBenchmark({ data, expanded: externalExpanded, onToggle: externalToggle }: MarketBenchmarkProps) {
+export function MarketBenchmark({
+  data,
+  expanded: externalExpanded,
+  onToggle: externalToggle,
+  compact = false,
+}: MarketBenchmarkProps) {
   const { t } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 280, expanded: externalExpanded, onToggle: externalToggle })
 
@@ -38,24 +54,13 @@ export function MarketBenchmark({ data, expanded: externalExpanded, onToggle: ex
     genre: d.day === 7 ? top5D7Median : (d.genre / (data.find((r) => r.day === 7)?.genre || d.genre || 1)) * top5D7Median,
   }))
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <ChartHeader
-        title={t("chart.benchmark")}
-        subtitle="포코머지 vs 퍼즐 장르"
-        info={t("info.benchmark")}
-        actions={<ExpandButton expanded={expanded} onToggle={toggle} />}
-      />
-      <div className="flex-1" style={{ minHeight: chartHeight }}>
+  const chartBody = (
+    <div className="flex-1" style={{ minHeight: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
-            <linearGradient id="genreBand" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={C.genre} stopOpacity={0.08} />
+            <linearGradient id="mbGenreBand" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={C.genre} stopOpacity={0.18} />
               <stop offset="100%" stopColor={C.genre} stopOpacity={0.02} />
             </linearGradient>
           </defs>
@@ -86,14 +91,48 @@ export function MarketBenchmark({ data, expanded: externalExpanded, onToggle: ex
               />
             }
           />
-          <Area type="monotone" dataKey="p90" stroke="none" fill="url(#genreBand)" name={t("chart.bandOuter")} animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
+          <Area type="monotone" dataKey="p90" stroke="none" fill="url(#mbGenreBand)" name={t("chart.bandOuter")} animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
           <Area type="monotone" dataKey="p10" stroke="none" fill="none" animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
           <Line type="monotone" dataKey="genre" stroke={C.genre} strokeWidth={1.5} strokeDasharray="6 3" dot={false} name={t("chart.genreAvg")} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
           <Line type="monotone" dataKey="p50" stroke={C.p50} strokeWidth={2.5} dot={{ r: 3, fill: "#FFF", stroke: C.p50, strokeWidth: 2 }} name="포코머지" animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
           <Legend verticalAlign="bottom" height={36} iconSize={12} wrapperStyle={{ ...CHART_TYPO.legend }} />
         </AreaChart>
       </ResponsiveContainer>
-      </div>
+    </div>
+  )
+
+  // --- Compact mode: no Card wrapper ---
+  if (compact) {
+    return <div className="flex flex-col h-full">{chartBody}</div>
+  }
+
+  // --- Full mode: Gameboard-pattern Card wrapper ---
+  return (
+    <motion.div
+      layout
+      className={gridClassName}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {t("chart.benchmark")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                포코머지 vs 퍼즐 장르
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
