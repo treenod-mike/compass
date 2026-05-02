@@ -1,22 +1,27 @@
-# Project Compass — Company Portfolio Version
+# Project Compass — VC Simulator
 
 ## About This Project
 
-이 프로젝트는 Compass 원본의 **간소화 복사본**입니다.
+**Project Compass = VC 시뮬레이터에 자사 데이터와 시장 데이터를 같이 보여주는 정도.**
 
-- **목적**: 회사 포트폴리오 / 기술 데모용
-- **원본**: `/Users/mike/Downloads/Compass/compass/` (사업계획, 랜딩, 인증 등 포함)
-- **이 버전에서 제거된 것**: Landing 페이지, Auth/Login, Actions 페이지, Experiments 페이지, Capital 페이지, Copilot Command Bar, 사업 관련 문서 전체
-- **보존된 것**: 차트 위젯 24개 전부, Overview 대시보드, Market Gap 페이지, 디자인 시스템, 전체 UI 컴포넌트
-- **별도 git repo로 관리 예정** — 원본과 독립적으로 운영
+Pollen VC식 단순 cash flow 시뮬 수준. 회사 실무 투자 판단에 쓰는 도구이며, 학술적 정밀도(베이지안 추정·MMM 인과 추론·정교한 통계 분석)는 의도적으로 시뮬 본체에서 제외한다.
+
+- **시뮬 본체**에 활성: AppsFlyer(자사 실측) + LSTM forecast(자사 예측) + Sensor Tower percentile(시장 비교) + cohort retention strip
+- **dormant**(코드 보존, mount/import 0건): Bayesian engine, MMM, CPI 크롤러, PriorPosteriorChart, 분석성 페이지 6종(`market-gap` UI 본체, `mmm`, `prism`, `capital`, `diligence`, `marketing-sim`, `portfolio`)
+- **별도 분석 프로젝트**(과학적 정밀도가 필요한 도구)는 만들지 않는다(현재 시점). 미래에 필요해지면 dormant 코드 cherry-pick.
+
+설계 spec: `docs/superpowers/specs/2026-05-02-analysis-asset-absorption-design.md`
+Pivot 원본 spec: `docs/superpowers/specs/2026-04-29-vc-simulator-product-pivot-design.md`
 
 ---
 
 ## 1. 프로젝트 정의
 
-모바일 게임 산업을 위한 실험→투자 의사결정 OS (Experiment-to-Investment Decision OS).
+**모바일 게임 자본 배분 시뮬레이터.** 슬라이더로 "이 자본을 부으면 N개월 후 어떻게 되나"를 묻고, 자사 데이터(AppsFlyer + LSTM)와 시장 데이터(Sensor Tower)를 함께 보여준다.
 
-A/B 테스트, 라이브 운영, 시장 시그널을 자본 배분 결정으로 번역하는 AI 기반 의사결정 플랫폼. 시장 데이터(Silo 1), 어트리뷰션(Silo 2), 실험(Silo 3), 재무(Silo 4) 4개 데이터 사일로를 하나의 투자 판단 레이어로 통합.
+이전 정체성(*관찰형 BI 대시보드*: 6개 분석 페이지 + 24개 차트 분산)은 2026-04-29 pivot으로 *조작형 시뮬레이터*로 전환됐고, 2026-05-02에 분석 자산 흡수 결정으로 시뮬 본체에 살아있는 자산을 4개로 축소했다.
+
+**한 화면 골격**: TopBar(시장 비교 토글) + Hero Decision Sentence + 좌 40% INPUT(슬라이더 + 가정값 disclosure) + 우 60% RESULT(KPI Delta + Cumulative ROAS + Runway).
 
 ---
 
@@ -26,16 +31,17 @@ A/B 테스트, 라이브 운영, 시장 시그널을 자본 배분 결정으로 
 
 | 영역 | 기술 |
 |------|------|
-| Framework | Next.js 15 (App Router) + TypeScript |
+| Framework | Next.js 16 (App Router) + TypeScript + React 19 |
 | Architecture | FSD 2.1 (Feature-Sliced Design) |
 | State | Zustand (client) |
 | Visualization | Recharts + visx (custom SVG charts) |
-| UI | Tailwind CSS v4 + Radix UI + Framer Motion |
-| Fonts | Geist Sans/Mono + Pretendard (KR) + Instrument Serif + Noto Serif KR |
-| Icons | @iconify/react + Solar Bold set |
+| UI | Tailwind CSS v4 + Radix UI + @base-ui/react + Framer Motion |
+| Fonts | Pretendard Variable + Tossface + Rocko Ultra (로고 한정) |
+| Icons | @iconify/react + Solar (bold + bold-duotone) |
 | Animation | Framer Motion (layout animations, page transitions) |
-| i18n | Custom ko/en dictionary + LocaleProvider |
+| i18n | locale 고정 `ko` (영어 키 dormant) |
 | Runtime Validation | Zod (prior-data.ts, 빌드 타임 snapshot 검증) |
+| Testing | Vitest 4 + @testing-library/react + jsdom |
 
 ### Sensor Tower 크롤러 (`crawler/`)
 
@@ -69,14 +75,19 @@ src/
 │   ├── page.tsx                    # / → /dashboard 리다이렉트
 │   ├── layout.tsx                  # Root layout (fonts, providers)
 │   └── (dashboard)/
-│       ├── layout.tsx              # Dashboard shell (Sidebar + Header)
+│       ├── layout.tsx              # Dashboard shell
 │       └── dashboard/
 │           ├── page.tsx            # VC Simulator (홈) — 시뮬레이터 = 제품
 │           ├── connections/        # AppsFlyer 연동 관리 (사이드바 노출)
-│           ├── market-gap/         # URL 보존, 사이드바 hidden
-│           ├── mmm/                # URL 보존, 사이드바 hidden
-│           ├── prism/              # URL 보존, 사이드바 hidden
-│           └── vc-simulation/      # URL 보존 (`/dashboard` 와 동일 콘텐츠)
+│           ├── market-gap/         # 흡수 대상 — "시장과 비교" 토글로 진입, 사이드바 hidden
+│           ├── cohort/             # 흡수 대상 — 가정값 disclosure로 진입, 사이드바 hidden
+│           ├── mmm/                # dormant — URL 보존, 사이드바 hidden, mount 0건
+│           ├── prism/              # dormant — URL 보존, 사이드바 hidden
+│           ├── capital/            # dormant — URL 보존, 사이드바 hidden
+│           ├── diligence/          # dormant — URL 보존, 사이드바 hidden
+│           ├── marketing-sim/      # dormant — URL 보존, 사이드바 hidden
+│           ├── portfolio/          # dormant — URL 보존, 사이드바 hidden
+│           └── vc-simulation/      # URL 보존 (`/dashboard` 와 동일 콘텐츠, redirect)
 ├── shared/
 │   ├── api/                        # Mock data, types, hooks (use-game-data)
 │   ├── config/
@@ -92,43 +103,57 @@ src/
 ├── styles/
 │   └── globals.css                 # CSS custom properties (design tokens)
 └── widgets/
-    ├── app-shell/                  # RunwayStatusBar (top bar)
+    ├── app-shell/                  # RunwayStatusBar (top bar) — 시뮬 TopBar 컨테이너
     ├── charts/                     # 24개 차트 컴포넌트 (아래 목록)
-    ├── dashboard/                  # Verdict, KPI, Heatmap, Context widgets
-    └── sidebar/                    # AppSidebar + PageHeader
+    ├── connections/                # ConnectionCard / ConnectionDialog
+    ├── dashboard/                  # Hero Decision Sentence, KPI Delta, VcResultTabs 등
+    ├── marketing-sim/              # dormant — mount 0건
+    ├── navigation/                 # AppTopBar / CategorySidebar / BrandAndProduct
+    ├── portfolio/                  # dormant — mount 0건
+    └── vc-simulation/              # 시뮬레이터 본체 위젯
 ```
 
 ---
 
 ## 4. Dashboard Pages
 
-**제품 정체성**: 관찰형 대시보드 → 조작형 시뮬레이터로 pivot 완료
-(spec: `docs/superpowers/specs/2026-04-29-vc-simulator-product-pivot-design.md`).
+**제품 정체성**: 관찰형 대시보드 → 조작형 시뮬레이터로 pivot(2026-04-29) → 분석 자산 흡수/dormant 분류(2026-05-02)
+(spec: `docs/superpowers/specs/2026-05-02-analysis-asset-absorption-design.md`).
+
+**사이드바 메뉴는 2개**: ◎ Dashboard / ⚙ Connections.
 
 ### `/dashboard` — VC Simulator (홈)
 사이드바의 "Dashboard" 진입점. VC 자본 배분 시뮬레이션을 한 화면에 압축.
 
 **구성:**
 1. **Hero Decision Sentence** — "이 자본 배분이면 X" 풀폭 헤드라인
-2. **시장과 비교 토글** (헤더 우측) — ON 시 시장 p50 retention overlay
+2. **시장과 비교 토글** (TopBar 우측) — ON 시 Sensor Tower raw percentile(P25/P50/P75) overlay (베이지안 추정 X)
 3. **좌 40% INPUT 컬럼**:
    - Preset 탭 / Horizon / Fund / Channel mix / Offer fields
-   - **채널 분해 보기** 트리거 → 우측 480px Sheet drawer (CpiQuadrant + CpiBenchmarkTable)
-   - **가정값 출처** 디스클로저 → RevenueForecast 미니 / D1/D7/D30 retention strip / KPI 2×2
+   - **가정값 출처** 디스클로저 → 자사 retention strip (D1/D7/D30, `cohort` 페이지에서 흡수)
 4. **우 60% RESULT 컬럼**:
    - DataSourceBadge + StaleBadge
    - VcKpiStrip — IRR / MOIC / Payback / J-Curve (4개, 항상 보임)
-   - CumulativeRoasChart (메인 차트)
+   - CumulativeRoasChart (메인 차트, LSTM quantile로 P10/P50/P90 신뢰 구간)
    - VcResultTabs — Insights / Runway
 
 ### `/dashboard/connections` — AppsFlyer 연동 관리
 사이드바의 "데이터 연결". 백엔드 설정 영역. 시뮬레이터의 일부가 아님.
 
-### Hidden routes (URL 보존, 사이드바 비노출)
-- `/dashboard/market-gap` — Bayesian Prior/Posterior (구 Module 2)
-- `/dashboard/mmm` — Marketing Mix (Channel drawer의 "전체 화면" 링크에서 진입)
-- `/dashboard/prism` — PRISM × LTV (다음 챕터에서 시뮬레이터 입력으로 흡수 예정)
-- `/dashboard/vc-simulation` — `/dashboard` 와 동일 콘텐츠 (북마크 호환)
+### 흡수 대상 라우트 (URL 보존, 사이드바 hidden, 시뮬 안 진입점에서 콘텐츠 마운트)
+- `/dashboard/market-gap` — "시장과 비교" 토글에서 percentile 데이터 사용
+- `/dashboard/cohort` — 좌 INPUT "가정값 출처 ▸" disclosure에 retention strip 마운트
+
+### Dormant 라우트 (URL 보존, 사이드바 hidden, mount/import 0건)
+- `/dashboard/mmm` — 분석 페이지, 시뮬에서 사용 안 함
+- `/dashboard/prism` — LTV 분석, 시뮬에서 사용 안 함
+- `/dashboard/capital` — 자본 분석 페이지
+- `/dashboard/diligence` — 실사 분석 페이지
+- `/dashboard/marketing-sim` — 별도 마케팅 시뮬 (VC sim과 분리)
+- `/dashboard/portfolio` — 포트폴리오 분석 페이지
+- `/dashboard/vc-simulation` — `/dashboard`로 redirect (북마크 호환)
+
+dormant 라우트 코드는 보존되며, 미래에 별도 분석 프로젝트가 필요해질 때 cherry-pick 가능.
 
 ---
 
@@ -139,7 +164,7 @@ src/
 | 차트 | 파일 | 용도 |
 |------|------|------|
 | RetentionCurve | retention-curve.tsx | 리텐션 곡선 (P10/P50/P90 밴드) |
-| RevenueForecast | revenue-forecast.tsx | 매출 예측 (Bayesian 3-layer) |
+| RevenueForecast | revenue-forecast.tsx | 매출 예측 (LSTM quantile P10/P50/P90) |
 | RevenueVsInvest | revenue-vs-invest.tsx | 수익 vs 투자 비교 |
 | CapitalWaterfall | capital-waterfall.tsx | 자본 흐름 워터폴 |
 | MarketBenchmark | market-benchmark.tsx | 장르별 리텐션 벤치마크 |
@@ -195,11 +220,10 @@ src/
 
 | 용도 | 폰트 |
 |------|------|
-| UI / Body (Latin) | Geist Sans |
-| UI / Body (Korean) | Pretendard (CDN) |
-| 숫자 / 코드 / 차트 축 | Geist Mono (tabular-nums) |
-| Decision 문장 (Latin) | Instrument Serif |
-| Decision 문장 (Korean) | Noto Serif KR |
+| UI / Body | Pretendard Variable |
+| 숫자 / 코드 / 차트 축 | Pretendard Variable (tabular-nums feature) |
+| 이모지 / 게임 아이콘 | Tossface |
+| 로고 한정 | Rocko Ultra |
 
 ### Radius
 - `--radius-inline`: 2px (badge, 인라인 요소)
@@ -219,14 +243,15 @@ src/
 - 그리드 레이아웃: `useGridLayout` 훅 (expand/collapse 2-col ↔ full-width 전환)
 
 ### 레이아웃 구조
-- `RunwayStatusBar` — sticky top 56px, 로고 + 4개 metric + 게임/기간 셀렉터
-- `AppSidebar` — 오른쪽 192px, 네비게이션
+- `widgets/navigation/AppTopBar` — sticky top 56px, BrandAndProduct + 게임/기간 셀렉터 + "시장과 비교" 토글
+- `widgets/navigation/CategorySidebar` — 좌측 160px, 메뉴 2개(Dashboard + Connections)
+- `widgets/app-shell/` — TopBar 컨테이너
 - Main content — `px-10 pt-6 pb-24`, overflow-y-auto
 
 ### i18n
 - `useLocale()` 훅으로 `t("key")` 번역
-- `shared/i18n/dictionary.ts`에 ko/en 키-값 쌍
-- 브랜드명 "project compass"는 번역하지 않음
+- `shared/i18n/dictionary.ts`에 ko/en 키-값 쌍 (현재 locale 고정 `ko`, en 키는 dormant)
+- 브랜드명 "Project Compass"는 번역하지 않음
 
 ### 상태 관리
 - `useSelectedGame` (Zustand) — 전역 게임 선택 상태
@@ -251,7 +276,7 @@ src/
 
 ## 9. 외부 데이터 갱신 (Sensor Tower 크롤러)
 
-Compass의 Bayesian Prior(장르 기대치) 데이터는 `crawler/` 패키지가 Sensor Tower 웹 대시보드에서 수집해 `src/shared/api/data/sensor-tower/merge-jp-snapshot.json`에 저장합니다.
+시뮬 "시장과 비교" 토글의 시장 percentile 데이터는 `crawler/` 패키지가 Sensor Tower 웹 대시보드에서 수집해 `src/shared/api/data/sensor-tower/merge-jp-snapshot.json`에 저장합니다. **활성 자산** — 시뮬에서 raw percentile(P25/P50/P75)로 직접 사용 (베이지안 추정 거치지 않음).
 
 ### 운영
 - 주 1회 수동 실행: `npm run crawl:st`
@@ -273,7 +298,9 @@ Compass의 Bayesian Prior(장르 기대치) 데이터는 `crawler/` 패키지가
 
 ---
 
-## 9-1. CPI 벤치마크 크롤러
+## 9-1. CPI 벤치마크 크롤러 (DORMANT)
+
+> **상태**: dormant — MMM 페이지(`/dashboard/mmm`)가 dormant 처리되며 본 크롤러도 비활성. 스크립트(`npm run crawl:cpi`)는 실행 가능하지만 시뮬 본체에서는 데이터를 import하지 않음. 데이터 snapshot은 보존(`src/shared/api/data/cpi-benchmarks/`).
 
 MMM §⑤ 두 차트(`CpiBenchmarkTable`, `CpiQuadrant`)의 시장 CPI 벤치마크는 `crawler/src/cpi-benchmarks/` 가 Unity LevelPlay CPI Index 에서 수집해 `src/shared/api/data/cpi-benchmarks/levelplay-snapshot.json` 에 저장.
 
