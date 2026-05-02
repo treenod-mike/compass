@@ -13,6 +13,13 @@ import { REVENUE_FORECAST_COLORS } from "@/shared/config/chart-colors"
 import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { cn } from "@/shared/lib"
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 import { getPrior } from "@/shared/api/prior-data"
 import { lognormalModel } from "@/shared/lib/bayesian-stats/lognormal"
 import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
@@ -33,6 +40,7 @@ type RevenueForecastProps = {
   title?: string
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 const C = REVENUE_FORECAST_COLORS
@@ -113,7 +121,7 @@ function TooltipRow({ label, value, emphasized, muted, accentColor }: { label: s
   )
 }
 
-export function RevenueForecast({ data, meta, title, expanded: externalExpanded, onToggle: externalToggle }: RevenueForecastProps) {
+export function RevenueForecast({ data, meta, title, expanded: externalExpanded, onToggle: externalToggle, compact = false }: RevenueForecastProps) {
   const { t, locale } = useLocale()
   const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 260, expanded: externalExpanded, onToggle: externalToggle })
 
@@ -204,331 +212,354 @@ export function RevenueForecast({ data, meta, title, expanded: externalExpanded,
     return interpolate(t("rfc.insight.base"), { asOf: meta.asOfDay, p50, spread, cohorts: meta.cohortCount })
   }, [showPrior, selectedExp, data, meta, t, locale])
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <ChartHeader
-        title={title || t("chart.revenue")}
-        info={t("info.revenueForecast")}
-        insight={insight}
-        actions={
-          <div className="flex items-center gap-2">
-            {bayesianRevenue?.ml3 && (
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
-                ML3 · Sample too small
-              </span>
-            )}
-            <ExpandButton expanded={expanded} onToggle={toggle} />
-          </div>
-        }
-      />
+  // --- Shared chart area (used in both compact and full modes) ---
+  const chartArea = (
+    <div className="flex-1" style={{ minHeight: chartHeight }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+          <defs>
+            {/* Posterior (사후 확률) — brand gradient band */}
+            <linearGradient id="rfcPostBand" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={C.line} stopOpacity={0.18} />
+              <stop offset="100%" stopColor={C.line} stopOpacity={0.03} />
+            </linearGradient>
+            {/* Prior (사전 확률) — red hatched pattern */}
+            <pattern id="rfcPriorHatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+              <rect width="6" height="6" fill={C.priorFill} />
+              <line x1="0" y1="0" x2="0" y2="6" stroke={C.prior} strokeWidth="0.6" strokeOpacity="0.45" />
+            </pattern>
+          </defs>
+          <CartesianGrid strokeDasharray="4 4" stroke={C.grid} vertical={false} />
+          <XAxis dataKey="month" tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} axisLine={{ stroke: C.border }} tickLine={false} />
+          <YAxis tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v}K`} />
+          <Tooltip
+            content={
+              <ChartTooltip
+                render={({ payload, label }) => {
+                  if (!payload || payload.length === 0) return null
+                  const row = payload[0].payload as RevenueForecastPoint & { forkP50: number | null }
+                  const postSpread = row.p90 - row.p10
+                  const priorSpread = row.priorP90 - row.priorP10
+                  const forkLift = selectedExp && row.forkP50 != null ? row.forkP50 - row.p50 : null
 
-      {/* Control strip: compact 13px scale with items-center for stable alignment.
-          All chips share: 28px height, 6px gap, same label/value type ramp. */}
-      <div className="flex flex-wrap items-center gap-1 mb-4">
-        {/* As-of meta (read-only) */}
-        <div className="inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2">
-          <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.asOf")}</span>
-          <span className="font-mono text-[13px] font-medium text-[var(--fg-0)] tabular-nums leading-none">D{meta.asOfDay}</span>
-          <span className="text-[11px] text-[var(--fg-3)]">· {meta.cohortCount} {t("rfc.cohorts")}</span>
-        </div>
+                  return (
+                    <div style={{ minWidth: 240 }}>
+                      {label != null && (
+                        <div style={{ fontSize: 11, fontWeight: 600, color: "#0A0A0A", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid #F1F1ED" }}>
+                          {label}
+                        </div>
+                      )}
 
-        <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" aria-hidden />
+                      {/* Group 1 — Posterior (사후 확률) */}
+                      <TooltipGroup color={C.line} title={t("rfc.legendPosterior")}>
+                        <TooltipRow label={t("rfc.tipP50")} value={`$${row.p50}K`} emphasized />
+                        <TooltipRow label={t("rfc.tipRange")} value={`$${row.p10}K – $${row.p90}K`} />
+                        <TooltipRow label={t("rfc.tipSpread")} value={`±$${Math.round(postSpread / 2)}K`} muted />
+                      </TooltipGroup>
 
-        {/* Posterior legend — always visible, static */}
-        <div className="inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2">
-          <Swatch color={C.line} variant="solid" />
-          <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.legendPosterior")}</span>
-        </div>
+                      {/* Group 2 — Prior (사전 확률), conditional */}
+                      {showPrior && (
+                        <TooltipGroup color={C.prior} title={t("rfc.legendPrior")}>
+                          <TooltipRow label={t("rfc.tipP50")} value={`$${row.priorP50}K`} />
+                          <TooltipRow label={t("rfc.tipRange")} value={`$${row.priorP10}K – $${row.priorP90}K`} />
+                          <TooltipRow label={t("rfc.tipSpread")} value={`±$${Math.round(priorSpread / 2)}K`} muted />
+                        </TooltipGroup>
+                      )}
 
-        {/* Prior toggle */}
+                      {/* Group 3 — Experiment fork, conditional */}
+                      {selectedExp && row.forkP50 != null && (
+                        <TooltipGroup color={C.experiment} title={`${selectedExp.id} · ${selectedExp.name[locale]}`}>
+                          <TooltipRow label={t("rfc.tipShipP50")} value={`$${row.forkP50}K`} emphasized />
+                          {forkLift !== null && (
+                            <TooltipRow
+                              label={t("rfc.tipLift")}
+                              value={`${forkLift >= 0 ? "+" : ""}$${forkLift}K`}
+                              accentColor={forkLift >= 0 ? C.experiment : undefined}
+                            />
+                          )}
+                        </TooltipGroup>
+                      )}
+                    </div>
+                  )
+                }}
+              />
+            }
+          />
+
+          {/* Layer 1: Prior band (conditional, bottom) — wide dashed gray */}
+          {showPrior && (
+            <>
+              <Area
+                type="monotone"
+                dataKey="priorP90"
+                name={t("rfc.legendPrior")}
+                stroke="none"
+                fill="url(#rfcPriorHatch)"
+                isAnimationActive={false}
+                legendType="none"
+              />
+              <Area type="monotone" dataKey="priorP10" stroke="none" fill="#FFFFFF" isAnimationActive={false} legendType="none" />
+              <Line type="monotone" dataKey="priorP50" stroke={C.priorLine} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} legendType="none" />
+            </>
+          )}
+
+          {/* Layer 2: Posterior band (always, middle) — solid blue */}
+          <Area type="monotone" dataKey="p90" name={t("rfc.legendPosterior")} stroke="none" fill="url(#rfcPostBand)" animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
+          <Area type="monotone" dataKey="p10" stroke="none" fill="#FFFFFF" animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
+
+          {/* Layer 3: Posterior P10/P90 outlines */}
+          <Line type="monotone" dataKey="p90" stroke={C.line} strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.32} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" legendType="none" />
+          <Line type="monotone" dataKey="p10" stroke={C.line} strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.32} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" legendType="none" />
+
+          {/* Layer 4: Posterior P50 (top, always) — solid blue 2px */}
+          <Line type="monotone" dataKey="p50" stroke={C.line} strokeWidth={2.25} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
+
+          {/* Layer 4.5: Bayesian live posterior P50 overlay — dashed blue, only when sample ≥ 3 months */}
+          {bayesianRevenue?.posterior && !bayesianRevenue.ml3 && (
+            <ReferenceLine
+              y={bayesianRevenue.posterior.mean}
+              stroke={C.line}
+              strokeWidth={1.5}
+              strokeDasharray="6 3"
+              strokeOpacity={0.7}
+              label={{
+                value: `Live P50: $${Math.round(bayesianRevenue.posterior.mean / 1000)}K`,
+                position: "insideTopRight",
+                ...CHART_TYPO.axisLabel,
+                fill: C.line,
+                offset: 6,
+              }}
+            />
+          )}
+
+          {/* Layer 5: Experiment fork (conditional, topmost line) — green dashed */}
+          {selectedExp && (
+            <Line
+              type="monotone"
+              dataKey="forkP50"
+              name={t("rfc.legendFork")}
+              stroke={C.experiment}
+              strokeWidth={2.25}
+              strokeDasharray="5 3"
+              dot={{ r: 3, fill: C.experiment, strokeWidth: 0 }}
+              connectNulls={false}
+              animationBegin={600}
+              animationDuration={900}
+              animationEasing="ease-out"
+            />
+          )}
+
+          {/* Layer 6: Ship-point vertical marker */}
+          {selectedExp && (
+            <ReferenceLine
+              x={selectedExp.shipMonth}
+              stroke={C.forkMark}
+              strokeDasharray="2 3"
+              strokeWidth={1}
+              label={{
+                value: `${selectedExp.id} ${t("rfc.shipMarker")}`,
+                position: "insideTopLeft",
+                ...CHART_TYPO.axisLabel,
+                fill: C.forkMark,
+                offset: 8,
+              }}
+            />
+          )}
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+
+  // --- Compact mode: no Card wrapper, no header — parent already provides chrome ---
+  if (compact) {
+    return chartArea
+  }
+
+  // --- Control strip (full mode only) ---
+  const controlStrip = (
+    /* Control strip: compact 13px scale with items-center for stable alignment.
+       All chips share: 28px height, 6px gap, same label/value type ramp. */
+    <div className="flex flex-wrap items-center gap-1 mb-4">
+      {/* As-of meta (read-only) */}
+      <div className="inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2">
+        <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.asOf")}</span>
+        <span className="font-mono text-[13px] font-medium text-[var(--fg-0)] tabular-nums leading-none">D{meta.asOfDay}</span>
+        <span className="text-[11px] text-[var(--fg-3)]">· {meta.cohortCount} {t("rfc.cohorts")}</span>
+      </div>
+
+      <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" aria-hidden />
+
+      {/* Posterior legend — always visible, static */}
+      <div className="inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2">
+        <Swatch color={C.line} variant="solid" />
+        <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.legendPosterior")}</span>
+      </div>
+
+      {/* Prior toggle */}
+      <button
+        type="button"
+        onClick={() => setShowPrior((v) => !v)}
+        aria-pressed={showPrior}
+        className={cn(
+          "inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2",
+          "transition-colors hover:bg-[var(--bg-3)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
+          "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-1)]",
+          showPrior && "bg-[var(--bg-3)]",
+        )}
+      >
+        <Swatch color={C.prior} variant={showPrior ? "dashed-filled" : "dashed"} dim={!showPrior} />
+        <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.showPrior")}</span>
+        <span className={cn(
+          "text-[13px] font-medium tabular-nums leading-none",
+          showPrior ? "text-[var(--fg-0)]" : "text-[var(--fg-3)]",
+        )}>
+          {showPrior ? t("rfc.showPriorOn") : t("rfc.showPriorOff")}
+        </span>
+      </button>
+
+      {/* Experiment selector */}
+      <div ref={expMenuRef} className="relative">
         <button
+          ref={expTriggerRef}
           type="button"
-          onClick={() => setShowPrior((v) => !v)}
-          aria-pressed={showPrior}
+          onClick={() => setExpOpen((o) => !o)}
+          aria-haspopup="listbox"
+          aria-expanded={expOpen}
+          aria-controls={expListId}
           className={cn(
             "inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2",
             "transition-colors hover:bg-[var(--bg-3)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
             "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-1)]",
-            showPrior && "bg-[var(--bg-3)]",
+            expOpen && "bg-[var(--bg-3)]",
           )}
         >
-          <Swatch color={C.prior} variant={showPrior ? "dashed-filled" : "dashed"} dim={!showPrior} />
-          <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.showPrior")}</span>
+          <Swatch color={C.experiment} variant={selectedExp ? "dashed-filled" : "dashed"} dim={!selectedExp} />
+          <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.experimentLabel")}</span>
           <span className={cn(
-            "text-[13px] font-medium tabular-nums leading-none",
-            showPrior ? "text-[var(--fg-0)]" : "text-[var(--fg-3)]",
+            "text-[13px] font-medium tabular-nums leading-none whitespace-nowrap",
+            selectedExp ? "text-[var(--fg-0)]" : "text-[var(--fg-3)]",
           )}>
-            {showPrior ? t("rfc.showPriorOn") : t("rfc.showPriorOff")}
+            {selectedExp ? selectedExp.id : t("rfc.noExperiment")}
           </span>
+          <ChevronDown className={cn("h-3 w-3 flex-shrink-0 text-[var(--fg-3)] transition-transform", expOpen && "rotate-180")} aria-hidden />
         </button>
 
-        {/* Experiment selector */}
-        <div ref={expMenuRef} className="relative">
-          <button
-            ref={expTriggerRef}
-            type="button"
-            onClick={() => setExpOpen((o) => !o)}
-            aria-haspopup="listbox"
-            aria-expanded={expOpen}
-            aria-controls={expListId}
-            className={cn(
-              "inline-flex h-7 items-center gap-1.5 rounded-[var(--radius-inline)] px-2",
-              "transition-colors hover:bg-[var(--bg-3)]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
-              "focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-1)]",
-              expOpen && "bg-[var(--bg-3)]",
-            )}
-          >
-            <Swatch color={C.experiment} variant={selectedExp ? "dashed-filled" : "dashed"} dim={!selectedExp} />
-            <span className="text-[11px] uppercase tracking-wider text-[var(--fg-2)]">{t("rfc.experimentLabel")}</span>
-            <span className={cn(
-              "text-[13px] font-medium tabular-nums leading-none whitespace-nowrap",
-              selectedExp ? "text-[var(--fg-0)]" : "text-[var(--fg-3)]",
-            )}>
-              {selectedExp ? selectedExp.id : t("rfc.noExperiment")}
-            </span>
-            <ChevronDown className={cn("h-3 w-3 flex-shrink-0 text-[var(--fg-3)] transition-transform", expOpen && "rotate-180")} aria-hidden />
-          </button>
-
-          <AnimatePresence>
-            {expOpen && (
-              <motion.div
-                id={expListId}
-                role="listbox"
-                aria-label={t("rfc.experimentLabel")}
+        <AnimatePresence>
+          {expOpen && (
+            <motion.div
+              id={expListId}
+              role="listbox"
+              aria-label={t("rfc.experimentLabel")}
+              className={cn(
+                "absolute left-0 top-full z-50 mt-1 min-w-[280px]",
+                "rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)]",
+                "shadow-[0_8px_32px_rgba(0,0,0,0.08)] py-1",
+              )}
+              variants={dropdownVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              transition={dropdownTransition}
+            >
+              {/* — None — option (13px to match trigger value scale) */}
+              <button
+                type="button"
+                role="option"
+                aria-selected={selectedExpId === null}
+                onClick={() => { setSelectedExpId(null); setExpOpen(false); expTriggerRef.current?.focus() }}
                 className={cn(
-                  "absolute left-0 top-full z-50 mt-1 min-w-[280px]",
-                  "rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)]",
-                  "shadow-[0_8px_32px_rgba(0,0,0,0.08)] py-1",
+                  "flex w-full items-center justify-between px-3 py-1.5 text-[13px]",
+                  "transition-colors hover:bg-[var(--bg-3)]",
                 )}
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                transition={dropdownTransition}
               >
-                {/* — None — option (13px to match trigger value scale) */}
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={selectedExpId === null}
-                  onClick={() => { setSelectedExpId(null); setExpOpen(false); expTriggerRef.current?.focus() }}
-                  className={cn(
-                    "flex w-full items-center justify-between px-3 py-1.5 text-[13px]",
-                    "transition-colors hover:bg-[var(--bg-3)]",
-                  )}
-                >
-                  <span className={cn(
-                    selectedExpId === null ? "text-[var(--fg-0)] font-medium" : "text-[var(--fg-2)]",
-                  )}>{t("rfc.noExperiment")}</span>
-                  {selectedExpId === null && <Check className="h-3.5 w-3.5 flex-shrink-0 text-[var(--brand)]" aria-hidden />}
-                </button>
+                <span className={cn(
+                  selectedExpId === null ? "text-[var(--fg-0)] font-medium" : "text-[var(--fg-2)]",
+                )}>{t("rfc.noExperiment")}</span>
+                {selectedExpId === null && <Check className="h-3.5 w-3.5 flex-shrink-0 text-[var(--brand)]" aria-hidden />}
+              </button>
 
-                {meta.experiments.length > 0 && <div className="my-1 h-px bg-[var(--border-default)]" aria-hidden />}
+              {meta.experiments.length > 0 && <div className="my-1 h-px bg-[var(--border-default)]" aria-hidden />}
 
-                {/* Experiment options — 2-line layout. Scale matches trigger:
-                    meta row 11px (caption), name 13px/500 (trigger-value equivalent). */}
-                {meta.experiments.map((exp) => {
-                  const isSelected = exp.id === selectedExpId
-                  return (
-                    <button
-                      key={exp.id}
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => { setSelectedExpId(exp.id); setExpOpen(false); expTriggerRef.current?.focus() }}
-                      className={cn(
-                        "flex w-full items-start justify-between gap-3 px-3 py-2 text-left",
-                        "transition-colors hover:bg-[var(--bg-3)]",
-                        isSelected && "bg-[var(--bg-3)]",
-                      )}
-                    >
-                      <span className="flex min-w-0 flex-col items-start gap-0.5">
-                        <span className="flex items-center gap-2 leading-none">
-                          <span className={cn(
-                            "font-mono text-[11px] tabular-nums",
-                            isSelected ? "text-[var(--brand)]" : "text-[var(--fg-2)]",
-                          )}>{exp.id}</span>
-                          <span
-                            className="font-mono text-[11px] font-medium tabular-nums"
-                            style={{ color: C.experiment }}
-                          >+${exp.annualRevenueLift}K</span>
-                          <span className="text-[11px] text-[var(--fg-3)]">· ship {exp.shipMonth}</span>
-                        </span>
+              {/* Experiment options — 2-line layout. Scale matches trigger:
+                  meta row 11px (caption), name 13px/500 (trigger-value equivalent). */}
+              {meta.experiments.map((exp) => {
+                const isSelected = exp.id === selectedExpId
+                return (
+                  <button
+                    key={exp.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => { setSelectedExpId(exp.id); setExpOpen(false); expTriggerRef.current?.focus() }}
+                    className={cn(
+                      "flex w-full items-start justify-between gap-3 px-3 py-2 text-left",
+                      "transition-colors hover:bg-[var(--bg-3)]",
+                      isSelected && "bg-[var(--bg-3)]",
+                    )}
+                  >
+                    <span className="flex min-w-0 flex-col items-start gap-0.5">
+                      <span className="flex items-center gap-2 leading-none">
                         <span className={cn(
-                          "text-[13px] leading-snug",
-                          isSelected ? "text-[var(--fg-0)] font-medium" : "text-[var(--fg-1)]",
-                        )}>{exp.name[locale]}</span>
+                          "font-mono text-[11px] tabular-nums",
+                          isSelected ? "text-[var(--brand)]" : "text-[var(--fg-2)]",
+                        )}>{exp.id}</span>
+                        <span
+                          className="font-mono text-[11px] font-medium tabular-nums"
+                          style={{ color: C.experiment }}
+                        >+${exp.annualRevenueLift}K</span>
+                        <span className="text-[11px] text-[var(--fg-3)]">· ship {exp.shipMonth}</span>
                       </span>
-                      {isSelected && <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[var(--brand)]" aria-hidden />}
-                    </button>
-                  )
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                      <span className={cn(
+                        "text-[13px] leading-snug",
+                        isSelected ? "text-[var(--fg-0)] font-medium" : "text-[var(--fg-1)]",
+                      )}>{exp.name[locale]}</span>
+                    </span>
+                    {isSelected && <Check className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[var(--brand)]" aria-hidden />}
+                  </button>
+                )
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+    </div>
+  )
 
-      <div className="flex-1" style={{ minHeight: chartHeight }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              {/* Posterior (사후 확률) — green gradient band */}
-              <linearGradient id="rfcPostBand" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={C.line} stopOpacity={0.18} />
-                <stop offset="100%" stopColor={C.line} stopOpacity={0.03} />
-              </linearGradient>
-              {/* Prior (사전 확률) — red hatched pattern */}
-              <pattern id="rfcPriorHatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-                <rect width="6" height="6" fill={C.priorFill} />
-                <line x1="0" y1="0" x2="0" y2="6" stroke={C.prior} strokeWidth="0.6" strokeOpacity="0.45" />
-              </pattern>
-            </defs>
-            <CartesianGrid strokeDasharray="4 4" stroke={C.grid} vertical={false} />
-            <XAxis dataKey="month" tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} axisLine={{ stroke: C.border }} tickLine={false} />
-            <YAxis tick={{ ...CHART_TYPO.axisTick, fill: C.axis }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v}K`} />
-            <Tooltip
-              content={
-                <ChartTooltip
-                  render={({ payload, label }) => {
-                    if (!payload || payload.length === 0) return null
-                    const row = payload[0].payload as RevenueForecastPoint & { forkP50: number | null }
-                    const postSpread = row.p90 - row.p10
-                    const priorSpread = row.priorP90 - row.priorP10
-                    const forkLift = selectedExp && row.forkP50 != null ? row.forkP50 - row.p50 : null
-
-                    return (
-                      <div style={{ minWidth: 240 }}>
-                        {label != null && (
-                          <div style={{ fontSize: 11, fontWeight: 600, color: "#0A0A0A", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid #F1F1ED" }}>
-                            {label}
-                          </div>
-                        )}
-
-                        {/* Group 1 — Posterior (사후 확률) */}
-                        <TooltipGroup color={C.line} title={t("rfc.legendPosterior")}>
-                          <TooltipRow label={t("rfc.tipP50")} value={`$${row.p50}K`} emphasized />
-                          <TooltipRow label={t("rfc.tipRange")} value={`$${row.p10}K – $${row.p90}K`} />
-                          <TooltipRow label={t("rfc.tipSpread")} value={`±$${Math.round(postSpread / 2)}K`} muted />
-                        </TooltipGroup>
-
-                        {/* Group 2 — Prior (사전 확률), conditional */}
-                        {showPrior && (
-                          <TooltipGroup color={C.prior} title={t("rfc.legendPrior")}>
-                            <TooltipRow label={t("rfc.tipP50")} value={`$${row.priorP50}K`} />
-                            <TooltipRow label={t("rfc.tipRange")} value={`$${row.priorP10}K – $${row.priorP90}K`} />
-                            <TooltipRow label={t("rfc.tipSpread")} value={`±$${Math.round(priorSpread / 2)}K`} muted />
-                          </TooltipGroup>
-                        )}
-
-                        {/* Group 3 — Experiment fork, conditional */}
-                        {selectedExp && row.forkP50 != null && (
-                          <TooltipGroup color={C.experiment} title={`${selectedExp.id} · ${selectedExp.name[locale]}`}>
-                            <TooltipRow label={t("rfc.tipShipP50")} value={`$${row.forkP50}K`} emphasized />
-                            {forkLift !== null && (
-                              <TooltipRow
-                                label={t("rfc.tipLift")}
-                                value={`${forkLift >= 0 ? "+" : ""}$${forkLift}K`}
-                                accentColor={forkLift >= 0 ? C.experiment : undefined}
-                              />
-                            )}
-                          </TooltipGroup>
-                        )}
-                      </div>
-                    )
-                  }}
-                />
-              }
-            />
-
-            {/* Layer 1: Prior band (conditional, bottom) — wide dashed gray */}
-            {showPrior && (
-              <>
-                <Area
-                  type="monotone"
-                  dataKey="priorP90"
-                  name={t("rfc.legendPrior")}
-                  stroke="none"
-                  fill="url(#rfcPriorHatch)"
-                  isAnimationActive={false}
-                  legendType="none"
-                />
-                <Area type="monotone" dataKey="priorP10" stroke="none" fill="#FFFFFF" isAnimationActive={false} legendType="none" />
-                <Line type="monotone" dataKey="priorP50" stroke={C.priorLine} strokeWidth={1} strokeDasharray="3 3" dot={false} isAnimationActive={false} legendType="none" />
-              </>
-            )}
-
-            {/* Layer 2: Posterior band (always, middle) — solid blue */}
-            <Area type="monotone" dataKey="p90" name={t("rfc.legendPosterior")} stroke="none" fill="url(#rfcPostBand)" animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
-            <Area type="monotone" dataKey="p10" stroke="none" fill="#FFFFFF" animationBegin={200} animationDuration={1200} animationEasing="ease-out" />
-
-            {/* Layer 3: Posterior P10/P90 outlines */}
-            <Line type="monotone" dataKey="p90" stroke={C.line} strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.32} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" legendType="none" />
-            <Line type="monotone" dataKey="p10" stroke={C.line} strokeWidth={1} strokeDasharray="4 3" strokeOpacity={0.32} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" legendType="none" />
-
-            {/* Layer 4: Posterior P50 (top, always) — solid blue 2px */}
-            <Line type="monotone" dataKey="p50" stroke={C.line} strokeWidth={2.25} dot={false} animationBegin={400} animationDuration={1000} animationEasing="ease-out" />
-
-            {/* Layer 4.5: Bayesian live posterior P50 overlay — dashed blue, only when sample ≥ 3 months */}
-            {bayesianRevenue?.posterior && !bayesianRevenue.ml3 && (
-              <ReferenceLine
-                y={bayesianRevenue.posterior.mean}
-                stroke={C.line}
-                strokeWidth={1.5}
-                strokeDasharray="6 3"
-                strokeOpacity={0.7}
-                label={{
-                  value: `Live P50: $${Math.round(bayesianRevenue.posterior.mean / 1000)}K`,
-                  position: "insideTopRight",
-                  ...CHART_TYPO.axisLabel,
-                  fill: C.line,
-                  offset: 6,
-                }}
-              />
-            )}
-
-            {/* Layer 5: Experiment fork (conditional, topmost line) — green dashed */}
-            {selectedExp && (
-              <Line
-                type="monotone"
-                dataKey="forkP50"
-                name={t("rfc.legendFork")}
-                stroke={C.experiment}
-                strokeWidth={2.25}
-                strokeDasharray="5 3"
-                dot={{ r: 3, fill: C.experiment, strokeWidth: 0 }}
-                connectNulls={false}
-                animationBegin={600}
-                animationDuration={900}
-                animationEasing="ease-out"
-              />
-            )}
-
-            {/* Layer 6: Ship-point vertical marker */}
-            {selectedExp && (
-              <ReferenceLine
-                x={selectedExp.shipMonth}
-                stroke={C.forkMark}
-                strokeDasharray="2 3"
-                strokeWidth={1}
-                label={{
-                  value: `${selectedExp.id} ${t("rfc.shipMarker")}`,
-                  position: "insideTopLeft",
-                  ...CHART_TYPO.axisLabel,
-                  fill: C.forkMark,
-                  offset: 8,
-                }}
-              />
-            )}
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+  // --- Full mode: Gameboard-pattern Card wrapper ---
+  return (
+    <motion.div
+      layout
+      className={gridClassName}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {title || t("chart.revenue")}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {insight}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {bayesianRevenue?.ml3 && (
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
+                  ML3 · Sample too small
+                </span>
+              )}
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {controlStrip}
+          {chartArea}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
