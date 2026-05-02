@@ -1,7 +1,5 @@
-"use client"
-
-import { VcSimulationPageContent } from "@/widgets/vc-simulation"
+import { redirect } from "next/navigation"
 
 export default function VcSimulationPage() {
-  return <VcSimulationPageContent />
+  redirect("/dashboard")
 }
