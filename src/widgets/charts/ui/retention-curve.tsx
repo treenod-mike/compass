@@ -13,13 +13,18 @@
   Migrated 2026-04-13 to shared infrastructure:
   - Colors from RETENTION_CURVE_COLORS (chart-colors.ts)
   - ChartHeader, ChartTooltip, ExpandButton, useChartExpand
+
+  Redesigned 2026-04-29 to Gameboard pattern:
+  - Card wrapper (rounded-2xl hover:border-primary)
+  - CardHeader with CardTitle + CardDescription
+  - Soft P10–P90 area gradient via SVG linearGradient
+  - compact?: boolean prop
 */
 
 import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { useLocale } from "@/shared/i18n"
 import type { RetentionDataPoint } from "@/shared/api/mock-data"
-import { ChartHeader } from "@/shared/ui/chart-header"
 import { ChartTooltip, TooltipDot } from "@/shared/ui/chart-tooltip"
 import { ExpandButton } from "@/shared/ui/expand-button"
 import { useChartExpand } from "@/shared/hooks/use-chart-expand"
@@ -28,9 +33,13 @@ import { CHART_TYPO } from "@/shared/config/chart-typography"
 import { getPrior } from "@/shared/api/prior-data"
 import { betaBinomialModel } from "@/shared/lib/bayesian-stats/beta-binomial"
 import { useLiveAfData } from "@/widgets/dashboard/lib/use-live-af-data"
-
-// Validity thresholds per spec §6
-const RETENTION_N_THRESHOLD = { 1: 25, 7: 80, 30: 200 } as const
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/shared/ui/card"
 import {
   AreaChart,
   Area,
@@ -44,11 +53,15 @@ import {
   Legend,
 } from "recharts"
 
+// Validity thresholds per spec §6
+const RETENTION_N_THRESHOLD = { 1: 25, 7: 80, 30: 200 } as const
+
 type RetentionCurveProps = {
   data: RetentionDataPoint[]
   asymptoticDay: number
   expanded?: boolean
   onToggle?: () => void
+  compact?: boolean
 }
 
 const C = RETENTION_CURVE_COLORS
@@ -124,9 +137,19 @@ function AsymptoticLabel({
   )
 }
 
-export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded, onToggle: externalToggle }: RetentionCurveProps) {
+export function RetentionCurve({
+  data,
+  asymptoticDay,
+  expanded: externalExpanded,
+  onToggle: externalToggle,
+  compact = false,
+}: RetentionCurveProps) {
   const { t, locale } = useLocale()
-  const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({ baseHeight: 384, expanded: externalExpanded, onToggle: externalToggle })
+  const { expanded, toggle, gridClassName, chartHeight } = useChartExpand({
+    baseHeight: 384,
+    expanded: externalExpanded,
+    onToggle: externalToggle,
+  })
 
   const { summary } = useLiveAfData()
 
@@ -201,35 +224,22 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
     }
   })
 
-  return (
-    <motion.div
-      layout
-      className={`rounded-[var(--radius-card)] border border-[var(--border-default)] bg-[var(--bg-1)] p-6 h-full flex flex-col ${gridClassName}`}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <ChartHeader
-        title={`${t("chart.retention")} — D1 to D60`}
-        subtitle={
-          ml3
-            ? (locale === "ko" ? "포코머지 · 장르 사전 확률만 표시 (샘플 부족)" : "Poco Merge · Genre prior only (sample too small)")
-            : "포코머지 · 2026-03 코호트 · P10 / P50 / P90"
-        }
-        info={t("info.retention")}
-        insight={locale === "ko" ? "D14 코호트 안정화 이후 예측 구간이 좁아졌습니다." : "Prediction band tightened after D14 cohort stabilization."}
-        actions={
-          <div className="flex items-center gap-2">
-            {ml3 && (
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
-                ML3 · Sample too small
-              </span>
-            )}
-            <ExpandButton expanded={expanded} onToggle={toggle} />
-          </div>
-        }
-      />
-      <div className="flex-1" style={{ minHeight: chartHeight }}>
+  const chartBody = (
+    <div className="flex-1" style={{ minHeight: chartHeight }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <defs>
+            {/* Soft gradient for the outer P10–P90 band */}
+            <linearGradient id="retentionBandGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor={C.p50} stopOpacity={0.18} />
+              <stop offset="100%" stopColor={C.p50} stopOpacity={0.04} />
+            </linearGradient>
+            {/* Soft gradient for the inner P25–P75 band */}
+            <linearGradient id="retentionInnerGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor={C.p50} stopOpacity={0.28} />
+              <stop offset="100%" stopColor={C.p50} stopOpacity={0.08} />
+            </linearGradient>
+          </defs>
           <CartesianGrid strokeDasharray="2 4" stroke={C.grid} vertical={false} />
           <XAxis
             dataKey="day"
@@ -269,24 +279,24 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
             }
           />
 
-          {/* Outer band: P10–P90 (widest, palest) */}
+          {/* Outer band: P10–P90 (widest, soft gradient) */}
           <Area
             type="monotone"
             dataKey="p90"
             stroke="none"
-            fill={C.bandOuter}
+            fill="url(#retentionBandGrad)"
             animationBegin={200}
             animationDuration={1200}
             animationEasing="ease-out"
           />
           <Area type="monotone" dataKey="p10" stroke="none" fill="none" />
 
-          {/* Inner band: P25–P75 (tighter, darker) */}
+          {/* Inner band: P25–P75 (tighter, slightly denser gradient) */}
           <Area
             type="monotone"
             dataKey="p75"
             stroke="none"
-            fill={C.bandInner}
+            fill="url(#retentionInnerGrad)"
             animationBegin={200}
             animationDuration={1200}
             animationEasing="ease-out"
@@ -381,7 +391,46 @@ export function RetentionCurve({ data, asymptoticDay, expanded: externalExpanded
           />
         </AreaChart>
       </ResponsiveContainer>
-      </div>
+    </div>
+  )
+
+  if (compact) {
+    return <div className="flex flex-col h-full">{chartBody}</div>
+  }
+
+  return (
+    <motion.div
+      layout
+      className={gridClassName}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <Card className="rounded-2xl hover:border-primary transition-colors h-full flex flex-col">
+        <CardHeader className="pb-2">
+          <div className="flex flex-row justify-between items-start gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-[0.08em] text-muted-foreground break-keep">
+                {`${t("chart.retention")} — D1 to D60`}
+              </CardTitle>
+              <CardDescription className="mt-1 text-[11px] text-muted-foreground/80 break-keep">
+                {ml3
+                  ? (locale === "ko" ? "장르 사전 확률만 표시 (샘플 부족)" : "Genre prior only (sample too small)")
+                  : (locale === "ko" ? "2026-03 코호트 · P10 / P50 / P90" : "2026-03 cohort · P10 / P50 / P90")}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {ml3 && (
+                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wide bg-[var(--bg-3)] text-[var(--fg-3)]">
+                  ML3 · Sample too small
+                </span>
+              )}
+              <ExpandButton expanded={expanded} onToggle={toggle} />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 pt-0">
+          {chartBody}
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }
