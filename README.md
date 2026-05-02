@@ -1,8 +1,10 @@
 # Compass
 
-Experiment-to-Investment Decision OS — 모바일 게임 산업의 실험·어트리뷰션·시장 시그널을 자본 배분 결정으로 번역하는 AI 기반 의사결정 플랫폼.
+**VC 시뮬레이터** — 모바일 게임 자본 배분 시뮬에 자사 데이터(AppsFlyer + LSTM)와 시장 데이터(Sensor Tower percentile)를 같이 보여준다. Pollen VC식 단순 cash flow 시뮬 수준.
 
-> **브랜드 메타**: purple primary (`#9128b4`) · Pretendard · Rocko Ultra (로고 한정)
+> **정체성**: 시뮬 본체에 살아있는 자산은 4개(AppsFlyer / LSTM / Sensor Tower / cohort retention strip). 분석성 페이지(MMM·PRISM·Capital·Diligence·Marketing-sim·Portfolio)와 베이지안 엔진은 dormant — 코드 보존, mount/import 0건. 자세한 결정은 `docs/superpowers/specs/2026-05-02-analysis-asset-absorption-design.md`.
+
+> **브랜드 메타**: purple primary (`#9128b4`) · Pretendard Variable · Rocko Ultra (로고 한정) · Tossface
 
 ## Tech Stack
 
@@ -33,9 +35,17 @@ src/
 │   └── (dashboard)/
 │       ├── layout.tsx              # LayoutWrapper 래퍼
 │       └── dashboard/
-│           ├── page.tsx            # 투자 판정
-│           ├── market-gap/page.tsx # 시장 포지셔닝
-│           └── connections/page.tsx# 데이터 연결 (MVP)
+│           ├── page.tsx            # VC Simulator (홈, 사이드바 노출)
+│           ├── connections/        # AppsFlyer 연동 관리 (사이드바 노출)
+│           ├── market-gap/         # 흡수 — "시장과 비교" 토글에서 사용
+│           ├── cohort/             # 흡수 — 가정값 disclosure에서 사용
+│           ├── mmm/                # dormant
+│           ├── prism/              # dormant
+│           ├── capital/            # dormant
+│           ├── diligence/          # dormant
+│           ├── marketing-sim/      # dormant
+│           ├── portfolio/          # dormant
+│           └── vc-simulation/      # `/dashboard` redirect (북마크 호환)
 ├── shared/
 │   ├── api/                        # mock-data, mock-connections
 │   ├── config/                     # navigation, chart-colors, chart-typography
@@ -75,11 +85,15 @@ src/
 - 단일 브랜치 `main` · atomic 커밋 권장
 - 계정 분리 규칙: 이 repo는 **`treenod-mike`** SSH key로만 push (`git@github.com-treenod:treenod-mike/compass.git`)
 
-### VC Simulation (`/dashboard/vc-simulation`)
+### VC Simulator (`/dashboard` — 홈)
 
-선택된 게임에 대한 VC 오퍼 조건 기반 36개월 Monte Carlo 투자 시뮬레이터. Baseline ①(실험 없이)과 ②(실험 반영) 를 동시 렌더링하여 실험-이율 J-커브를 시각화.
+선택된 게임에 대한 VC 오퍼 조건 기반 Monte Carlo 투자 시뮬. 슬라이더(Horizon / Fund / Channel mix) → 결과(KPI Delta / Cumulative ROAS / Runway) 즉시 갱신. P10/P50/P90 신뢰 구간은 LSTM quantile forecast로 채움(베이지안 추정 안 거침).
 
 - 계산 로직: `src/shared/api/vc-simulation/compute.ts`
-- LSTM 리텐션 계약: `src/shared/api/data/lstm/retention-snapshot.json` + `src/shared/api/vc-simulation/types.ts` (Zod schema)
-- 설계 스펙: `docs/superpowers/specs/2026-04-24-vc-simulation-design.md`
+- LSTM 리텐션/매출 계약: `src/shared/api/data/lstm/retention-snapshot.json` + `src/shared/api/vc-simulation/types.ts` (Zod schema)
+- 설계 스펙(원형): `docs/superpowers/specs/2026-04-24-vc-simulation-design.md`
+- 정체성 pivot: `docs/superpowers/specs/2026-04-29-vc-simulator-product-pivot-design.md`
+- 분석 자산 흡수/dormant 결정: `docs/superpowers/specs/2026-05-02-analysis-asset-absorption-design.md`
 - 단위 테스트: `npm run test:vc`
+
+`/dashboard/vc-simulation`은 북마크 호환을 위한 redirect 경로로 보존됨.
